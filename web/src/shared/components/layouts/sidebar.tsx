@@ -32,6 +32,7 @@ import { Button } from "@/shared/components/ui/button"
 import { Portrait } from "@/shared/components/ui/portrait"
 import { UserAvatar } from "@/shared/components/ui/user-avatar"
 import { LogoutConfirmDialog } from "@/shared/components/layouts/logout-confirm-dialog"
+import { ProfileCompletionBar } from "@/features/profile-completion/components/profile-completion-bar"
 
 type NavItem = {
   labelKey: string
@@ -239,6 +240,13 @@ export function Sidebar({ open, onClose, collapsed = false, onToggleCollapse }: 
                 </span>
               </div>
             )}
+          </div>
+          <div className={cn(collapsed ? "mt-2" : "mt-3")}>
+            <ProfileCompletionBar
+              variant="sidebar"
+              collapsed={collapsed}
+              hideWhenComplete
+            />
           </div>
         </div>
 

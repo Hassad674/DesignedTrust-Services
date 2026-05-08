@@ -890,7 +890,35 @@
       "reputationStatusDeclined": "Declined",
       "reputationStatusWithdrawn": "Withdrawn",
       "reputationStatusUnknown": "Unknown status"
+    },
+    "completion": {
+      "section": {
+        "photo": "Profile photo",
+        "title": "Professional title",
+        "about": "About",
+        "expertises": "Expertise areas",
+        "skills": "Skills",
+        "pricing": "Pricing",
+        "availability": "Availability",
+        "location": "Location",
+        "languages": "Languages",
+        "video": "Presentation video",
+        "social_links": "Social links",
+        "billing_profile": "Billing information",
+        "kyc": "KYC verification",
+        "portfolio": "Portfolio",
+        "client_about": "Client presentation"
+      }
     }
+  },
+  "profileCompletion": {
+    "title": "Profile {percent}% complete",
+    "subtitle": "{filled}/{total} sections completed",
+    "subtitleComplete": "Every section is complete — great work!",
+    "modalTitle": "Profile {percent}% complete",
+    "modalSubtitle": "Click a section to complete it and boost your profile.",
+    "modalCloseLabel": "Close",
+    "a11yLabel": "Profile {percent}% complete, open the section list"
   },
   "upload": {
     "addPhoto": "Add a photo",

@@ -255,6 +255,11 @@ func catalogueProfile(c map[string]routeSpec) {
 		AuthRequired: true, RequestBody: jsonRequestBody("UpdateClientProfileRequest"),
 		SuccessKind: successRawJSON, SuccessStatus: "200",
 	}
+	c["GET /api/v1/me/profile/completion"] = routeSpec{
+		Tags: []string{"profile-completion"}, Summary: "Read my profile completion report",
+		AuthRequired: true,
+		SuccessKind:  successRawJSON, SuccessStatus: "200",
+	}
 	c["GET /api/v1/profile/skills"] = routeSpec{
 		Tags: []string{"profile"}, Summary: "List my profile skills",
 		AuthRequired: true,

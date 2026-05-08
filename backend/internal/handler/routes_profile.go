@@ -18,6 +18,29 @@ func mountProfileRoutes(r chi.Router, deps RouterDeps, auth func(http.Handler) h
 	mountSplitProfilePersonas(r, deps, auth)
 	mountSkillsCatalog(r, deps, auth)
 	mountPublicProfileReads(r, deps)
+	mountProfileCompletionRoute(r, deps, auth)
+}
+
+// mountProfileCompletionRoute wires GET /api/v1/me/profile/completion.
+// Optional — nil ProfileCompletion handler disables the endpoint
+// entirely, preserving the feature-isolation rule (deleting the
+// profilecompletion package is a clean removal).
+//
+// Unlike most authenticated routes this group does NOT use the
+// NoCache middleware: the handler explicitly sets `Cache-Control:
+// private, max-age=30` so the browser can serve a same-tab navigation
+// from cache for half a minute. The frontend additionally invalidates
+// its TanStack query when the user saves a section, so a stale entry
+// has at most a 30-second window after a no-op page change — never
+// after a write.
+func mountProfileCompletionRoute(r chi.Router, deps RouterDeps, auth func(http.Handler) http.Handler) {
+	if deps.ProfileCompletion == nil {
+		return
+	}
+	r.Route("/me/profile", func(r chi.Router) {
+		r.Use(auth)
+		r.Get("/completion", deps.ProfileCompletion.GetMyCompletion)
+	})
 }
 
 func mountLegacyProfile(r chi.Router, deps RouterDeps, auth func(http.Handler) http.Handler) {
