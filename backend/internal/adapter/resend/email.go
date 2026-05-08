@@ -24,20 +24,31 @@ type EmailService struct {
 	devRedirectEmail string
 }
 
-// NewEmailService builds the Resend adapter. The devRedirectEmail
-// argument is optional — pass "" in production. In dev, set it via the
-// RESEND_DEV_REDIRECT_EMAIL env var (typically the developer's own
-// email) so sandbox mode doesn't drop invitation / password-reset
-// emails silently.
-func NewEmailService(apiKey, devRedirectEmail string) *EmailService {
+// NewEmailService builds the Resend adapter.
+//
+// The from argument is the RFC 5322 sender used on every outgoing
+// email (e.g. "Marketplace <noreply@designedtrust.com>"). In production
+// it MUST be a verified domain on the Resend account — otherwise Resend
+// silently restricts delivery to the account owner's mailbox. The
+// caller passes the empty string to fall back to Resend's sandbox
+// sender, which is only useful for local development.
+//
+// The devRedirectEmail argument is optional — pass "" in production. In
+// dev, set it via the RESEND_DEV_REDIRECT_TO env var (typically the
+// developer's own email) so sandbox mode doesn't drop invitation /
+// password-reset emails silently.
+func NewEmailService(apiKey, from, devRedirectEmail string) *EmailService {
 	httpClient := &http.Client{
 		Timeout:   30 * time.Second,
 		Transport: observability.HTTPClientTransport(http.DefaultTransport, "resend"),
 	}
 	client := resend.NewCustomClient(httpClient, apiKey)
+	if from == "" {
+		from = "Marketplace Service <onboarding@resend.dev>"
+	}
 	return &EmailService{
 		client:           client,
-		from:             "Marketplace Service <onboarding@resend.dev>",
+		from:             from,
 		devRedirectEmail: devRedirectEmail,
 	}
 }

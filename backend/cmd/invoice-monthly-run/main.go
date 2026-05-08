@@ -272,7 +272,7 @@ func wireDependencies(cfg *config.Config, dryRun bool) (*cliDeps, error) {
 		deps.close()
 		return nil, fmt.Errorf("init pdf renderer: %w", err)
 	}
-	emailSvc := resendadapter.NewEmailService(cfg.ResendAPIKey, cfg.ResendDevRedirectTo)
+	emailSvc := resendadapter.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom, cfg.ResendDevRedirectTo)
 	storageSvc := s3adapter.NewStorageService(
 		cfg.StorageEndpoint,
 		cfg.StorageAccessKey,
