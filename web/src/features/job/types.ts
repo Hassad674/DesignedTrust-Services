@@ -56,6 +56,13 @@ export type JobResponse = {
   is_indefinite: boolean
   description_type: string
   video_url?: string
+  /**
+   * Public count of applications/candidatures on the job. Optional because
+   * only the marketplace feed (`/jobs/open`) returns it; single GET / owner
+   * list endpoints omit it. Zero is a legitimate value ("be the first to
+   * apply" UX) — distinct from undefined ("not exposed by this endpoint").
+   */
+  total_applicants?: number
 }
 
 export type JobListResponse = {

@@ -1635,6 +1635,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noOpportunities => 'Aucune opportunité pour le moment';
 
   @override
+  String get opportunityBeFirstToApply => 'Sois le premier à candidater';
+
+  @override
+  String opportunityApplicationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count candidatures',
+      one: '1 candidature',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get jobNotFound => 'Offre introuvable';
 
   @override

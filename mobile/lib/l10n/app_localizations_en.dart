@@ -1628,6 +1628,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noOpportunities => 'No opportunities at the moment';
 
   @override
+  String get opportunityBeFirstToApply => 'Be the first to apply';
+
+  @override
+  String opportunityApplicationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count applications',
+      one: '1 application',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get jobNotFound => 'Job not found';
 
   @override

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Briefcase, Calendar, Users, MoreVertical } from "lucide-react"
+import { Briefcase, Calendar, Users, MoreVertical, Sparkles } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Link } from "@i18n/navigation"
 import { cn } from "@/shared/lib/utils"
@@ -141,6 +141,7 @@ export function OpportunityCard({ job, hasApplied = false }: OpportunityCardProp
               <Users className="h-3.5 w-3.5" strokeWidth={1.6} />
               {applicantLabel}
             </span>
+            <ApplicationsCountBadge count={job.total_applicants} />
             <span className="ml-auto inline-flex items-center gap-1.5 font-mono text-[11.5px]">
               <Calendar className="h-3.5 w-3.5" strokeWidth={1.6} />
               {new Date(job.created_at).toLocaleDateString("fr-FR", {
@@ -158,5 +159,46 @@ export function OpportunityCard({ job, hasApplied = false }: OpportunityCardProp
         targetId={job.id}
       />
     </>
+  )
+}
+
+// ApplicationsCountBadge — discrete social-proof signal showing how many
+// candidatures have already been submitted on the opportunity. Renders
+// nothing when the field is undefined (endpoint did not expose it).
+// When the count is zero, surfaces a "be the first" nudge to lower the
+// barrier to apply (corail-soft chip). When the count is positive, shows
+// the FR-tutoiement plural in a calm tabac chip so it stays discrete.
+interface ApplicationsCountBadgeProps {
+  count: number | undefined
+}
+
+function ApplicationsCountBadge({ count }: ApplicationsCountBadgeProps) {
+  const t = useTranslations("opportunity")
+  if (count === undefined) return null
+  const ariaLabel = t("applicationsCountAria", { count })
+  if (count === 0) {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5",
+          "text-[11px] font-semibold text-primary-deep",
+        )}
+        aria-label={ariaLabel}
+      >
+        <Sparkles className="h-3 w-3" strokeWidth={1.7} aria-hidden="true" />
+        {t("applicationsCountZero")}
+      </span>
+    )
+  }
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground"
+      aria-label={ariaLabel}
+    >
+      <Users className="h-3.5 w-3.5" strokeWidth={1.6} aria-hidden="true" />
+      <span className="font-semibold text-foreground">
+        {t("applicationsCount", { count })}
+      </span>
+    </span>
   )
 }

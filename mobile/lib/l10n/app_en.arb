@@ -601,6 +601,17 @@
   "applicationVideo": "Presentation video",
   "opportunities": "Opportunities",
   "noOpportunities": "No opportunities at the moment",
+  "opportunityBeFirstToApply": "Be the first to apply",
+  "@opportunityBeFirstToApply": {
+    "description": "Card-level nudge displayed on the opportunity card when zero applications have been submitted yet."
+  },
+  "opportunityApplicationsCount": "{count, plural, one{1 application} other{{count} applications}}",
+  "@opportunityApplicationsCount": {
+    "description": "Discrete social-proof label on the opportunity card showing the public count of applications submitted so far.",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "jobNotFound": "Job not found",
   "budgetTypeOneShot": "One-time project",
   "budgetTypeLongTerm": "Long-term collaboration",

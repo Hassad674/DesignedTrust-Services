@@ -594,6 +594,17 @@
   "applicationVideo": "Vidéo de présentation",
   "opportunities": "Opportunités",
   "noOpportunities": "Aucune opportunité pour le moment",
+  "opportunityBeFirstToApply": "Sois le premier à candidater",
+  "@opportunityBeFirstToApply": {
+    "description": "Card-level nudge displayed on the opportunity card when zero candidatures have been submitted yet. FR tutoiement."
+  },
+  "opportunityApplicationsCount": "{count, plural, one{1 candidature} other{{count} candidatures}}",
+  "@opportunityApplicationsCount": {
+    "description": "Discrete social-proof label on the opportunity card showing the public count of candidatures submitted so far.",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "jobNotFound": "Offre introuvable",
   "budgetTypeOneShot": "Projet ponctuel",
   "budgetTypeLongTerm": "Collaboration long terme",

@@ -3152,6 +3152,18 @@ abstract class AppLocalizations {
   /// **'No opportunities at the moment'**
   String get noOpportunities;
 
+  /// Card-level nudge displayed on the opportunity card when zero applications have been submitted yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Be the first to apply'**
+  String get opportunityBeFirstToApply;
+
+  /// Discrete social-proof label on the opportunity card showing the public count of applications submitted so far.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 application} other{{count} applications}}'**
+  String opportunityApplicationsCount(int count);
+
   /// No description provided for @jobNotFound.
   ///
   /// In en, this message translates to:
