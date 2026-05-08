@@ -215,38 +215,45 @@ class OpportunityCard extends ConsumerWidget {
                   decoration: BoxDecoration(
                     border: Border(top: BorderSide(color: cs.outline)),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.euro_rounded,
-                        size: 14,
-                        color: cs.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          '${job.minBudget} € — ${job.maxBudget} €',
-                          style: SoleilTextStyles.bodyEmphasis.copyWith(
-                            color: cs.onSurface,
-                            fontSize: 13,
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.euro_rounded,
+                            size: 14,
+                            color: cs.onSurfaceVariant,
                           ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              '${job.minBudget} € — ${job.maxBudget} €',
+                              style: SoleilTextStyles.bodyEmphasis.copyWith(
+                                color: cs.onSurface,
+                                fontSize: 13,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 13,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatDate(job.createdAt),
+                            style: SoleilTextStyles.mono.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
                       ),
-                      const Spacer(),
-                      Icon(
-                        Icons.calendar_today_rounded,
-                        size: 13,
-                        color: cs.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatDate(job.createdAt),
-                        style: SoleilTextStyles.mono.copyWith(
-                          color: cs.onSurfaceVariant,
-                          fontSize: 11,
-                        ),
-                      ),
+                      const SizedBox(height: 8),
+                      _ApplicationsCountBadge(count: job.totalApplicants),
                     ],
                   ),
                 ),
@@ -254,6 +261,84 @@ class OpportunityCard extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Discrete social-proof chip showing how many candidatures have been
+/// submitted on the opportunity. Mirrors the web `ApplicationsCountBadge`:
+///   * count == 0 → corail-soft pill nudging "be the first to apply"
+///   * count >= 1 → tabac inline label with the FR plural
+/// Stays calm and informational — never larger than the budget signal.
+class _ApplicationsCountBadge extends StatelessWidget {
+  const _ApplicationsCountBadge({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final soleil = theme.extension<AppColors>()!;
+    final l10n = AppLocalizations.of(context)!;
+
+    if (count == 0) {
+      return Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: soleil.accentSoft,
+            borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.auto_awesome_rounded,
+                size: 11,
+                color: soleil.primaryDeep,
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  l10n.opportunityBeFirstToApply,
+                  style: SoleilTextStyles.caption.copyWith(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: soleil.primaryDeep,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.people_alt_rounded,
+            size: 13,
+            color: cs.onSurfaceVariant,
+          ),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              l10n.opportunityApplicationsCount(count),
+              style: SoleilTextStyles.bodyEmphasis.copyWith(
+                fontSize: 12,
+                color: cs.onSurface,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }

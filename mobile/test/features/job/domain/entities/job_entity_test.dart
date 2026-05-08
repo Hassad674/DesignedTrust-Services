@@ -195,6 +195,48 @@ void main() {
       expect(job.skills, isEmpty);
     });
 
+    test('fromJson parses total_applicants from the public feed', () {
+      final json = {
+        'id': 'job-20',
+        'creator_id': 'user-9',
+        'title': 'Open with social proof',
+        'applicant_type': 'all',
+        'budget_type': 'one_shot',
+        'min_budget': 100,
+        'max_budget': 500,
+        'status': 'open',
+        'created_at': '2026-04-22T10:00:00Z',
+        'updated_at': '2026-04-22T10:00:00Z',
+        'total_applicants': 7,
+      };
+
+      final job = JobEntity.fromJson(json);
+
+      expect(job.totalApplicants, 7);
+      // new_applicants is owner-only and must NOT be derived for the public
+      // feed entity — defaults to 0 when absent from the response.
+      expect(job.newApplicants, 0);
+    });
+
+    test('fromJson defaults total_applicants to zero when absent', () {
+      final json = {
+        'id': 'job-21',
+        'creator_id': 'user-9',
+        'title': 'Legacy single GET shape',
+        'applicant_type': 'all',
+        'budget_type': 'one_shot',
+        'min_budget': 100,
+        'max_budget': 500,
+        'status': 'open',
+        'created_at': '2026-04-22T10:00:00Z',
+        'updated_at': '2026-04-22T10:00:00Z',
+      };
+
+      final job = JobEntity.fromJson(json);
+
+      expect(job.totalApplicants, 0);
+    });
+
     test('fromJson handles null description', () {
       final json = {
         'id': 'job-13',
