@@ -911,7 +911,35 @@
       "reputationStatusDeclined": "Refusé",
       "reputationStatusWithdrawn": "Retiré",
       "reputationStatusUnknown": "Statut inconnu"
+    },
+    "completion": {
+      "section": {
+        "photo": "Photo de profil",
+        "title": "Titre professionnel",
+        "about": "À propos",
+        "expertises": "Domaines d'expertise",
+        "skills": "Compétences",
+        "pricing": "Tarifs",
+        "availability": "Disponibilité",
+        "location": "Localisation",
+        "languages": "Langues",
+        "video": "Vidéo de présentation",
+        "social_links": "Réseaux sociaux",
+        "billing_profile": "Informations de facturation",
+        "kyc": "Vérification KYC",
+        "portfolio": "Portfolio",
+        "client_about": "Présentation client"
+      }
     }
+  },
+  "profileCompletion": {
+    "title": "Profil rempli à {percent}%",
+    "subtitle": "{filled}/{total} sections complétées",
+    "subtitleComplete": "Toutes les sections sont complètes — bravo !",
+    "modalTitle": "Profil complété à {percent}%",
+    "modalSubtitle": "Clique sur une section pour la compléter et booster ton profil.",
+    "modalCloseLabel": "Fermer",
+    "a11yLabel": "Profil rempli à {percent}%, ouvrir la liste des sections"
   },
   "upload": {
     "addPhoto": "Ajouter une photo",

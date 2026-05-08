@@ -93,6 +93,7 @@ type routerDepsBundle struct {
 	ReferrerPricing       *handler.ReferrerPricingHandler
 	ReferrerProfileVideo  *handler.ReferrerProfileVideoHandler
 	OrganizationShared    *handler.OrganizationSharedProfileHandler
+	ProfileCompletion     *handler.ProfileCompletionHandler
 	Upload                *handler.UploadHandler
 	Health                *handler.HealthHandler
 	Messaging             *handler.MessagingHandler
@@ -161,6 +162,7 @@ func wireRouter(b routerDepsBundle) chi.Router {
 		ReferrerPricing:       b.ReferrerPricing,
 		ReferrerProfileVideo:  b.ReferrerProfileVideo,
 		OrganizationShared:    b.OrganizationShared,
+		ProfileCompletion:     b.ProfileCompletion,
 
 		Upload:               b.Upload,
 		Health:               b.Health,

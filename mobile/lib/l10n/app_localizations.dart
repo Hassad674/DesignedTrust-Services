@@ -7183,6 +7183,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Referrer'**
   String get receiptPartyReferrer;
+
+  /// Title rendered on the profile completion bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile {percent}% complete'**
+  String profileCompletionTitle(int percent);
+
+  /// Subtitle showing the filled/total ratio of completion sections.
+  ///
+  /// In en, this message translates to:
+  /// **'{filled}/{total} sections completed'**
+  String profileCompletionSubtitle(int filled, int total);
+
+  /// Subtitle when the profile is 100% complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Every section is complete — great work!'**
+  String get profileCompletionSubtitleComplete;
+
+  /// Modal title for the missing-sections sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile {percent}% complete'**
+  String profileCompletionModalTitle(int percent);
+
+  /// Modal description above the missing-sections list.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a section to complete it and boost your profile.'**
+  String get profileCompletionModalSubtitle;
+
+  /// Tooltip on the close icon of the missing-sections modal.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get profileCompletionModalCloseLabel;
+
+  /// No description provided for @profileCompletionSectionPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo'**
+  String get profileCompletionSectionPhoto;
+
+  /// No description provided for @profileCompletionSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Professional title'**
+  String get profileCompletionSectionTitle;
+
+  /// No description provided for @profileCompletionSectionAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get profileCompletionSectionAbout;
+
+  /// No description provided for @profileCompletionSectionExpertises.
+  ///
+  /// In en, this message translates to:
+  /// **'Expertise areas'**
+  String get profileCompletionSectionExpertises;
+
+  /// No description provided for @profileCompletionSectionSkills.
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get profileCompletionSectionSkills;
+
+  /// No description provided for @profileCompletionSectionPricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing'**
+  String get profileCompletionSectionPricing;
+
+  /// No description provided for @profileCompletionSectionAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability'**
+  String get profileCompletionSectionAvailability;
+
+  /// No description provided for @profileCompletionSectionLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get profileCompletionSectionLocation;
+
+  /// No description provided for @profileCompletionSectionLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get profileCompletionSectionLanguages;
+
+  /// No description provided for @profileCompletionSectionVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Presentation video'**
+  String get profileCompletionSectionVideo;
+
+  /// No description provided for @profileCompletionSectionSocialLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Social links'**
+  String get profileCompletionSectionSocialLinks;
+
+  /// No description provided for @profileCompletionSectionBillingProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing information'**
+  String get profileCompletionSectionBillingProfile;
+
+  /// No description provided for @profileCompletionSectionKyc.
+  ///
+  /// In en, this message translates to:
+  /// **'KYC verification'**
+  String get profileCompletionSectionKyc;
+
+  /// No description provided for @profileCompletionSectionPortfolio.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio'**
+  String get profileCompletionSectionPortfolio;
+
+  /// No description provided for @profileCompletionSectionClientAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'Client presentation'**
+  String get profileCompletionSectionClientAbout;
 }
 
 class _AppLocalizationsDelegate

@@ -26,6 +26,7 @@ import { SharedLanguagesSection } from "@/features/organization-shared/component
 import { SkillsSection } from "@/features/skill/components/skills-section"
 import { FreelanceSocialLinksSection } from "@/features/freelance-profile/components/freelance-social-links-section"
 import { ProjectHistorySection } from "@/shared/components/profile/project-history-section"
+import { ProfileCompletionBar } from "@/features/profile-completion/components/profile-completion-bar"
 
 // Editable /profile view for provider_personal users. Renders the
 // freelance persona: split pricing/availability/expertise on top of
@@ -69,6 +70,7 @@ export function FreelanceOwnProfilePage() {
       <p className="font-serif text-[13px] italic text-muted-foreground">
         {t("editingMode")}
       </p>
+      <ProfileCompletionBar variant="page" />
       <FreelancePublicProfile
         profile={profile}
         displayName={displayName}

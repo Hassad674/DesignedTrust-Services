@@ -31,6 +31,7 @@ type routerHandlers struct {
 	ReferrerPricing       *handler.ReferrerPricingHandler
 	ReferrerProfileVideo  *handler.ReferrerProfileVideoHandler
 	OrganizationShared    *handler.OrganizationSharedProfileHandler
+	ProfileCompletion     *handler.ProfileCompletionHandler
 	Upload                *handler.UploadHandler
 	Health                *handler.HealthHandler
 	Messaging             *handler.MessagingHandler
@@ -96,6 +97,7 @@ type finalHandlers struct {
 	ReferrerPricing       *handler.ReferrerPricingHandler
 	ReferrerProfileVideo  *handler.ReferrerProfileVideoHandler
 	OrganizationShared    *handler.OrganizationSharedProfileHandler
+	ProfileCompletion     *handler.ProfileCompletionHandler
 	Upload                *handler.UploadHandler
 	Health                *handler.HealthHandler
 	Messaging             *handler.MessagingHandler
@@ -153,6 +155,7 @@ func buildRouterHandlers(h finalHandlers) routerHandlers {
 		ReferrerPricing:       h.ReferrerPricing,
 		ReferrerProfileVideo:  h.ReferrerProfileVideo,
 		OrganizationShared:    h.OrganizationShared,
+		ProfileCompletion:     h.ProfileCompletion,
 		Upload:                h.Upload,
 		Health:                h.Health,
 		Messaging:             h.Messaging,
@@ -210,6 +213,7 @@ func assembleRouter(b bootstrappedRouter) chi.Router {
 		ReferrerPricing:       b.Handlers.ReferrerPricing,
 		ReferrerProfileVideo:  b.Handlers.ReferrerProfileVideo,
 		OrganizationShared:    b.Handlers.OrganizationShared,
+		ProfileCompletion:     b.Handlers.ProfileCompletion,
 		Upload:                b.Handlers.Upload,
 		Health:                b.Handlers.Health,
 		Messaging:             b.Handlers.Messaging,

@@ -108,6 +108,7 @@ func snapshotDeps() RouterDeps {
 		ReferrerPricing:       &ReferrerPricingHandler{},
 		ReferrerProfileVideo:  &ReferrerProfileVideoHandler{},
 		OrganizationShared:    &OrganizationSharedProfileHandler{},
+		ProfileCompletion:     &ProfileCompletionHandler{},
 		Upload:                &UploadHandler{},
 		Health:                &HealthHandler{},
 		Messaging:             &MessagingHandler{},

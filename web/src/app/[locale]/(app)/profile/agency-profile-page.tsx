@@ -27,6 +27,7 @@ import { PricingSection } from "@/features/provider/components/pricing-section"
 import { LocationSection } from "@/features/provider/components/location-section"
 import { LanguagesSection } from "@/features/provider/components/languages-section"
 import { SkillsSection } from "@/features/skill/components/skills-section"
+import { ProfileCompletionBar } from "@/features/profile-completion/components/profile-completion-bar"
 
 // Agency editable profile page — uses the legacy /api/v1/profile
 // endpoints via the restored provider hooks. Visual shell is now
@@ -64,6 +65,7 @@ export function AgencyProfilePage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6">
+      <ProfileCompletionBar variant="page" />
       <AgencyProfileHeader
         profile={profile}
         displayName={displayName}
