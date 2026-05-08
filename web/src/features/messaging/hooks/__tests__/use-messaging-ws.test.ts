@@ -393,9 +393,12 @@ describe("useMessagingWS", () => {
     // isConnected should be false immediately
     expect(result.current.isConnected).toBe(false)
 
-    // Advance timers to trigger reconnect (delay = 1000ms * 2^0 = 1000ms)
+    // Advance timers past the reconnect floor + jitter window. The
+    // hook now uses a 2 s floor + up to 500 ms jitter on the first
+    // reconnect (PERF-FIX-W-IDLE-CPU) so we must wait at least
+    // 2.5 s before the new socket is created.
     await act(async () => {
-      vi.advanceTimersByTime(1500)
+      vi.advanceTimersByTime(3000)
     })
     await flushWSConnect()
 
