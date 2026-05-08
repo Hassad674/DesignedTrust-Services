@@ -91,10 +91,38 @@ async function fetchSession(): Promise<SessionResponse> {
   return res.json()
 }
 
+// Session lifetime is measured in hours (httpOnly cookie TTL). The
+// payload only changes on explicit mutations (login, logout, profile
+// edit, team transfer) which all call `queryClient.invalidateQueries`
+// or `queryClient.clear` themselves — there is no value in TanStack
+// Query firing /auth/me on its own beyond the very first mount.
+//
+// Hardening (PERF-FIX-W-AUTH-ME-FANOUT):
+//   * staleTime: 30 min — tolerates page-navigation re-renders + dev
+//     hot-reloads without re-fetching. Mutations that change the
+//     session (logout, role change, transfer) explicitly invalidate
+//     ["session"] so cache freshness is owned by the writer, not by
+//     a wall-clock timer.
+//   * gcTime: 30 min — keep the unmounted cache around long enough
+//     to survive App Router transitions (which briefly unmount every
+//     consumer between layouts).
+//   * refetchOnWindowFocus / Reconnect / Mount: explicit `false` so
+//     the per-hook contract does not depend on the global
+//     QueryClient defaults (those are correct today, but a future
+//     edit must not silently re-enable a refetch storm here).
+//   * retry: false — a 401 means logout, not a transient error. The
+//     fetcher already hard-redirects to /login.
+const SESSION_STALE_TIME_MS = 30 * 60 * 1000
+const SESSION_GC_TIME_MS = 30 * 60 * 1000
+
 const sessionQueryOptions = {
   queryKey: SESSION_QUERY_KEY,
   queryFn: fetchSession,
-  staleTime: 5 * 60 * 1000,
+  staleTime: SESSION_STALE_TIME_MS,
+  gcTime: SESSION_GC_TIME_MS,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  refetchOnMount: false,
   retry: false,
 } as const
 
