@@ -14,6 +14,7 @@ import '../../../organization_shared/presentation/widgets/shared_languages_secti
 import '../../../organization_shared/presentation/widgets/shared_location_section_widget.dart';
 import '../../../organization_shared/presentation/widgets/shared_photo_upload_widget.dart';
 import '../../../portfolio/presentation/widgets/portfolio_grid_widget.dart';
+import '../../../profile_completion/presentation/widgets/profile_completion_bar.dart';
 import '../../../project_history/presentation/widgets/project_history_widget.dart';
 import '../../../skill/presentation/widgets/skills_section_widget.dart';
 import '../../domain/entities/freelance_profile.dart';
@@ -122,6 +123,12 @@ class _FreelanceProfileBody extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
+          // 0. Profile completion bar — surfaces the share of filled
+          //    sections so the user sees what to fill next without
+          //    leaving the screen.
+          const ProfileCompletionBar(),
+          sectionGap,
+
           // 1. Header with shared photo + Soleil meta row
           SharedPhotoUploadWidget(
             canEdit: canEdit,

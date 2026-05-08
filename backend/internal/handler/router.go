@@ -36,6 +36,10 @@ type RouterDeps struct {
 	ReferrerProfileVideo  *ReferrerProfileVideoHandler
 	OrganizationShared    *OrganizationSharedProfileHandler
 
+	// ProfileCompletion exposes GET /api/v1/me/profile/completion. Optional —
+	// nil disables the route, mirroring the rest of the handler bag.
+	ProfileCompletion *ProfileCompletionHandler
+
 	Upload              *UploadHandler
 	Health              *HealthHandler
 	Messaging           *MessagingHandler

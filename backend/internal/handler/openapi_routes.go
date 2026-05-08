@@ -173,6 +173,8 @@ func tagFromRoute(route string) string {
 		return "billing"
 	case strings.HasPrefix(route, "/api/v1/me/billing-profile"):
 		return "billing-profile"
+	case strings.HasPrefix(route, "/api/v1/me/profile"):
+		return "profile-completion"
 	case strings.HasPrefix(route, "/api/v1/calls/"):
 		return "call"
 	case strings.HasPrefix(route, "/api/v1/disputes"):

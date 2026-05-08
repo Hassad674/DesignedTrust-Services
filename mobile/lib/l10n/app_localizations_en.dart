@@ -3900,4 +3900,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptPartyReferrer => 'Referrer';
+
+  @override
+  String profileCompletionTitle(int percent) {
+    return 'Profile $percent% complete';
+  }
+
+  @override
+  String profileCompletionSubtitle(int filled, int total) {
+    return '$filled/$total sections completed';
+  }
+
+  @override
+  String get profileCompletionSubtitleComplete =>
+      'Every section is complete — great work!';
+
+  @override
+  String profileCompletionModalTitle(int percent) {
+    return 'Profile $percent% complete';
+  }
+
+  @override
+  String get profileCompletionModalSubtitle =>
+      'Tap a section to complete it and boost your profile.';
+
+  @override
+  String get profileCompletionModalCloseLabel => 'Close';
+
+  @override
+  String get profileCompletionSectionPhoto => 'Profile photo';
+
+  @override
+  String get profileCompletionSectionTitle => 'Professional title';
+
+  @override
+  String get profileCompletionSectionAbout => 'About';
+
+  @override
+  String get profileCompletionSectionExpertises => 'Expertise areas';
+
+  @override
+  String get profileCompletionSectionSkills => 'Skills';
+
+  @override
+  String get profileCompletionSectionPricing => 'Pricing';
+
+  @override
+  String get profileCompletionSectionAvailability => 'Availability';
+
+  @override
+  String get profileCompletionSectionLocation => 'Location';
+
+  @override
+  String get profileCompletionSectionLanguages => 'Languages';
+
+  @override
+  String get profileCompletionSectionVideo => 'Presentation video';
+
+  @override
+  String get profileCompletionSectionSocialLinks => 'Social links';
+
+  @override
+  String get profileCompletionSectionBillingProfile => 'Billing information';
+
+  @override
+  String get profileCompletionSectionKyc => 'KYC verification';
+
+  @override
+  String get profileCompletionSectionPortfolio => 'Portfolio';
+
+  @override
+  String get profileCompletionSectionClientAbout => 'Client presentation';
 }

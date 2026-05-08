@@ -3929,4 +3929,76 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get receiptPartyReferrer => 'Apporteur';
+
+  @override
+  String profileCompletionTitle(int percent) {
+    return 'Profil rempli à $percent%';
+  }
+
+  @override
+  String profileCompletionSubtitle(int filled, int total) {
+    return '$filled/$total sections complétées';
+  }
+
+  @override
+  String get profileCompletionSubtitleComplete =>
+      'Toutes les sections sont complètes — bravo !';
+
+  @override
+  String profileCompletionModalTitle(int percent) {
+    return 'Profil complété à $percent%';
+  }
+
+  @override
+  String get profileCompletionModalSubtitle =>
+      'Touche une section pour la compléter et booster ton profil.';
+
+  @override
+  String get profileCompletionModalCloseLabel => 'Fermer';
+
+  @override
+  String get profileCompletionSectionPhoto => 'Photo de profil';
+
+  @override
+  String get profileCompletionSectionTitle => 'Titre professionnel';
+
+  @override
+  String get profileCompletionSectionAbout => 'À propos';
+
+  @override
+  String get profileCompletionSectionExpertises => 'Domaines d\'expertise';
+
+  @override
+  String get profileCompletionSectionSkills => 'Compétences';
+
+  @override
+  String get profileCompletionSectionPricing => 'Tarifs';
+
+  @override
+  String get profileCompletionSectionAvailability => 'Disponibilité';
+
+  @override
+  String get profileCompletionSectionLocation => 'Localisation';
+
+  @override
+  String get profileCompletionSectionLanguages => 'Langues';
+
+  @override
+  String get profileCompletionSectionVideo => 'Vidéo de présentation';
+
+  @override
+  String get profileCompletionSectionSocialLinks => 'Réseaux sociaux';
+
+  @override
+  String get profileCompletionSectionBillingProfile =>
+      'Informations de facturation';
+
+  @override
+  String get profileCompletionSectionKyc => 'Vérification KYC';
+
+  @override
+  String get profileCompletionSectionPortfolio => 'Portfolio';
+
+  @override
+  String get profileCompletionSectionClientAbout => 'Présentation client';
 }
