@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
+import { useDocumentVisibility } from "@/shared/hooks/use-document-visibility"
 import { endCall, getMyActiveCall, type MyActiveCall } from "../api/call-api"
 
 const RECONCILE_QUERY_KEY = ["call", "me", "active"] as const
@@ -26,21 +27,37 @@ const RECONCILE_TOAST_ID = "call-orphan-reconcile"
  *
  * The query is gated by `enabled` to avoid firing during SSR /
  * pre-auth states. Pass `enabled=false` while no user is signed in.
+ *
+ * Visibility gate (PERF-FIX-W-CALLS-ME-ACTIVE): when the tab is
+ * hidden at mount time we hold off the probe until it becomes
+ * visible. Background tabs (middle-clicked links, recovered
+ * sessions) used to fan out the `/api/v1/calls/me/active` read
+ * without the user ever looking at them, contributing to the global
+ * IP rate limit being tripped. The reconcile is a UX-driven probe —
+ * if the user is not looking at the page, deferring it is free.
+ * Once it has fired once for the session it stays cached forever
+ * (`staleTime: Infinity` / `gcTime: Infinity`) so a refocus does not
+ * re-fire it.
  */
 export function useReconcileCallOnMount(options: { enabled: boolean }) {
   const t = useTranslations("call")
   const queryClient = useQueryClient()
   const dismissedRef = useRef(false)
+  const isVisible = useDocumentVisibility()
 
   const query = useQuery<MyActiveCall | null>({
     queryKey: RECONCILE_QUERY_KEY,
     queryFn: ({ signal }) => getMyActiveCall(signal),
-    enabled: options.enabled,
+    // Defer the probe until both auth has settled AND the tab is
+    // actually visible — see comment above for the rate-limit
+    // rationale.
+    enabled: options.enabled && isVisible,
     // Only run once per session — refetch on window focus would re-show
     // the toast every time the tab comes back, which is hostile.
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchOnMount: false,
+    refetchIntervalInBackground: false,
     staleTime: Infinity,
     gcTime: Infinity,
     retry: false,

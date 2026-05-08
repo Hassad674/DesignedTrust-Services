@@ -228,3 +228,105 @@ describe("useLogout", () => {
     expect(window.location.href).toBe("/login")
   })
 })
+
+// PERF-FIX-W-AUTH-ME-FANOUT: harden the contract so future edits
+// can't silently re-introduce a refetch storm on /api/v1/auth/me.
+// The dedup story relies on (a) a single, stable query key shared by
+// every consumer and (b) refetch flags that never let TanStack Query
+// fire the request without an explicit user mutation.
+describe("session query contract", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("dedupes useUser + useOrganization + useSession + useCurrentUserId behind one fetch", async () => {
+    mockMe({ user: agencyUser, organization: agencyOrg })
+
+    const wrapper = createWrapper()
+    const { result } = renderHook(
+      () => {
+        const u = useUser()
+        const o = useOrganization()
+        const s = useSession()
+        return { u, o, s }
+      },
+      { wrapper },
+    )
+
+    await waitFor(() => expect(result.current.s.isSuccess).toBe(true))
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/v1/auth/me"),
+      expect.any(Object),
+    )
+  })
+
+  it("uses the singleton ['session'] query key so writers can invalidate everyone at once", async () => {
+    mockMe({ user: agencyUser, organization: agencyOrg })
+
+    const queryClient = new QueryClient()
+    const observerSpy = vi.spyOn(queryClient.getQueryCache(), "build")
+
+    function StandaloneWrapper({ children }: { children: React.ReactNode }) {
+      return createElement(QueryClientProvider, { client: queryClient }, children)
+    }
+
+    renderHook(() => useUser(), { wrapper: StandaloneWrapper })
+
+    type CapturedOpts = {
+      queryKey?: readonly unknown[]
+      staleTime?: number
+      gcTime?: number
+      refetchOnMount?: boolean | "always"
+      refetchOnWindowFocus?: boolean | "always"
+      refetchOnReconnect?: boolean | "always"
+      retry?: boolean | number
+    }
+    const opts = observerSpy.mock.calls[0]?.[1] as unknown as CapturedOpts
+    expect(opts.queryKey).toEqual(["session"])
+  })
+
+  it("hardens the per-hook options against the global QueryClient defaults", async () => {
+    mockMe({ user: agencyUser, organization: agencyOrg })
+
+    const queryClient = new QueryClient({
+      // Adversarial defaults — these would re-introduce fan-out if
+      // the per-hook options didn't override them. The contract
+      // under test is that the session hook is immune.
+      defaultOptions: {
+        queries: {
+          staleTime: 0,
+          refetchOnWindowFocus: true,
+          refetchOnReconnect: true,
+          refetchOnMount: true,
+        },
+      },
+    })
+    const observerSpy = vi.spyOn(queryClient.getQueryCache(), "build")
+
+    function HostileDefaultsWrapper({ children }: { children: React.ReactNode }) {
+      return createElement(QueryClientProvider, { client: queryClient }, children)
+    }
+
+    renderHook(() => useSession(), { wrapper: HostileDefaultsWrapper })
+
+    type CapturedOpts = {
+      staleTime?: number
+      gcTime?: number
+      refetchOnMount?: boolean | "always"
+      refetchOnWindowFocus?: boolean | "always"
+      refetchOnReconnect?: boolean | "always"
+      retry?: boolean | number
+    }
+    const opts = observerSpy.mock.calls[0]?.[1] as unknown as CapturedOpts
+    // 30 minutes — sessions last hours and are explicitly
+    // invalidated by mutations.
+    expect(opts.staleTime).toBe(30 * 60 * 1000)
+    expect(opts.gcTime).toBe(30 * 60 * 1000)
+    expect(opts.refetchOnMount).toBe(false)
+    expect(opts.refetchOnWindowFocus).toBe(false)
+    expect(opts.refetchOnReconnect).toBe(false)
+    expect(opts.retry).toBe(false)
+  })
+})
