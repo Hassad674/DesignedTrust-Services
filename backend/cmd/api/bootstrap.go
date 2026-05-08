@@ -429,6 +429,15 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 		ClientStatsReader:  clientProfileReadSvc,
 	})
 
+	profileCompletionHandler := wireProfileCompletion(profileCompletionDeps{
+		DB:                   infra.DB,
+		UserRepo:             infra.UserRepo,
+		OrganizationRepo:     infra.OrganizationRepo,
+		ProfileRepo:          infra.ProfileRepo,
+		FreelanceProfileRepo: freelanceProfileRepo,
+		ReferrerProfileRepo:  referrerProfileRepo,
+	})
+
 	uploadCtx, uploadCancel := context.WithCancel(ctx) // #nosec G118 -- cancel func appended to app.closeFns, invoked at graceful shutdown
 	app.UploadCancel = uploadCancel
 	app.closeFns = append(app.closeFns, uploadCancel)
@@ -561,6 +570,7 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 			ReferrerProfile:       referrerProfileHandler, ReferrerPricing: referrerPricingHandler,
 			ReferrerProfileVideo: referrerProfileVideoHandler,
 			OrganizationShared:   organizationSharedHandler,
+			ProfileCompletion:    profileCompletionHandler,
 			Upload:               uploadHandler, Health: healthHandler,
 			Messaging: messagingHandler, Proposal: proposalHandler,
 			Job: jobHandler, JobApplication: jobAppHandler,

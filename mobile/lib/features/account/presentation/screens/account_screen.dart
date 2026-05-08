@@ -10,6 +10,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../profile_completion/presentation/widgets/profile_completion_bar.dart';
 import '../../data/gdpr_repository_impl.dart';
 
 /// AccountScreen — Soleil v2 mobile mirror of the web /account page.
@@ -60,6 +61,8 @@ class AccountScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const ProfileCompletionBar(hideWhenComplete: true),
+              const SizedBox(height: 16),
               _AccountSection(
                 icon: Icons.notifications_outlined,
                 title: l10n.accountSectionNotifications,

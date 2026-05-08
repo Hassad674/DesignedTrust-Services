@@ -11,6 +11,7 @@ import {
   type UpdateFreelanceProfileInput,
 } from "../api/freelance-profile-api"
 import { freelanceProfileQueryKey } from "./use-freelance-profile"
+import { profileCompletionQueryKey } from "@/features/profile-completion/hooks/use-profile-completion"
 
 // Core profile update: title / about / video_url. The backend returns
 // the refreshed aggregate so we can cache-seed without a second
@@ -25,6 +26,7 @@ export function useUpdateFreelanceProfile() {
       updateFreelanceProfile(input),
     onSuccess: (next) => {
       queryClient.setQueryData<FreelanceProfile>(key, next)
+      queryClient.invalidateQueries({ queryKey: profileCompletionQueryKey(uid) })
     },
   })
 }
@@ -42,6 +44,7 @@ export function useUpdateFreelanceAvailability() {
       updateFreelanceAvailability(status),
     onSuccess: (next) => {
       queryClient.setQueryData<FreelanceProfile>(key, next)
+      queryClient.invalidateQueries({ queryKey: profileCompletionQueryKey(uid) })
     },
   })
 }
@@ -56,6 +59,7 @@ export function useUpdateFreelanceExpertise() {
     mutationFn: (domains: string[]) => updateFreelanceExpertise(domains),
     onSuccess: (next) => {
       queryClient.setQueryData<FreelanceProfile>(key, next)
+      queryClient.invalidateQueries({ queryKey: profileCompletionQueryKey(uid) })
     },
   })
 }

@@ -12,6 +12,7 @@ import { ClientProfileEditor } from "./client-profile-editor"
 import { ClientProfileDescription } from "./client-profile-description"
 import { useMyClientProfile } from "../hooks/use-my-client-profile"
 import { useUpdateClientProfile } from "../hooks/use-update-client-profile"
+import { ProfileCompletionBar } from "@/features/profile-completion/components/profile-completion-bar"
 
 // ClientProfilePage is the editable private `/client-profile` view.
 // Providers with the `org_client_profile.edit` permission see the
@@ -64,6 +65,7 @@ export function ClientProfilePage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8" aria-label={t("pageTitle")}>
+      <ProfileCompletionBar variant="page" />
       <ClientProfileHeader
         companyName={companyName}
         avatarUrl={profile.avatar_url}
