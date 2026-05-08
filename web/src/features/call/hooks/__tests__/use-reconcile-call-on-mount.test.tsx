@@ -238,4 +238,83 @@ describe("useReconcileCallOnMount", () => {
 
     expect(toastSpy).toHaveBeenCalledTimes(1)
   })
+
+  // PERF-FIX-W-CALLS-ME-ACTIVE: when the tab is hidden the probe
+  // must hold off entirely. Background tabs (middle-clicked links,
+  // recovered sessions) used to fan out the read without the user
+  // ever looking at them, which was a top contributor to the global
+  // IP rate limit thrash.
+  it("does NOT fetch while document.visibilityState is hidden", async () => {
+    const visibilityDescriptor = Object.getOwnPropertyDescriptor(
+      Document.prototype,
+      "visibilityState",
+    )
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      get: () => "hidden",
+    })
+
+    try {
+      getMyActiveCallSpy.mockResolvedValue(null)
+      const client = makeClient()
+
+      render(
+        createElement(
+          makeWrapper(client),
+          null,
+          createElement(HookHarness, { enabled: true }),
+        ),
+      )
+
+      // Give React a tick so any spurious effect would fire.
+      await new Promise((r) => setTimeout(r, 0))
+
+      expect(getMyActiveCallSpy).not.toHaveBeenCalled()
+    } finally {
+      if (visibilityDescriptor) {
+        Object.defineProperty(document, "visibilityState", visibilityDescriptor)
+      } else {
+        delete (document as unknown as { visibilityState?: unknown }).visibilityState
+      }
+    }
+  })
+
+  // Defensive contract: the per-hook config must NEVER allow a
+  // background poll to leak through, regardless of what the global
+  // QueryClient defaults look like in the future.
+  it("uses Infinity staleTime + Infinity gcTime so the probe fires once per session", async () => {
+    getMyActiveCallSpy.mockResolvedValue(null)
+    const client = makeClient()
+    const observerSpy = vi.spyOn(client.getQueryCache(), "build")
+
+    render(
+      createElement(
+        makeWrapper(client),
+        null,
+        createElement(HookHarness, { enabled: true }),
+      ),
+    )
+
+    await waitFor(() => {
+      expect(getMyActiveCallSpy).toHaveBeenCalledTimes(1)
+    })
+
+    // Inspect the actual options TanStack Query stored for the
+    // query — exposes refetch flags and staleTime contractually.
+    type CapturedOpts = {
+      staleTime?: number
+      gcTime?: number
+      refetchOnMount?: boolean | "always"
+      refetchOnWindowFocus?: boolean | "always"
+      refetchOnReconnect?: boolean | "always"
+      refetchIntervalInBackground?: boolean
+    }
+    const opts = observerSpy.mock.calls[0]?.[1] as unknown as CapturedOpts
+    expect(opts.staleTime).toBe(Infinity)
+    expect(opts.gcTime).toBe(Infinity)
+    expect(opts.refetchOnMount).toBe(false)
+    expect(opts.refetchOnWindowFocus).toBe(false)
+    expect(opts.refetchOnReconnect).toBe(false)
+    expect(opts.refetchIntervalInBackground).toBe(false)
+  })
 })
