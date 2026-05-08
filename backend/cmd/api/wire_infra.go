@@ -195,7 +195,7 @@ func wireInfrastructure(ctx context.Context, cfg *config.Config) (infrastructure
 		ModerationResultsRepo: postgres.NewModerationResultsRepository(db),
 		Hasher:                     crypto.NewBcryptHasher(),
 		TokenSvc:                   crypto.NewJWTService(cfg.JWTSecret, cfg.JWTAccessExpiry, cfg.JWTRefreshExpiry),
-		EmailSvc:                   resendadapter.NewEmailService(cfg.ResendAPIKey, cfg.ResendDevRedirectTo),
+		EmailSvc:                   resendadapter.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom, cfg.ResendDevRedirectTo),
 		StorageSvc: s3adapter.NewStorageService(
 			cfg.StorageEndpoint,
 			cfg.StorageAccessKey,

@@ -55,6 +55,7 @@ type Config struct {
 	StoragePublicURL string
 	ResendAPIKey         string
 	ResendDevRedirectTo  string // optional: if set, all outgoing emails are routed here (dev/staging sandbox)
+	EmailFrom            string // RFC 5322 sender, e.g. "Marketplace <noreply@designedtrust.com>"
 	FrontendURL          string
 	LiveKitURL       string
 	LiveKitAPIKey    string
@@ -137,6 +138,7 @@ func Load() *Config {
 		StoragePublicURL: getEnv("STORAGE_PUBLIC_URL", "http://localhost:9000/marketplace"),
 		ResendAPIKey:        getEnv("RESEND_API_KEY", ""),
 		ResendDevRedirectTo: getEnv("RESEND_DEV_REDIRECT_TO", ""),
+		EmailFrom:           getEnv("EMAIL_FROM", "Marketplace Service <onboarding@resend.dev>"),
 		FrontendURL:         getEnv("FRONTEND_URL", "http://localhost:3001"),
 		LiveKitURL:       getEnv("LIVEKIT_URL", ""),
 		LiveKitAPIKey:    getEnv("LIVEKIT_API_KEY", ""),
