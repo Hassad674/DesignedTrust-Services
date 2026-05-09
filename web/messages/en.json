@@ -369,7 +369,26 @@
     "W02_providerBullet3": "Secure payments",
     "W02_enterpriseBullet1": "Targeted listings, zero spam",
     "W02_enterpriseBullet2": "Verified profiles",
-    "W02_enterpriseBullet3": "Protected escrow"
+    "W02_enterpriseBullet3": "Protected escrow",
+    "forgotShell": {
+      "eyebrow": "↳ Let's get you back in",
+      "titlePrefix": "Forgot",
+      "titleAccent": "your password?",
+      "subtitle": "Drop the email tied to your account. We'll send you a secure link to choose a new password.",
+      "successTitle": "Check your inbox.",
+      "successBody": "If an account matches this email, a secure link is on its way. The link expires in 30 minutes."
+    },
+    "resetShell": {
+      "eyebrow": "↳ Last step",
+      "titlePrefix": "Pick a new",
+      "titleAccent": "password.",
+      "subtitle": "At least 10 characters with uppercase, lowercase, digit and special character.",
+      "invalidEyebrow": "↳ Link expired",
+      "invalidTitlePrefix": "This link is",
+      "invalidTitleAccent": "no longer valid.",
+      "invalidSubtitle": "The link has expired or has already been used. Request a new one to reset your password.",
+      "successTitle": "Password updated."
+    }
   },
   "registerFix": {
     "shared": {

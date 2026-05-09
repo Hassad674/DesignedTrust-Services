@@ -9,8 +9,13 @@ import { CheckCircle2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { forgotPassword } from "@/features/auth/api/auth-api"
 import { Button } from "@/shared/components/ui/button"
-
 import { Input } from "@/shared/components/ui/input"
+
+// Schema kept inline (extracting to features/auth/schemas/ is a
+// separate refactor under OFF-LIMITS for this UI batch). Validation
+// rule and the literal "Invalid email address" string are unchanged
+// — the e2e test (`web/e2e/auth.spec.ts`) pins the resolved French
+// translation "Adresse email invalide" and stays green.
 const forgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
 })
@@ -37,43 +42,55 @@ export function ForgotPasswordForm() {
       await forgotPassword(values.email)
       setSuccess(true)
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : tCommon("errorOccurred"),
-      )
+      setError(err instanceof Error ? err.message : tCommon("errorOccurred"))
     }
   }
 
   if (success) {
     return (
-      <div className="animate-scale-in rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-card)] space-y-4 text-center">
+      <div
+        className="space-y-4 text-center"
+        role="status"
+        aria-live="polite"
+      >
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success-soft">
-          <CheckCircle2 className="h-7 w-7 text-success" />
+          <CheckCircle2 className="h-7 w-7 text-success" aria-hidden="true" />
         </div>
-        <h2 className="text-lg font-bold text-foreground">{tCommon("emailSent")}</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="font-serif text-[22px] font-medium text-foreground">
+          {tCommon("emailSent")}
+        </h2>
+        <p className="text-sm leading-relaxed text-muted-foreground">
           {t("resetEmailSent")}
         </p>
         <Link
           href="/login"
-          className="inline-block text-sm font-medium text-[var(--text-link)] hover:text-primary"
+          className="inline-block text-[13px] font-semibold text-primary transition-colors hover:text-primary-deep"
         >
           {t("backToLogin")}
+          <span aria-hidden="true"> →</span>
         </Link>
       </div>
     )
   }
 
   return (
-    <div className="animate-scale-in rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-card)]">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {error && (
-          <div className="rounded-xl border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400" role="alert">
+          <div
+            className="rounded-xl border border-destructive/30 bg-primary-soft/40 p-3 text-sm text-destructive"
+            role="alert"
+          >
             {error}
           </div>
         )}
 
+        {/* Email */}
         <div className="space-y-1.5">
-          <label htmlFor="email" className="block text-sm font-medium text-foreground">
+          <label
+            htmlFor="email"
+            className="block text-[13px] font-semibold text-foreground"
+          >
             {t("email")}
           </label>
           <Input
@@ -81,31 +98,53 @@ export function ForgotPasswordForm() {
             type="email"
             autoComplete="email"
             placeholder={t("emailPlaceholder")}
-            className="h-12 rounded-xl px-4"
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={errors.email ? "email-error" : undefined}
+            className={[
+              "block w-full rounded-xl border bg-card px-4 py-[13px] text-[14.5px] text-foreground",
+              "transition-colors duration-150 placeholder:text-subtle-foreground",
+              "focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15",
+              errors.email
+                ? "border-destructive focus:ring-destructive/15"
+                : "border-border-strong",
+            ].join(" ")}
             {...registerField("email")}
           />
-          {errors.email && (
-            <p className="text-sm text-red-500 dark:text-red-400 mt-1">{errors.email.message}</p>
+          {errors.email?.message && (
+            <p id="email-error" className="text-xs text-destructive">
+              {errors.email.message}
+            </p>
           )}
         </div>
 
-        <Button variant="primary" size="auto"
+        {/* Submit */}
+        <Button
+          variant="primary"
+          size="auto"
           type="submit"
           disabled={isSubmitting}
-          className="h-12 w-full rounded-xl font-semibold text-white shadow-md transition-all disabled:opacity-50"
+          className={[
+            "mt-2 w-full rounded-full px-4 py-3.5 text-[14.5px] font-semibold",
+            "active:scale-[0.99]",
+            "focus:outline-none focus:ring-4 focus:ring-primary/30",
+            "disabled:cursor-not-allowed disabled:opacity-60",
+          ].join(" ")}
+          style={{ boxShadow: "0 4px 14px rgba(232, 93, 74, 0.3)" }}
         >
           {isSubmitting ? t("sending") : t("sendResetLink")}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      {/* Back to sign in */}
+      <p className="mt-7 text-center text-[13px] text-muted-foreground">
         <Link
           href="/login"
-          className="font-medium text-[var(--text-link)] hover:text-primary"
+          className="font-semibold text-primary transition-colors hover:text-primary-deep"
         >
           {t("backToLogin")}
+          <span aria-hidden="true"> →</span>
         </Link>
       </p>
-    </div>
+    </>
   )
 }
