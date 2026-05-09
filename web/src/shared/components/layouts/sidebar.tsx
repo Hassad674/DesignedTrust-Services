@@ -95,6 +95,13 @@ const REFERRER_NAV: NavItem[] = [
   // feature. Distinct from /referral (singular) which stays the public
   // referrer profile editor below — both labels are intentionally close.
   { labelKey: "referralDeals", href: "/referrals", icon: Sparkles, roles: ["provider"] },
+  // Opportunités is shared between freelance and referrer workspaces:
+  // an apporteur d'affaires browses the same job feed to find missions
+  // worth proposing to a freelance/agency contact for a commission.
+  // Without this entry the apporteur cannot apply with the persona
+  // radio added in the apply modal.
+  { labelKey: "opportunities", href: "/opportunities", icon: Briefcase, roles: ["provider"] },
+  { labelKey: "myApplications", href: "/my-applications", icon: FileText, roles: ["provider"] },
   { labelKey: "referrerProfile", href: "/referral", icon: UserCircle, roles: ["provider"] },
   // Wallet is where apporteurs see their commission income. Without
   // this entry they'd have to switch back to freelance mode to check
