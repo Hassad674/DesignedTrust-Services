@@ -369,7 +369,26 @@
     "W02_providerBullet3": "Paiements sécurisés",
     "W02_enterpriseBullet1": "Annonces ciblées, pas de spam",
     "W02_enterpriseBullet2": "Profils vérifiés",
-    "W02_enterpriseBullet3": "Séquestre sécurisé"
+    "W02_enterpriseBullet3": "Séquestre sécurisé",
+    "forgotShell": {
+      "eyebrow": "↳ On te ré-ouvre la porte",
+      "titlePrefix": "Mot de passe",
+      "titleAccent": "oublié ?",
+      "subtitle": "Donne-nous l'email lié à ton compte. On t'envoie un lien sécurisé pour choisir un nouveau mot de passe.",
+      "successTitle": "Vérifie ta boîte mail.",
+      "successBody": "Si un compte est lié à cet email, tu y reçois à l'instant un lien sécurisé. Le lien expire dans 30 minutes."
+    },
+    "resetShell": {
+      "eyebrow": "↳ Dernière étape",
+      "titlePrefix": "Nouveau mot",
+      "titleAccent": "de passe.",
+      "subtitle": "Au moins 10 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.",
+      "invalidEyebrow": "↳ Lien expiré",
+      "invalidTitlePrefix": "Ce lien n'est",
+      "invalidTitleAccent": "plus valable.",
+      "invalidSubtitle": "Le lien a expiré ou a déjà été utilisé. Demande-en un nouveau pour réinitialiser ton mot de passe.",
+      "successTitle": "Mot de passe à jour."
+    }
   },
   "registerFix": {
     "shared": {
