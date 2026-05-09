@@ -869,6 +869,15 @@
       "referrerCommissionLabel": "Commission (%)",
       "referrerCommissionHint": "The cut you take on deals you bring in. Integers and halves accepted."
     },
+    "public": {
+      "notFound": "Profile not found",
+      "untitledProfile": "Untitled Profile",
+      "back": "Back",
+      "presentationVideo": "Presentation Video",
+      "videoNotSupported": "Your browser does not support the video element.",
+      "noProjectsYet": "No completed projects yet",
+      "photoAlt": "Profile photo"
+    },
     "freelance": {
       "publicTitleSuffix": "Freelancer",
       "publicDescription": "{name}, freelancer{title, select, empty {} other { — {title}}}. Profile on Marketplace Service.",
@@ -876,6 +885,16 @@
       "notFoundTitle": "Freelancer profile not found",
       "notFoundDescription": "This profile no longer exists or was removed by its owner.",
       "backToList": "Back to freelancers",
+      "priceFromLabel": "Starting at",
+      "reviewsCount": "{count, plural, one {# review} other {# reviews}}"
+    },
+    "agency": {
+      "publicTitleSuffix": "Agency",
+      "publicDescription": "{name}, agency{title, select, empty {} other { — {title}}}. Profile on Marketplace Service.",
+      "loadError": "Could not load this agency profile. Please try again.",
+      "notFoundTitle": "Agency profile not found",
+      "notFoundDescription": "This profile no longer exists or was removed by its owner.",
+      "backToList": "Back to agencies",
       "priceFromLabel": "Starting at",
       "reviewsCount": "{count, plural, one {# review} other {# reviews}}"
     },
@@ -1330,26 +1349,6 @@
       "title": "Business referrer directory — {count} apporteurs | Marketplace Service",
       "description": "Browse {count} business referrers ready to connect you with the right agency or freelancer."
     }
-  },
-  "publicProfile": {
-    "agencyProfile": "Agency Profile",
-    "agencyProfileDesc": "View agency details and portfolio",
-    "freelancerProfile": "Freelancer Profile",
-    "freelancerProfileDesc": "View freelancer details and portfolio",
-    "referrerProfile": "Referrer Profile",
-    "referrerProfileDesc": "View business referrer details",
-    "profileNotFound": "Profile not found",
-    "backToAgencies": "Back to agencies",
-    "backToFreelancers": "Back to freelancers",
-    "photoAlt": "Profile photo",
-    "untitledProfile": "Untitled Profile",
-    "noReviews": "No reviews yet",
-    "about": "About",
-    "presentationVideo": "Presentation Video",
-    "videoNotSupported": "Your browser does not support the video element.",
-    "projectHistory": "Project History",
-    "noProjectsYet": "No completed projects yet",
-    "back": "Back"
   },
   "seo": {
     "siteName": "Marketplace Service",

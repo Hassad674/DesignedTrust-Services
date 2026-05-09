@@ -63,7 +63,7 @@ describe("agencies/[id] generateMetadata — PERF-W-06 + PERF-W-08", () => {
 
     const md = await callMetadata("agency-1")
     expect(md.title as string).toContain("Acme Agency")
-    expect(md.title as string).toContain("publicProfile.agencyProfile")
+    expect(md.title as string).toContain("profile.agency.publicTitleSuffix")
     expect(md.description as string).toBe(
       "Crafting beautiful B2B websites since 2018.",
     )
@@ -93,8 +93,8 @@ describe("agencies/[id] generateMetadata — PERF-W-06 + PERF-W-08", () => {
   it("falls back to generic title when profile is missing", async () => {
     fetchMock.mockResolvedValue(null)
     const md = await callMetadata("agency-x")
-    expect(md.title as string).toContain("publicProfile.agencyProfile")
-    expect(md.description as string).toContain("publicProfile.agencyProfileDesc")
+    expect(md.title as string).toContain("profile.agency.publicTitleSuffix")
+    expect(md.description as string).toContain("profile.agency.publicDescription")
     const alternates = md.alternates as {
       canonical: string
       languages: Record<string, string>

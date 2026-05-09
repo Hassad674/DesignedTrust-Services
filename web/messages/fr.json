@@ -869,6 +869,15 @@
       "referrerCommissionLabel": "Commission (%)",
       "referrerCommissionHint": "La part que tu prends sur les deals que tu apportes. Entiers et demis acceptés."
     },
+    "public": {
+      "notFound": "Profil introuvable",
+      "untitledProfile": "Profil sans titre",
+      "back": "Retour",
+      "presentationVideo": "Vidéo de présentation",
+      "videoNotSupported": "Votre navigateur ne supporte pas l'élément vidéo.",
+      "noProjectsYet": "Aucun projet terminé pour le moment",
+      "photoAlt": "Photo de profil"
+    },
     "freelance": {
       "publicTitleSuffix": "Freelance",
       "publicDescription": "{name}, freelance{title, select, empty {} other { — {title}}}. Profil sur Marketplace Service.",
@@ -876,6 +885,16 @@
       "notFoundTitle": "Profil freelance introuvable",
       "notFoundDescription": "Ce profil n'existe plus ou son propriétaire l'a supprimé.",
       "backToList": "Retour aux freelances",
+      "priceFromLabel": "À partir de",
+      "reviewsCount": "{count, plural, one {# avis} other {# avis}}"
+    },
+    "agency": {
+      "publicTitleSuffix": "Agence",
+      "publicDescription": "{name}, agence{title, select, empty {} other { — {title}}}. Profil sur Marketplace Service.",
+      "loadError": "Impossible de charger ce profil agence. Réessaie dans un instant.",
+      "notFoundTitle": "Profil agence introuvable",
+      "notFoundDescription": "Ce profil n'existe plus ou son propriétaire l'a supprimé.",
+      "backToList": "Retour aux agences",
       "priceFromLabel": "À partir de",
       "reviewsCount": "{count, plural, one {# avis} other {# avis}}"
     },
@@ -1330,26 +1349,6 @@
       "title": "Annuaire des apporteurs d'affaires — {count} apporteurs | Marketplace Service",
       "description": "Parcourez {count} apporteurs d'affaires prêts à vous mettre en relation avec la bonne agence ou freelance."
     }
-  },
-  "publicProfile": {
-    "agencyProfile": "Profil de l'agence",
-    "agencyProfileDesc": "Voir les détails et le portfolio de l'agence",
-    "freelancerProfile": "Profil du freelance",
-    "freelancerProfileDesc": "Voir les détails et le portfolio du freelance",
-    "referrerProfile": "Profil de l'apporteur d'affaires",
-    "referrerProfileDesc": "Voir les détails de l'apporteur d'affaires",
-    "profileNotFound": "Profil introuvable",
-    "backToAgencies": "Retour aux agences",
-    "backToFreelancers": "Retour aux freelances",
-    "photoAlt": "Photo de profil",
-    "untitledProfile": "Profil sans titre",
-    "noReviews": "Aucun avis pour le moment",
-    "about": "À propos",
-    "presentationVideo": "Vidéo de présentation",
-    "videoNotSupported": "Votre navigateur ne supporte pas l'élément vidéo.",
-    "projectHistory": "Historique des projets",
-    "noProjectsYet": "Aucun projet terminé pour le moment",
-    "back": "Retour"
   },
   "seo": {
     "siteName": "Marketplace Service",
