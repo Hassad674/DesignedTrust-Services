@@ -591,7 +591,7 @@ func TestComputeWithPersona_ProviderPersonalEmptyOverride_DefaultsToFreelance(t 
 
 	assert.Equal(t, "freelance", r.Persona,
 		"empty override must keep the default freelance persona")
-	assert.Equal(t, 13, r.TotalSections)
+	assert.Equal(t, 11, r.TotalSections)
 }
 
 func TestComputeWithPersona_AgencyReferrerOverride_IgnoredFallsBackToAgency(t *testing.T) {
@@ -610,8 +610,8 @@ func TestComputeWithPersona_AgencyReferrerOverride_IgnoredFallsBackToAgency(t *t
 
 	assert.Equal(t, "agency", r.Persona,
 		"non-provider_personal orgs MUST ignore the referrer override")
-	assert.Equal(t, 12, r.TotalSections,
-		"the agency checklist still surfaces 12 sections")
+	assert.Equal(t, 10, r.TotalSections,
+		"the agency checklist still surfaces 10 sections (billing/kyc dropped)")
 }
 
 func TestComputeWithPersona_EnterpriseReferrerOverride_IgnoredFallsBackToEnterprise(t *testing.T) {
