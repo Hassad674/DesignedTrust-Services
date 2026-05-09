@@ -123,3 +123,34 @@ describe("Sidebar — PERF-FIX-W-SIDEBAR-POLL", () => {
     expect(container.querySelector("nav")).toBeTruthy()
   })
 })
+
+// --- Fix 1 (referrer nav: opportunities) -------------------------------
+
+describe("Sidebar — referrer nav has Opportunités", () => {
+  it("includes the opportunities entry in the REFERRER_NAV source", async () => {
+    // We assert at the source level so the test does not depend on the
+    // full sidebar render path (the referrer mode requires both the
+    // user.role=provider mock AND the workspace cookie to flip; both
+    // already land on the freelance branch in the existing mocks).
+    const fs = await import("node:fs")
+    const pathMod = await import("node:path")
+    const source = fs.readFileSync(
+      pathMod.resolve(__dirname, "../sidebar.tsx"),
+      "utf-8",
+    )
+    // Find the REFERRER_NAV table and slice up to its closing bracket.
+    // A regex grabs the contents between `REFERRER_NAV: NavItem[] = [`
+    // and the next top-level `]` so we are sure we are inside the
+    // referrer table (not the freelance one).
+    const match = source.match(
+      /const REFERRER_NAV: NavItem\[\] = \[([\s\S]*?)\n\]/,
+    )
+    expect(match).not.toBeNull()
+    const referrerBlock = match![1]
+    expect(referrerBlock).toContain('labelKey: "opportunities"')
+    expect(referrerBlock).toContain('href: "/opportunities"')
+    // Roles must include 'provider' so the entry is visible to the
+    // referrer-enabled user (who is always role=provider).
+    expect(referrerBlock).toContain('roles: ["provider"]')
+  })
+})
