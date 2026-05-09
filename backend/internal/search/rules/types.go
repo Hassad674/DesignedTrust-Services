@@ -76,6 +76,13 @@ type Candidate struct {
 	AccountAgeDays     int    // convenience copy of Feat.AccountAgeDays
 	IsFeatured         bool   // admin override (dormant V1 unless enabled)
 	IsVerified         bool   // KYC result
+
+	// NewAccountCapped is set to true by the anti-gaming pipeline (§7.5)
+	// when the candidate's account is younger than the new-account age
+	// threshold. The business-rules layer reads this flag to enforce the
+	// final-score cap at the cohort median (a profile younger than the
+	// threshold can at best rank at the median — never above).
+	NewAccountCapped bool
 }
 
 // Config bundles every tuneable knob the rules layer respects.

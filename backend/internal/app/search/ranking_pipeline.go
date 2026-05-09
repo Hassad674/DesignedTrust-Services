@@ -138,7 +138,7 @@ func (p *RankingPipeline) scoreCandidates(ctx context.Context, in RankInput, now
 	for _, hit := range in.Hits {
 		lite := hit.ToSearchDocumentLite(nowUnix)
 		feat := p.extract(in.Query, lite)
-		p.applyAntiGaming(ctx, &feat, lite, hit, nowUnix)
+		agResult := p.applyAntiGaming(ctx, &feat, lite, hit, nowUnix)
 		score := p.score(ctx, in.Query, feat, in.Persona)
 		candidates = append(candidates, rules.Candidate{
 			DocumentID:         hit.Document.ID,
@@ -151,6 +151,7 @@ func (p *RankingPipeline) scoreCandidates(ctx context.Context, in RankInput, now
 			AccountAgeDays:     int(hit.Document.AccountAgeDays),
 			IsFeatured:         hit.Document.IsFeatured,
 			IsVerified:         hit.Document.IsVerified,
+			NewAccountCapped:   agResult.NewAccountCapped,
 		})
 	}
 	return candidates
@@ -188,27 +189,31 @@ func (p *RankingPipeline) extract(q features.Query, lite features.SearchDocument
 // the query and runs the five rules. A nil pipeline is a silent
 // no-op — useful for tests and for opting individual features out
 // of the anti-gaming layer without tearing out the rerank.
+//
+// Returns the antigaming.PipelineResult so the caller can propagate
+// flags such as NewAccountCapped (§7.5) to the rules layer. Returns a
+// zero-value result when the antigaming pipeline is nil.
 func (p *RankingPipeline) applyAntiGaming(
 	ctx context.Context,
 	f *features.Features,
 	lite features.SearchDocumentLite,
 	hit TypesenseHit,
 	nowUnix int64,
-) {
+) antigaming.PipelineResult {
 	if p.antigaming == nil {
-		return
+		return antigaming.PipelineResult{}
 	}
 	raw := antigaming.RawSignals{
 		ProfileID:              hit.Document.OrganizationID,
 		Persona:                lite.Persona,
-		Text:                   strings.ToLower(strings.TrimSpace(lite.SkillsText)),
-		RecentReviewTimestamps: nil, // populated once the adapter lands
+		Text:                   stuffingText(lite),
+		RecentReviewTimestamps: hit.Document.RecentReviewTimestamps,
 		TotalReviewCount:       int(hit.Document.RatingCount),
-		ReviewerIDs:            nil, // populated by linked-account detector
+		ReviewerIDs:            hit.Document.ReviewerIDs,
 		NowUnix:                nowUnix,
 		AccountAgeDays:         int(lite.AccountAgeDays),
 	}
-	p.antigaming.Apply(ctx, f, raw)
+	return p.antigaming.Apply(ctx, f, raw)
 }
 
 // score is the nil-safe wrapper around the reranker.
@@ -245,6 +250,28 @@ func (p *RankingPipeline) applyRules(
 // here so the nil-rules fallback still respects the 20-candidate
 // window documented in docs/ranking-v1.md §8.
 const defaultPipelineTopN = 20
+
+// stuffingText returns the lowercased concatenation of the document's
+// skills_text + about field used by the stuffing detector (§7.1). We
+// concatenate at the boundary instead of inside the rule so the
+// antigaming package stays unaware of which document fields exist.
+//
+// Empty fields collapse to a single trimmed token list — duplicate
+// whitespace is harmless because the rule retokenises before counting.
+func stuffingText(lite features.SearchDocumentLite) string {
+	skills := strings.TrimSpace(lite.SkillsText)
+	about := strings.TrimSpace(lite.About)
+	if skills == "" && about == "" {
+		return ""
+	}
+	if skills == "" {
+		return strings.ToLower(about)
+	}
+	if about == "" {
+		return strings.ToLower(skills)
+	}
+	return strings.ToLower(skills + " " + about)
+}
 
 // primarySkillOf returns the first non-empty skill after trimming.
 // The diversity rule reads this field; an empty slice means the

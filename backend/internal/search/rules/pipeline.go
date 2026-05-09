@@ -74,6 +74,12 @@ func (r *BusinessRules) Apply(
 
 	run := r.newRun()
 
+	// Stage 0: enforce the new-account final-score cap (§7.5). Run
+	// BEFORE tier sort + randomise so the capped Final drives the
+	// placement that follows. The cap is a silent mutation on the
+	// candidate slice — tests inspect Score.Final to verify.
+	applyNewAccountCap(candidates)
+
 	// Stage 1 + 2 + 3: tier sort + randomise + per-tier re-sort.
 	tierA, tierB := splitTiers(candidates)
 	knobs := noiseKnobs{
