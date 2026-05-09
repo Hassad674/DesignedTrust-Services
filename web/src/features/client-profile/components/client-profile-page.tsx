@@ -63,9 +63,16 @@ export function ClientProfilePage() {
     }
   }
 
+  // Enterprise orgs do not see the completion bar — their checklist
+  // is short (4 sections) and the marketplace acquisition incentive
+  // does not apply to them. Agency orgs (which also reach this page
+  // via their client persona) keep the bar to nudge billing/KYC
+  // completion. Decided 2026-05-09 with the avatar-refresh batch.
+  const showCompletionBar = org.type !== "enterprise"
+
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8" aria-label={t("pageTitle")}>
-      <ProfileCompletionBar variant="page" />
+      {showCompletionBar ? <ProfileCompletionBar variant="page" /> : null}
       <ClientProfileHeader
         companyName={companyName}
         avatarUrl={profile.avatar_url}

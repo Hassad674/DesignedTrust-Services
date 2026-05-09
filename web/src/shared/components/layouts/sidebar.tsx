@@ -258,13 +258,22 @@ export function Sidebar({ open, onClose, collapsed = false, onToggleCollapse }: 
               </div>
             )}
           </div>
-          <div className={cn(collapsed ? "mt-2" : "mt-3")}>
-            <ProfileCompletionBar
-              variant="sidebar"
-              collapsed={collapsed}
-              hideWhenComplete
-            />
-          </div>
+          {/* Profile completion bar — hidden for enterprise (the
+              client persona has only 4 sections and no marketplace
+              acquisition incentive, so the nudge is noise). The
+              referrer workspace renders the apporteur checklist by
+              passing `persona="referrer"`; the freelance workspace
+              keeps the default freelance / agency checklist. */}
+          {role !== "enterprise" && (
+            <div className={cn(collapsed ? "mt-2" : "mt-3")}>
+              <ProfileCompletionBar
+                variant="sidebar"
+                collapsed={collapsed}
+                hideWhenComplete
+                persona={isReferrerMode ? "referrer" : undefined}
+              />
+            </div>
+          )}
         </div>
 
         {/* Role switch (provider only) */}
