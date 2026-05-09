@@ -84,12 +84,20 @@ export type JobWithCountsListResponse = {
 
 // --- Job Application types ---
 
+// ApplicantKind is the persona under which an application was filed.
+// 'freelance' and 'agency' are the default kinds derived from the
+// applicant's role; 'referrer' is set explicitly when a provider with
+// referrer_enabled applies as an apporteur d'affaires (broker the deal
+// for a commission).
+export type ApplicantKind = "freelance" | "agency" | "referrer"
+
 // Since phase R3, a job application is owned by an organization, not
 // an individual user. applicant_id is the applicant org id.
 export type JobApplicationResponse = {
   id: string
   job_id: string
   applicant_id: string
+  applicant_kind: ApplicantKind
   message: string
   video_url?: string
   created_at: string

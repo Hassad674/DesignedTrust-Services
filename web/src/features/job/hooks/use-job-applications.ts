@@ -10,7 +10,7 @@ import {
   contactApplicant,
   hasApplied,
 } from "../api/job-application-api"
-import type { OpenJobListFilters } from "../types"
+import type { ApplicantKind, OpenJobListFilters } from "../types"
 import { useCurrentUserId } from "@/shared/hooks/use-current-user-id"
 
 function openJobsKey(filters?: OpenJobListFilters, cursor?: string) {
@@ -21,8 +21,11 @@ function myApplicationsKey(uid: string | undefined, cursor?: string) {
   return ["user", uid, "applications", cursor] as const
 }
 
-function jobApplicationsKey(jobId: string, cursor?: string) {
-  return ["jobs", jobId, "applications", cursor] as const
+function jobApplicationsKey(jobId: string, cursor?: string, kind?: ApplicantKind) {
+  // The kind segment defaults to "all" so the cache key stays stable for
+  // the unfiltered view; toggling between filters yields independent
+  // cache entries (each filter is fetched once, then cached).
+  return ["jobs", jobId, "applications", kind ?? "all", cursor] as const
 }
 
 function hasAppliedKey(uid: string | undefined, jobId: string) {
@@ -42,13 +45,35 @@ export function useApplyToJob() {
   const uid = useCurrentUserId()
 
   return useMutation({
-    mutationFn: ({ jobId, message, videoUrl }: { jobId: string; message: string; videoUrl?: string }) =>
-      applyToJob(jobId, { message, video_url: videoUrl }),
+    mutationFn: ({
+      jobId,
+      message,
+      videoUrl,
+      applicantKind,
+    }: {
+      jobId: string
+      message: string
+      videoUrl?: string
+      // Optional persona override. Empty / undefined falls back to the
+      // role-derived default at the backend (provider → freelance,
+      // agency → agency).
+      applicantKind?: ApplicantKind
+    }) =>
+      applyToJob(jobId, {
+        message,
+        video_url: videoUrl,
+        applicant_kind: applicantKind,
+      }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: hasAppliedKey(uid, variables.jobId) })
       queryClient.invalidateQueries({ queryKey: ["jobs", "open"] })
       queryClient.invalidateQueries({ queryKey: ["user", uid, "applications"] })
       queryClient.invalidateQueries({ queryKey: ["credits"] })
+      // Bust every kind-scoped applications cache for this job so the
+      // candidate list (any active filter) refetches the new row.
+      queryClient.invalidateQueries({
+        queryKey: ["jobs", variables.jobId, "applications"],
+      })
     },
   })
 }
@@ -66,10 +91,10 @@ export function useWithdrawApplication() {
   })
 }
 
-export function useJobApplications(jobId: string, cursor?: string) {
+export function useJobApplications(jobId: string, cursor?: string, kind?: ApplicantKind) {
   return useQuery({
-    queryKey: jobApplicationsKey(jobId, cursor),
-    queryFn: () => listJobApplications(jobId, cursor),
+    queryKey: jobApplicationsKey(jobId, cursor, kind),
+    queryFn: () => listJobApplications(jobId, cursor, kind),
     staleTime: 30 * 1000,
   })
 }
