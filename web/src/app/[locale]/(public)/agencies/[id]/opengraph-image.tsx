@@ -28,11 +28,11 @@ export default async function AgencyOgImage({ params }: ImageProps) {
   const [profile, rating, t, tSeo] = await Promise.all([
     fetchAgencyProfileForMetadata(id),
     fetchPublicAverageRating(id),
-    getTranslations({ locale, namespace: "publicProfile" }),
+    getTranslations({ locale, namespace: "profile.agency" }),
     getTranslations({ locale, namespace: "seo" }),
   ])
 
-  const displayName = profile?.title || t("agencyProfile")
+  const displayName = profile?.title || t("publicTitleSuffix")
   const ratingLine =
     rating && rating.count > 0
       ? tSeo("ratingLine", {

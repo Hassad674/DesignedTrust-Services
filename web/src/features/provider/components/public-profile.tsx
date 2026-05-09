@@ -27,7 +27,7 @@ interface PublicProfileProps {
 // is wired — freelance and referrer routes now use their dedicated
 // split-profile loaders.
 export function PublicProfile({ orgId, type: _type }: PublicProfileProps) {
-  const t = useTranslations("publicProfile")
+  const t = useTranslations("profile.public")
   const router = useRouter()
 
   const { data: profile, isLoading, error } = useQuery({
@@ -42,7 +42,7 @@ export function PublicProfile({ orgId, type: _type }: PublicProfileProps) {
   if (error || !profile) {
     return (
       <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
-        <p className="text-sm text-destructive">{t("profileNotFound")}</p>
+        <p className="text-sm text-destructive">{t("notFound")}</p>
         <Button variant="ghost" size="auto"
           onClick={() => router.back()}
           className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:opacity-80 transition-opacity"

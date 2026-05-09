@@ -34,14 +34,18 @@ type Props = {
 // URL stays indexable even on transient backend errors.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id, locale } = await params
-  const t = await getTranslations({ locale, namespace: "publicProfile" })
+  const t = await getTranslations({ locale, namespace: "profile.agency" })
   const profile = await fetchAgencyProfileForMetadata(id)
 
-  const displayName = profile?.title || t("agencyProfile")
-  const titleSuffix = t("agencyProfile")
+  const displayName = profile?.title || t("publicTitleSuffix")
+  const titleSuffix = t("publicTitleSuffix")
   const title = `${displayName} — ${titleSuffix} | Marketplace Service`
   const description =
-    profile?.about?.slice(0, 160) || t("agencyProfileDesc")
+    profile?.about?.slice(0, 160) ||
+    t("publicDescription", {
+      name: displayName,
+      title: profile?.title ? profile.title : "empty",
+    })
   const alternates = buildAlternates({
     locale: locale as SupportedLocale,
     path: `/agencies/${id}`,
@@ -78,7 +82,7 @@ export default async function AgencyProfilePage({ params }: Props) {
       primaryExpertise: undefined,
       city: undefined,
     }),
-    getTranslations({ locale, namespace: "publicProfile" }),
+    getTranslations({ locale, namespace: "profile.agency" }),
     getTranslations({ locale, namespace: "seo" }),
   ])
 
@@ -106,7 +110,7 @@ export default async function AgencyProfilePage({ params }: Props) {
       item: absoluteUrl(`/${locale}/agencies`),
     },
     {
-      label: profile?.title || tProfile("agencyProfile"),
+      label: profile?.title || tProfile("publicTitleSuffix"),
     },
   ]
 
