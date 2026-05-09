@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../domain/entities/job_application_entity.dart';
 import '../../../domain/entities/job_entity.dart';
 import '../../providers/job_provider.dart';
 import '../candidate_card.dart';
@@ -159,33 +160,106 @@ class _SectionCard extends StatelessWidget {
 }
 
 /// M-08 candidates tab — list of Soleil candidate cards or a soft empty
-/// state. Underlying Riverpod provider is unchanged.
-class JobDetailCandidatesTab extends ConsumerWidget {
+/// state. Drives the filtered Riverpod provider so the segmented chips
+/// at the top of the tab can narrow the rows by applicant_kind.
+class JobDetailCandidatesTab extends ConsumerStatefulWidget {
   const JobDetailCandidatesTab({super.key, required this.jobId});
 
   final String jobId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final candidates = ref.watch(jobApplicationsProvider(jobId));
+  ConsumerState<JobDetailCandidatesTab> createState() =>
+      _JobDetailCandidatesTabState();
+}
 
-    return RefreshIndicator(
-      onRefresh: () async => ref.invalidate(jobApplicationsProvider(jobId)),
-      child: candidates.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => _CandidatesError(jobId: jobId),
-        data: (items) {
-          if (items.isEmpty) return const _CandidatesEmpty();
-          return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) => CandidateCard(
-              item: items[index],
-              jobId: jobId,
-              candidates: items,
-              candidateIndex: index,
+class _JobDetailCandidatesTabState
+    extends ConsumerState<JobDetailCandidatesTab> {
+  ApplicantKind? _kindFilter;
+
+  @override
+  Widget build(BuildContext context) {
+    final args = JobApplicationsArgs(
+      jobId: widget.jobId,
+      kindFilter: _kindFilter,
+    );
+    final candidates = ref.watch(filteredJobApplicationsProvider(args));
+
+    return Column(
+      children: [
+        _CandidateKindFilterBar(
+          active: _kindFilter,
+          onChange: (next) => setState(() => _kindFilter = next),
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async =>
+                ref.invalidate(filteredJobApplicationsProvider(args)),
+            child: candidates.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => _CandidatesError(args: args),
+              data: (items) {
+                if (items.isEmpty) return const _CandidatesEmpty();
+                return ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) => CandidateCard(
+                    item: items[index],
+                    jobId: widget.jobId,
+                    candidates: items,
+                    candidateIndex: index,
+                  ),
+                );
+              },
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CandidateKindFilterBar extends StatelessWidget {
+  const _CandidateKindFilterBar({
+    required this.active,
+    required this.onChange,
+  });
+
+  final ApplicantKind? active;
+  final ValueChanged<ApplicantKind?> onChange;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final entries = <_CandidateFilterEntry>[
+      _CandidateFilterEntry(value: null, label: l10n.candidateFilterAll),
+      _CandidateFilterEntry(
+        value: ApplicantKind.freelance,
+        label: l10n.candidateFilterFreelances,
+      ),
+      _CandidateFilterEntry(
+        value: ApplicantKind.agency,
+        label: l10n.candidateFilterAgencies,
+      ),
+      _CandidateFilterEntry(
+        value: ApplicantKind.referrer,
+        label: l10n.candidateFilterReferrers,
+      ),
+    ];
+    return SizedBox(
+      height: 44,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+        itemCount: entries.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final entry = entries[i];
+          final isActive = entry.value == active;
+          return _CandidateFilterChip(
+            label: entry.label,
+            isActive: isActive,
+            onTap: () => onChange(entry.value),
           );
         },
       ),
@@ -193,10 +267,63 @@ class JobDetailCandidatesTab extends ConsumerWidget {
   }
 }
 
-class _CandidatesError extends ConsumerWidget {
-  const _CandidatesError({required this.jobId});
+class _CandidateFilterEntry {
+  const _CandidateFilterEntry({required this.value, required this.label});
+  final ApplicantKind? value;
+  final String label;
+}
 
-  final String jobId;
+class _CandidateFilterChip extends StatelessWidget {
+  const _CandidateFilterChip({
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final soleil = Theme.of(context).extension<AppColors>()!;
+    return Semantics(
+      button: true,
+      label: label,
+      selected: isActive,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            color: isActive ? soleil.accentSoft : cs.surfaceContainerLowest,
+            border: Border.all(
+              color: isActive ? cs.primary : cs.outline,
+              width: isActive ? 1.5 : 1,
+            ),
+            borderRadius: BorderRadius.circular(AppTheme.radiusFull),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: SoleilTextStyles.bodyEmphasis.copyWith(
+                fontSize: 12.5,
+                color: isActive ? soleil.primaryDeep : cs.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CandidatesError extends ConsumerWidget {
+  const _CandidatesError({required this.args});
+
+  final JobApplicationsArgs args;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -222,7 +349,7 @@ class _CandidatesError extends ConsumerWidget {
         const SizedBox(height: 8),
         Center(
           child: TextButton(
-            onPressed: () => ref.invalidate(jobApplicationsProvider(jobId)),
+            onPressed: () => ref.invalidate(filteredJobApplicationsProvider(args)),
             child: Text(l10n.retry),
           ),
         ),

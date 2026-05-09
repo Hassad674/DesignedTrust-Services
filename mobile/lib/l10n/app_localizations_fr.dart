@@ -1707,10 +1707,34 @@ class AppLocalizationsFr extends AppLocalizations {
   String get applySubmit => 'Envoyer ma candidature';
 
   @override
+  String get applyAsLegend => 'Tu postules en tant que';
+
+  @override
+  String get applyAsFreelance => 'Freelance';
+
+  @override
+  String get applyAsReferrer => 'Apporteur d\'affaires';
+
+  @override
   String get applicationSent => 'Candidature envoyée !';
 
   @override
   String get applicationSendError => 'Erreur lors de l\'envoi';
+
+  @override
+  String get candidateFilterAll => 'Tous';
+
+  @override
+  String get candidateFilterFreelances => 'Freelances';
+
+  @override
+  String get candidateFilterAgencies => 'Agences';
+
+  @override
+  String get candidateFilterReferrers => 'Apporteurs d\'affaires';
+
+  @override
+  String get candidatePillReferrer => 'Apporteur d\'affaires';
 
   @override
   String get videoUploadFailed =>

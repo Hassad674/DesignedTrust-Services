@@ -1,10 +1,44 @@
 import 'job_entity.dart';
 
+/// ApplicantKind enumerates the persona under which a job application
+/// was filed. 'freelance' and 'agency' are the role-derived defaults,
+/// 'referrer' is set explicitly when a provider with referrer_enabled
+/// applies as an apporteur d'affaires (broker the deal for a commission).
+enum ApplicantKind {
+  freelance,
+  agency,
+  referrer;
+
+  String get wire {
+    switch (this) {
+      case ApplicantKind.freelance:
+        return 'freelance';
+      case ApplicantKind.agency:
+        return 'agency';
+      case ApplicantKind.referrer:
+        return 'referrer';
+    }
+  }
+
+  static ApplicantKind fromWire(String? value) {
+    switch (value) {
+      case 'agency':
+        return ApplicantKind.agency;
+      case 'referrer':
+        return ApplicantKind.referrer;
+      case 'freelance':
+      default:
+        return ApplicantKind.freelance;
+    }
+  }
+}
+
 class JobApplicationEntity {
   const JobApplicationEntity({
     required this.id,
     required this.jobId,
     required this.applicantOrgId,
+    required this.applicantKind,
     required this.message,
     this.videoUrl,
     required this.createdAt,
@@ -18,6 +52,7 @@ class JobApplicationEntity {
   /// `applicant_id` on the wire for backwards-compatible JSON, but it
   /// holds the applicant org id.
   final String applicantOrgId;
+  final ApplicantKind applicantKind;
   final String message;
   final String? videoUrl;
   final String createdAt;
@@ -27,6 +62,7 @@ class JobApplicationEntity {
       id: json['id'] as String,
       jobId: json['job_id'] as String,
       applicantOrgId: json['applicant_id'] as String,
+      applicantKind: ApplicantKind.fromWire(json['applicant_kind'] as String?),
       message: (json['message'] as String?) ?? '',
       videoUrl: json['video_url'] as String?,
       createdAt: json['created_at'] as String,

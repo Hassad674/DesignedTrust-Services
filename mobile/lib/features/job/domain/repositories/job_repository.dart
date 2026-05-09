@@ -42,9 +42,23 @@ abstract class JobRepository {
 
   // Job applications
   Future<List<JobEntity>> listOpenJobs({String? cursor});
-  Future<JobApplicationEntity> applyToJob(String jobId, {required String message, String? videoUrl});
+  /// Apply to a job. [applicantKind] is optional — when omitted the
+  /// backend derives the persona from the user's role. Pass an explicit
+  /// kind only for the referrer-enabled provider radio.
+  Future<JobApplicationEntity> applyToJob(
+    String jobId, {
+    required String message,
+    String? videoUrl,
+    ApplicantKind? applicantKind,
+  });
   Future<void> withdrawApplication(String applicationId);
-  Future<List<ApplicationWithProfile>> listJobApplications(String jobId, {String? cursor});
+  /// List applications for a job. [kindFilter] narrows the rows to a
+  /// single applicant_kind; pass null for the unfiltered "Tous" view.
+  Future<List<ApplicationWithProfile>> listJobApplications(
+    String jobId, {
+    String? cursor,
+    ApplicantKind? kindFilter,
+  });
   Future<List<ApplicationWithJob>> listMyApplications({String? cursor});
   Future<String> contactApplicant(String jobId, String applicantId);
   Future<bool> hasApplied(String jobId);

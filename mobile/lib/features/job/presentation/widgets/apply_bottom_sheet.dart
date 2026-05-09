@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/video_player_widget.dart';
+import '../../../../shared/widgets/drawer/drawer_workspace_switch.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../domain/entities/job_application_entity.dart';
 import '../providers/job_provider.dart';
 
 void showApplyBottomSheet(BuildContext context, WidgetRef ref, String jobId) {
@@ -44,10 +48,28 @@ class _ApplyFormState extends ConsumerState<_ApplyForm> {
   double _uploadProgress = 0;
   int _messageLength = 0;
 
+  /// Persona radio state. The default mirrors the saved workspace mode
+  /// (referrer when the user toggled to that workspace before opening
+  /// the modal). Only referrer-enabled providers see the radio — every
+  /// other persona keeps the previous one-flow apply.
+  ApplicantKind _selectedKind = ApplicantKind.freelance;
+  bool _kindResolved = false;
+
   @override
   void initState() {
     super.initState();
     _messageController.addListener(_onMessageChanged);
+    _resolveDefaultKind();
+  }
+
+  Future<void> _resolveDefaultKind() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    final isReferrer = prefs.getString(drawerWorkspacePref) == 'referrer';
+    setState(() {
+      _selectedKind = isReferrer ? ApplicantKind.referrer : ApplicantKind.freelance;
+      _kindResolved = true;
+    });
   }
 
   void _onMessageChanged() {
@@ -106,13 +128,24 @@ class _ApplyFormState extends ConsumerState<_ApplyForm> {
     setState(() => _videoUrl = null);
   }
 
+  bool _shouldShowPersonaRadio() {
+    final auth = ref.read(authProvider);
+    final role = auth.user?['role'] as String? ?? '';
+    final referrerEnabled = auth.user?['referrer_enabled'] as bool? ?? false;
+    return role == 'provider' && referrerEnabled;
+  }
+
   Future<void> _submit() async {
     setState(() => _isSubmitting = true);
+    // Only forward the kind when the radio is shown (referrer-enabled
+    // provider). For every other persona the backend default is right.
+    final showRadio = _shouldShowPersonaRadio();
     final result = await applyToJobAction(
       ref,
       widget.jobId,
       message: _messageController.text.trim(),
       videoUrl: _videoUrl,
+      applicantKind: showRadio ? _selectedKind : null,
     );
     setState(() => _isSubmitting = false);
 
@@ -176,6 +209,15 @@ class _ApplyFormState extends ConsumerState<_ApplyForm> {
             ),
           ),
           const SizedBox(height: 16),
+
+          // Persona radio — referrer-enabled providers only.
+          if (_shouldShowPersonaRadio() && _kindResolved) ...[
+            _ApplicantKindPicker(
+              value: _selectedKind,
+              onChanged: (next) => setState(() => _selectedKind = next),
+            ),
+            const SizedBox(height: 16),
+          ],
 
           // Message (optional)
           TextField(
@@ -323,6 +365,119 @@ class _ApplyFormState extends ConsumerState<_ApplyForm> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Two-option persona radio for referrer-enabled providers.
+/// Pure agencies and non-referrer providers don't see this widget —
+/// the apply bottom sheet skips rendering it for them.
+class _ApplicantKindPicker extends StatelessWidget {
+  const _ApplicantKindPicker({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final ApplicantKind value;
+  final ValueChanged<ApplicantKind> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.applyAsLegend,
+          style: SoleilTextStyles.bodyEmphasis.copyWith(
+            fontSize: 13,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _KindOption(
+                label: l10n.applyAsFreelance,
+                kind: ApplicantKind.freelance,
+                isActive: value == ApplicantKind.freelance,
+                onTap: () => onChanged(ApplicantKind.freelance),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _KindOption(
+                label: l10n.applyAsReferrer,
+                kind: ApplicantKind.referrer,
+                isActive: value == ApplicantKind.referrer,
+                onTap: () => onChanged(ApplicantKind.referrer),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _KindOption extends StatelessWidget {
+  const _KindOption({
+    required this.label,
+    required this.kind,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  final String label;
+  final ApplicantKind kind;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final soleil = Theme.of(context).extension<AppColors>()!;
+    return Semantics(
+      button: true,
+      label: label,
+      selected: isActive,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? soleil.accentSoft : cs.surfaceContainerLowest,
+            border: Border.all(
+              color: isActive ? cs.primary : soleil.borderStrong,
+              width: isActive ? 1.5 : 1,
+            ),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isActive
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                size: 18,
+                color: isActive ? cs.primary : cs.outline,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: SoleilTextStyles.bodyEmphasis.copyWith(
+                    fontSize: 13,
+                    color: isActive ? cs.primary : cs.onSurface,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
