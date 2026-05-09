@@ -1700,10 +1700,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get applySubmit => 'Send my application';
 
   @override
+  String get applyAsLegend => 'Apply as';
+
+  @override
+  String get applyAsFreelance => 'Freelance';
+
+  @override
+  String get applyAsReferrer => 'Business referrer';
+
+  @override
   String get applicationSent => 'Application sent!';
 
   @override
   String get applicationSendError => 'Failed to send application';
+
+  @override
+  String get candidateFilterAll => 'All';
+
+  @override
+  String get candidateFilterFreelances => 'Freelances';
+
+  @override
+  String get candidateFilterAgencies => 'Agencies';
+
+  @override
+  String get candidateFilterReferrers => 'Business referrers';
+
+  @override
+  String get candidatePillReferrer => 'Business referrer';
 
   @override
   String get videoUploadFailed => 'Video upload failed. Please try again.';

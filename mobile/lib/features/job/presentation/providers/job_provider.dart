@@ -119,6 +119,34 @@ final jobApplicationsProvider = FutureProvider.family<List<ApplicationWithProfil
   return repo.listJobApplications(jobId);
 });
 
+/// JobApplicationsArgs is a small value object so the family provider
+/// can carry both the job id and the optional applicant_kind filter.
+/// FutureProvider.family expects a single, equatable argument — Dart's
+/// records (Dart 3) make this concise.
+class JobApplicationsArgs {
+  const JobApplicationsArgs({required this.jobId, this.kindFilter});
+  final String jobId;
+  final ApplicantKind? kindFilter;
+
+  @override
+  bool operator ==(Object other) =>
+      other is JobApplicationsArgs &&
+      other.jobId == jobId &&
+      other.kindFilter == kindFilter;
+
+  @override
+  int get hashCode => Object.hash(jobId, kindFilter);
+}
+
+/// Filtered candidates list — narrows by applicant_kind. Each filter
+/// gets an independent cache entry so toggling between chips fetches
+/// once per kind, then serves from cache.
+final filteredJobApplicationsProvider =
+    FutureProvider.family<List<ApplicationWithProfile>, JobApplicationsArgs>((ref, args) async {
+  final repo = ref.watch(jobRepositoryProvider);
+  return repo.listJobApplications(args.jobId, kindFilter: args.kindFilter);
+});
+
 /// Checks if the current user has already applied to a job.
 final hasAppliedProvider = FutureProvider.family<bool, String>((ref, jobId) async {
   final repo = ref.watch(jobRepositoryProvider);
@@ -139,14 +167,25 @@ Future<ApplyResult> applyToJobAction(
   String jobId, {
   required String message,
   String? videoUrl,
+  ApplicantKind? applicantKind,
 }) async {
   try {
     final repo = ref.read(jobRepositoryProvider);
-    final app = await repo.applyToJob(jobId, message: message, videoUrl: videoUrl);
+    final app = await repo.applyToJob(
+      jobId,
+      message: message,
+      videoUrl: videoUrl,
+      applicantKind: applicantKind,
+    );
     ref.invalidate(openJobsProvider);
     ref.invalidate(myApplicationsProvider);
     ref.invalidate(hasAppliedProvider(jobId));
     ref.invalidate(creditsProvider);
+    // Also bust filtered candidate caches so a job poster who is
+    // currently browsing a filtered view sees the new application
+    // appear when the user switches back.
+    ref.invalidate(jobApplicationsProvider(jobId));
+    ref.invalidate(filteredJobApplicationsProvider);
     return ApplyResult(application: app);
   } on DioException catch (e) {
     debugPrint('[JobProvider] applyToJob error: $e');

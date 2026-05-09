@@ -48,7 +48,7 @@ class CandidateCard extends StatelessWidget {
     final application = item.application;
     final displayName = profile.name;
     final initials = _initialsFromName(displayName);
-    final orgLabel = _orgLabel(profile.orgType, l10n);
+    final orgLabel = _personaLabel(application.applicantKind, profile.orgType, l10n);
 
     return Material(
       color: cs.surfaceContainerLowest,
@@ -99,7 +99,11 @@ class CandidateCard extends StatelessWidget {
                             runSpacing: 4,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              _OrgPill(orgType: profile.orgType, label: orgLabel),
+                              _OrgPill(
+                                applicantKind: application.applicantKind,
+                                orgType: profile.orgType,
+                                label: orgLabel,
+                              ),
                               if (application.videoUrl != null &&
                                   application.videoUrl!.isNotEmpty)
                                 _VideoBadge(label: l10n.jobDetail_m08_videoBadge),
@@ -174,11 +178,23 @@ class CandidateCard extends StatelessWidget {
     }
   }
 
-  String _orgLabel(String orgType, AppLocalizations l10n) {
-    return switch (orgType) {
-      'agency' => l10n.jobDetail_m08_orgAgency,
-      'enterprise' => l10n.jobDetail_m08_orgEnterprise,
-      _ => l10n.jobDetail_m08_orgFreelance,
+  /// Resolve the row label from the persisted applicant_kind. Falls
+  /// back to org_type for legacy / cached rows where the kind was not
+  /// yet persisted (the migration backfilled but a stale cache could
+  /// surface a row with a missing kind).
+  String _personaLabel(
+    ApplicantKind kind,
+    String orgType,
+    AppLocalizations l10n,
+  ) {
+    return switch (kind) {
+      ApplicantKind.referrer => l10n.candidatePillReferrer,
+      ApplicantKind.agency => l10n.jobDetail_m08_orgAgency,
+      ApplicantKind.freelance => switch (orgType) {
+        'agency' => l10n.jobDetail_m08_orgAgency,
+        'enterprise' => l10n.jobDetail_m08_orgEnterprise,
+        _ => l10n.jobDetail_m08_orgFreelance,
+      },
     };
   }
 }
@@ -253,8 +269,13 @@ class _InitialsDisc extends StatelessWidget {
 }
 
 class _OrgPill extends StatelessWidget {
-  const _OrgPill({required this.orgType, required this.label});
+  const _OrgPill({
+    required this.applicantKind,
+    required this.orgType,
+    required this.label,
+  });
 
+  final ApplicantKind applicantKind;
   final String orgType;
   final String label;
 
@@ -262,20 +283,27 @@ class _OrgPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final soleil = theme.extension<AppColors>()!;
-    final isFreelance = orgType == 'provider_personal';
-    final isAgency = orgType == 'agency';
 
     final Color background;
     final Color foreground;
-    if (isFreelance) {
-      background = soleil.accentSoft;
-      foreground = soleil.primaryDeep;
-    } else if (isAgency) {
-      background = soleil.successSoft;
-      foreground = soleil.success;
-    } else {
-      background = soleil.amberSoft;
-      foreground = theme.colorScheme.onSurface;
+    switch (applicantKind) {
+      case ApplicantKind.referrer:
+        background = soleil.amberSoft;
+        foreground = soleil.primaryDeep;
+        break;
+      case ApplicantKind.agency:
+        background = soleil.successSoft;
+        foreground = soleil.success;
+        break;
+      case ApplicantKind.freelance:
+        if (orgType == 'agency') {
+          background = soleil.successSoft;
+          foreground = soleil.success;
+        } else {
+          background = soleil.accentSoft;
+          foreground = soleil.primaryDeep;
+        }
+        break;
     }
 
     return Container(

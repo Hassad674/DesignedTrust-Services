@@ -95,9 +95,15 @@ class JobRepositoryImpl implements JobRepository {
   }
 
   @override
-  Future<JobApplicationEntity> applyToJob(String jobId, {required String message, String? videoUrl}) async {
+  Future<JobApplicationEntity> applyToJob(
+    String jobId, {
+    required String message,
+    String? videoUrl,
+    ApplicantKind? applicantKind,
+  }) async {
     final body = <String, dynamic>{'message': message};
     if (videoUrl != null) body['video_url'] = videoUrl;
+    if (applicantKind != null) body['applicant_kind'] = applicantKind.wire;
     final response = await apiClient.post('/api/v1/jobs/$jobId/apply', data: body);
     return JobApplicationEntity.fromJson(_extractData(response.data));
   }
@@ -108,9 +114,18 @@ class JobRepositoryImpl implements JobRepository {
   }
 
   @override
-  Future<List<ApplicationWithProfile>> listJobApplications(String jobId, {String? cursor}) async {
-    final params = cursor != null ? '?cursor=${Uri.encodeComponent(cursor)}' : '';
-    final response = await apiClient.get('/api/v1/jobs/$jobId/applications$params');
+  Future<List<ApplicationWithProfile>> listJobApplications(
+    String jobId, {
+    String? cursor,
+    ApplicantKind? kindFilter,
+  }) async {
+    final query = <String, String>{};
+    if (cursor != null) query['cursor'] = cursor;
+    if (kindFilter != null) query['kind'] = kindFilter.wire;
+    final qs = query.isEmpty
+        ? ''
+        : '?${query.entries.map((e) => '${e.key}=${Uri.encodeQueryComponent(e.value)}').join('&')}';
+    final response = await apiClient.get('/api/v1/jobs/$jobId/applications$qs');
     final raw = response.data;
     if (raw is Map<String, dynamic> && raw.containsKey('data')) {
       return (raw['data'] as List).map((e) => ApplicationWithProfile.fromJson(e as Map<String, dynamic>)).toList();

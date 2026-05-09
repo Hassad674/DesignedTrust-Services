@@ -63,7 +63,7 @@ import 'app_localizations_fr.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('fr')
+    Locale('fr'),
   ];
 
   /// No description provided for @appTitle.
@@ -3278,6 +3278,24 @@ abstract class AppLocalizations {
   /// **'Send my application'**
   String get applySubmit;
 
+  /// No description provided for @applyAsLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply as'**
+  String get applyAsLegend;
+
+  /// No description provided for @applyAsFreelance.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance'**
+  String get applyAsFreelance;
+
+  /// No description provided for @applyAsReferrer.
+  ///
+  /// In en, this message translates to:
+  /// **'Business referrer'**
+  String get applyAsReferrer;
+
   /// No description provided for @applicationSent.
   ///
   /// In en, this message translates to:
@@ -3289,6 +3307,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to send application'**
   String get applicationSendError;
+
+  /// No description provided for @candidateFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get candidateFilterAll;
+
+  /// No description provided for @candidateFilterFreelances.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelances'**
+  String get candidateFilterFreelances;
+
+  /// No description provided for @candidateFilterAgencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Agencies'**
+  String get candidateFilterAgencies;
+
+  /// No description provided for @candidateFilterReferrers.
+  ///
+  /// In en, this message translates to:
+  /// **'Business referrers'**
+  String get candidateFilterReferrers;
+
+  /// No description provided for @candidatePillReferrer.
+  ///
+  /// In en, this message translates to:
+  /// **'Business referrer'**
+  String get candidatePillReferrer;
 
   /// No description provided for @videoUploadFailed.
   ///
@@ -7356,8 +7404,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

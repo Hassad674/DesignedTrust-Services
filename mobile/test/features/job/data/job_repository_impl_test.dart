@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:marketplace_mobile/features/job/data/job_repository_impl.dart';
+import 'package:marketplace_mobile/features/job/domain/entities/job_application_entity.dart';
 import 'package:marketplace_mobile/features/job/domain/repositories/job_repository.dart';
 
 import '../../../helpers/fake_api_client.dart';
@@ -216,6 +217,92 @@ void main() {
       };
 
       await repo.closeJob('job-1');
+
+      expect(called, true);
+    });
+  });
+
+  // --- Applicant kind plumbing (Fix 2 / Fix 3) -----------------------
+
+  group('JobRepositoryImpl.applyToJob', () {
+    test('forwards applicant_kind=referrer when supplied', () async {
+      Map<String, dynamic>? captured;
+      fakeApi.postHandlers['/api/v1/jobs/job-1/apply'] = (data) async {
+        captured = data as Map<String, dynamic>;
+        return FakeApiClient.ok({
+          'data': {
+            'id': 'app-1',
+            'job_id': 'job-1',
+            'applicant_id': 'org-1',
+            'applicant_kind': 'referrer',
+            'message': 'I bring you a great freelance',
+            'created_at': '2026-04-01T00:00:00Z',
+          },
+        });
+      };
+
+      final app = await repo.applyToJob(
+        'job-1',
+        message: 'I bring you a great freelance',
+        applicantKind: ApplicantKind.referrer,
+      );
+
+      expect(captured!['applicant_kind'], 'referrer');
+      expect(app.applicantKind, ApplicantKind.referrer);
+    });
+
+    test('omits applicant_kind from the body when null', () async {
+      Map<String, dynamic>? captured;
+      fakeApi.postHandlers['/api/v1/jobs/job-1/apply'] = (data) async {
+        captured = data as Map<String, dynamic>;
+        return FakeApiClient.ok({
+          'data': {
+            'id': 'app-1',
+            'job_id': 'job-1',
+            'applicant_id': 'org-1',
+            'applicant_kind': 'freelance',
+            'message': 'default',
+            'created_at': '2026-04-01T00:00:00Z',
+          },
+        });
+      };
+
+      await repo.applyToJob('job-1', message: 'default');
+
+      expect(captured!.containsKey('applicant_kind'), false,
+          reason: 'omit when caller does not supply a kind so the backend '
+              'can fall back to its role-derived default');
+    });
+  });
+
+  group('JobRepositoryImpl.listJobApplications', () {
+    test('appends ?kind=agency when filter is set', () async {
+      Map<String, dynamic>? capturedQp;
+      // The repo builds the kind query manually as part of the path,
+      // so we register a path that already contains the kind segment.
+      fakeApi.getHandlers['/api/v1/jobs/job-1/applications?kind=agency'] =
+          (qp) async {
+        capturedQp = qp;
+        return FakeApiClient.ok({'data': []});
+      };
+
+      final items = await repo.listJobApplications(
+        'job-1',
+        kindFilter: ApplicantKind.agency,
+      );
+
+      expect(items, isEmpty);
+      expect(capturedQp, anyOf(isNull, isEmpty));
+    });
+
+    test('does not append kind when filter is null', () async {
+      var called = false;
+      fakeApi.getHandlers['/api/v1/jobs/job-1/applications'] = (_) async {
+        called = true;
+        return FakeApiClient.ok({'data': []});
+      };
+
+      await repo.listJobApplications('job-1');
 
       expect(called, true);
     });
