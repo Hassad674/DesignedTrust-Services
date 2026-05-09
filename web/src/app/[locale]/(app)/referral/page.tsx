@@ -22,6 +22,7 @@ import { useOrganizationShared } from "@/features/organization-shared/hooks/use-
 import { SharedLocationSection } from "@/features/organization-shared/components/shared-location-section"
 import { SharedLanguagesSection } from "@/features/organization-shared/components/shared-languages-section"
 import { ReferrerSocialLinksSection } from "@/features/referrer-profile/components/referrer-social-links-section"
+import { ProfileCompletionBar } from "@/features/profile-completion/components/profile-completion-bar"
 
 // /referral renders the authenticated user's referrer profile in
 // editable mode. Shared fields (photo, location, languages) are
@@ -73,6 +74,11 @@ export default function ReferralPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6">
+      {/* Apporteur completion bar — same shape as the freelance one
+          on /profile, but scoped to the 8-section referrer checklist
+          via the explicit persona prop so the report does not
+          collapse into the freelance default. */}
+      <ProfileCompletionBar variant="page" persona="referrer" />
       <ReferrerPublicProfile
         profile={profile}
         displayName={displayName}
