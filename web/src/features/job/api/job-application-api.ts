@@ -1,6 +1,7 @@
 import { apiClient } from "@/shared/lib/api-client"
 import type { Get, Post, Void } from "@/shared/lib/api-paths"
 import type {
+  ApplicantKind,
   JobListResponse,
   JobApplicationResponse,
   ApplicationListResponse,
@@ -21,7 +22,14 @@ export function listOpenJobs(filters?: OpenJobListFilters, cursor?: string): Pro
   return apiClient<Get<"/api/v1/jobs/open"> & JobListResponse>(`/api/v1/jobs/open${query ? `?${query}` : ""}`)
 }
 
-export function applyToJob(jobId: string, body: { message: string; video_url?: string }): Promise<JobApplicationResponse> {
+// applicant_kind is optional on the wire — older clients omit it and
+// the backend falls back to the role-derived default. The web app
+// always sends it now (even for the freelance default) so the persona
+// shown on the candidates list reflects the user's explicit choice.
+export function applyToJob(
+  jobId: string,
+  body: { message: string; video_url?: string; applicant_kind?: ApplicantKind },
+): Promise<JobApplicationResponse> {
   return apiClient<Post<"/api/v1/jobs/{id}/apply"> & JobApplicationResponse>(`/api/v1/jobs/${jobId}/apply`, {
     method: "POST",
     body,
@@ -34,9 +42,22 @@ export function withdrawApplication(applicationId: string): Promise<void> {
   })
 }
 
-export function listJobApplications(jobId: string, cursor?: string): Promise<ApplicationListResponse> {
-  const params = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""
-  return apiClient<Get<"/api/v1/jobs/{id}/applications"> & ApplicationListResponse>(`/api/v1/jobs/${jobId}/applications${params}`)
+// listJobApplications accepts an optional kind filter so the candidates
+// tab can render the "Tous / Freelances / Agences / Apporteurs"
+// segmented filter. The query string stays the source of truth so a
+// shared link reproduces the same filtered view.
+export function listJobApplications(
+  jobId: string,
+  cursor?: string,
+  kind?: ApplicantKind,
+): Promise<ApplicationListResponse> {
+  const params = new URLSearchParams()
+  if (cursor) params.set("cursor", cursor)
+  if (kind) params.set("kind", kind)
+  const qs = params.toString()
+  return apiClient<Get<"/api/v1/jobs/{id}/applications"> & ApplicationListResponse>(
+    `/api/v1/jobs/${jobId}/applications${qs ? `?${qs}` : ""}`,
+  )
 }
 
 export function listMyApplications(cursor?: string): Promise<MyApplicationListResponse> {

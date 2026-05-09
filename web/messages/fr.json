@@ -1331,6 +1331,7 @@
     "jobDetail_w08_orgFreelance": "Freelance",
     "jobDetail_w08_orgAgency": "Agence",
     "jobDetail_w08_orgEnterprise": "Entreprise",
+    "jobDetail_w08_orgReferrer": "Apporteur d'affaires",
     "jobDetail_w08_videoBadge": "Vidéo",
     "jobDetail_w08_panelEyebrow": "CANDIDATURE",
     "jobDetail_w08_messageHeading": "Lettre de motivation",
@@ -1887,7 +1888,14 @@
     "applySidebarTitle": "Réponds en quelques mots, ils te répondent en moyenne sous 24 h.",
     "applySidebarBody": "Une lettre de motivation, ta vidéo de présentation et tu peux y aller.",
     "postedOn": "Publiée le",
-    "budget": "Budget"
+    "budget": "Budget",
+    "applyAsLegend": "Tu postules en tant que",
+    "applyAsFreelance": "Freelance",
+    "applyAsReferrer": "Apporteur d'affaires",
+    "filterAllCandidates": "Tous",
+    "filterFreelances": "Freelances",
+    "filterAgencies": "Agences",
+    "filterReferrers": "Apporteurs d'affaires"
   },
   "portfolio": {
     "sectionTitle": "Portfolio",

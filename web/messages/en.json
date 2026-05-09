@@ -1331,6 +1331,7 @@
     "jobDetail_w08_orgFreelance": "Freelance",
     "jobDetail_w08_orgAgency": "Agency",
     "jobDetail_w08_orgEnterprise": "Enterprise",
+    "jobDetail_w08_orgReferrer": "Business referrer",
     "jobDetail_w08_videoBadge": "Video",
     "jobDetail_w08_panelEyebrow": "APPLICATION",
     "jobDetail_w08_messageHeading": "Cover letter",
@@ -1887,7 +1888,14 @@
     "applySidebarTitle": "Reply in a few words, they typically respond within 24h.",
     "applySidebarBody": "A short cover letter, your intro video, and you're good to go.",
     "postedOn": "Posted on",
-    "budget": "Budget"
+    "budget": "Budget",
+    "applyAsLegend": "Apply as",
+    "applyAsFreelance": "Freelance",
+    "applyAsReferrer": "Business referrer",
+    "filterAllCandidates": "All",
+    "filterFreelances": "Freelances",
+    "filterAgencies": "Agencies",
+    "filterReferrers": "Business referrers"
   },
   "portfolio": {
     "sectionTitle": "Portfolio",

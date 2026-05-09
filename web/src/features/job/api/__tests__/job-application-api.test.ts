@@ -80,6 +80,17 @@ describe("job-application-api / applications", () => {
     )
   })
 
+  it("applyToJob forwards applicant_kind when supplied", () => {
+    applyToJob("j-1", { message: "hi", applicant_kind: "referrer" })
+    expect(mockApiClient).toHaveBeenCalledWith(
+      "/api/v1/jobs/j-1/apply",
+      {
+        method: "POST",
+        body: { message: "hi", video_url: undefined, applicant_kind: "referrer" },
+      },
+    )
+  })
+
   it("withdrawApplication DELETEs by application id", () => {
     withdrawApplication("a-1")
     expect(mockApiClient).toHaveBeenCalledWith(
@@ -100,6 +111,20 @@ describe("job-application-api / applications", () => {
     expect(mockApiClient).toHaveBeenCalledWith(
       "/api/v1/jobs/j-1/applications?cursor=tok",
     )
+  })
+
+  it("listJobApplications appends kind filter", () => {
+    listJobApplications("j-1", undefined, "referrer")
+    expect(mockApiClient).toHaveBeenCalledWith(
+      "/api/v1/jobs/j-1/applications?kind=referrer",
+    )
+  })
+
+  it("listJobApplications appends both cursor + kind", () => {
+    listJobApplications("j-1", "tok", "agency")
+    const call = mockApiClient.mock.calls[0][0] as string
+    expect(call).toContain("cursor=tok")
+    expect(call).toContain("kind=agency")
   })
 
   it("listMyApplications without cursor", () => {
