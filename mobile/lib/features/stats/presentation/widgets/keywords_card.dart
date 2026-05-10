@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/theme_text_styles.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/keyword_row.dart';
 import '../providers/stats_data_providers.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/theme_text_styles.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/stats_period.dart';
 
@@ -54,14 +53,11 @@ class PeriodSelector extends StatelessWidget {
   }
 
   String _label(AppLocalizations l10n, StatsPeriod period) {
-    switch (period) {
-      case StatsPeriod.sevenDays:
-        return l10n.statsPeriod7d;
-      case StatsPeriod.thirtyDays:
-        return l10n.statsPeriod30d;
-      case StatsPeriod.ninetyDays:
-        return l10n.statsPeriod90d;
-    }
+    return switch (period) {
+      StatsPeriod.sevenDays => l10n.statsPeriod7d,
+      StatsPeriod.thirtyDays => l10n.statsPeriod30d,
+      StatsPeriod.ninetyDays => l10n.statsPeriod90d,
+    };
   }
 }
 

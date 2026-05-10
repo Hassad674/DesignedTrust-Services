@@ -4,7 +4,6 @@ import '../../data/stats_repository_impl.dart';
 import '../../domain/entities/applications_series.dart';
 import '../../domain/entities/keyword_row.dart';
 import '../../domain/entities/visibility_stats.dart';
-import '../../domain/stats_period.dart';
 import 'stats_period_provider.dart';
 
 /// Visibility series fetched for the period currently selected in
