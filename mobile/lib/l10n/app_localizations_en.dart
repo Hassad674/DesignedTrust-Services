@@ -4140,4 +4140,83 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get statsEnterprisePlaceholderBody =>
       'Enterprise stats (applications, active jobs) are coming soon.';
+
+  @override
+  String get twoFactorTitle => 'Confirm it\'s really you.';
+
+  @override
+  String get twoFactorSubtitle =>
+      'We sent a 6-digit code to your email. Enter it below to finish signing in.';
+
+  @override
+  String get twoFactorCodeLabel => 'Verification code';
+
+  @override
+  String get twoFactorCodeHint => '123456';
+
+  @override
+  String get twoFactorVerifyCta => 'Verify code';
+
+  @override
+  String get twoFactorVerifying => 'Verifying...';
+
+  @override
+  String get twoFactorBackToLogin => 'Back to sign in';
+
+  @override
+  String get twoFactorResend => 'Resend code';
+
+  @override
+  String get twoFactorCodeLengthError => 'The code must be 6 digits.';
+
+  @override
+  String get twoFactorSectionTitle => 'Two-factor authentication';
+
+  @override
+  String get twoFactorSectionDesc =>
+      'Add a second layer of security: a 6-digit code will be emailed to you on every sign in.';
+
+  @override
+  String get twoFactorToggleTitle => 'Email 2FA';
+
+  @override
+  String get twoFactorToggleDescOn =>
+      'Active. A code will be required at every sign in.';
+
+  @override
+  String get twoFactorToggleDescOff =>
+      'Inactive. Enable 2FA to harden your account.';
+
+  @override
+  String get twoFactorEnablePrompt =>
+      'We just emailed a 6-digit code to confirm your email belongs to you. Enter it to finish enabling 2FA.';
+
+  @override
+  String get twoFactorDisablePrompt =>
+      'To disable 2FA, confirm your current password.';
+
+  @override
+  String get twoFactorCurrentPasswordLabel => 'Current password';
+
+  @override
+  String get twoFactorConfirmEnableCta => 'Enable 2FA';
+
+  @override
+  String get twoFactorConfirmDisableCta => 'Disable 2FA';
+
+  @override
+  String get twoFactorCancel => 'Cancel';
+
+  @override
+  String get twoFactorEnabledToast => 'Email 2FA enabled.';
+
+  @override
+  String get twoFactorDisabledToast => 'Email 2FA disabled.';
+
+  @override
+  String get twoFactorErrorPasswordRequired => 'Password is required.';
+
+  @override
+  String get twoFactorErrorGeneric =>
+      'Something went wrong. Try again in a moment.';
 }

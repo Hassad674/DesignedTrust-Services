@@ -139,7 +139,9 @@
   "searchResultsCount": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
   "@searchResultsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "searchFiltersTitle": "Filters",
@@ -346,7 +348,9 @@
   "jobsApplicantsNew": "{count} new",
   "@jobsApplicantsNew": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "jobsViewArrow": "View →",
@@ -355,38 +359,50 @@
   "jobsPublishedRelative": "Posted {when}",
   "@jobsPublishedRelative": {
     "placeholders": {
-      "when": { "type": "String" }
+      "when": {
+        "type": "String"
+      }
     }
   },
   "jobsClosedRelative": "Closed {when}",
   "@jobsClosedRelative": {
     "placeholders": {
-      "when": { "type": "String" }
+      "when": {
+        "type": "String"
+      }
     }
   },
   "jobsJustNow": "just now",
   "jobsMinutesAgo": "{count}m ago",
   "@jobsMinutesAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "jobsHoursAgo": "{count}h ago",
   "@jobsHoursAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "jobsDaysAgo": "{count}d ago",
   "@jobsDaysAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "jobsWeeksAgo": "{count}w ago",
   "@jobsWeeksAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "jobsEmptyCta": "Publish your first job",
@@ -411,7 +427,9 @@
   "milestoneEditorDeadlineLabel": "Deadline",
   "@milestoneEditorMinimumHint": {
     "placeholders": {
-      "min": {"type": "int"}
+      "min": {
+        "type": "int"
+      }
     }
   },
   "milestoneEditorMinimumHint": "A milestone-based mission must have at least {min} steps. Each milestone has its own title, amount and due date.",
@@ -455,7 +473,9 @@
   "milestoneSequenceLabel": "Milestone {sequence}",
   "@milestoneSequenceLabel": {
     "placeholders": {
-      "sequence": { "type": "int" }
+      "sequence": {
+        "type": "int"
+      }
     }
   },
   "milestoneFundTitle": "Fund this milestone",
@@ -539,20 +559,36 @@
   "notificationsSubtitleAllRead": "You're all caught up. Everything is marked as read.",
   "notificationsSubtitleUnread": "{count, plural, one {# unread} other {# unread}} · mark all read",
   "@notificationsSubtitleUnread": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "notificationsTimeJustNow": "just now",
   "notificationsTimeMinutes": "{n}m ago",
   "@notificationsTimeMinutes": {
-    "placeholders": { "n": { "type": "int" } }
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   },
   "notificationsTimeHours": "{n}h ago",
   "@notificationsTimeHours": {
-    "placeholders": { "n": { "type": "int" } }
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   },
   "notificationsTimeDays": "{n}d ago",
   "@notificationsTimeDays": {
-    "placeholders": { "n": { "type": "int" } }
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   },
   "proposalViewDetails": "View details",
   "identityDocTitle": "Identity verification",
@@ -640,7 +676,9 @@
   "@opportunityApplicationsCount": {
     "description": "Discrete social-proof label on the opportunity card showing the public count of applications submitted so far.",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "jobNotFound": "Job not found",
@@ -746,7 +784,6 @@
   "kycW05TitleAccent": "tax identity.",
   "kycW05Subtitle": "A few details handed to Stripe to activate payments and transfers with peace of mind.",
   "kycW05OpenWebViewHint": "Verification continues in a secure Stripe window.",
-
   "kycBannerPendingTitle": "Set up your payment info",
   "kycBannerPendingBody": "You have funds pending. Complete setup within {days} days to avoid restrictions.",
   "@kycBannerPendingBody": {
@@ -759,7 +796,6 @@
   "kycBannerRestrictedTitle": "Account restricted",
   "kycBannerRestrictedBody": "You cannot apply to jobs or create proposals until you complete your payment setup.",
   "kycBannerCta": "Set up now",
-
   "disputeOpenTitle": "Dispute in progress",
   "disputeNegotiationTitle": "Negotiation in progress",
   "disputeEscalatedTitle": "Under mediation",
@@ -767,13 +803,11 @@
   "disputeCounterPropose": "Make a proposal",
   "disputeCancel": "Cancel dispute",
   "disputeOpenBtn": "Report a problem",
-
   "disputeStatusOpen": "Dispute in progress",
   "disputeStatusNegotiation": "Negotiation in progress",
   "disputeStatusEscalated": "Under mediation",
   "disputeStatusResolved": "Dispute resolved",
   "disputeStatusCancelled": "Dispute cancelled",
-
   "disputeReasonWorkNotConforming": "Work does not conform to scope",
   "disputeReasonNonDelivery": "Non-delivery",
   "disputeReasonInsufficientQuality": "Insufficient quality",
@@ -782,17 +816,24 @@
   "disputeReasonRefusalToValidate": "Refusal to validate without reason",
   "disputeReasonHarassment": "Harassment",
   "disputeReasonOther": "Other",
-
   "disputeReasonLabel": "Reason",
   "disputeReasonPlaceholder": "Select a reason",
   "disputeAmountLabel": "What are you requesting?",
   "disputeTotalRefund": "Full refund ({amount})",
   "@disputeTotalRefund": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "disputeTotalRelease": "Full fund release ({amount})",
   "@disputeTotalRelease": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "disputePartialAmount": "Partial amount",
   "disputeMessageToPartyLabel": "Message to the other party",
@@ -802,7 +843,6 @@
   "disputeDescriptionHint": "This will only be read by the mediation team if the dispute is escalated.",
   "disputeDescriptionPlaceholder": "Additional context, timeline of events, evidence descriptions...",
   "disputeFormWarning": "Opening a dispute freezes the funds until resolution. The other party will be notified.",
-
   "disputeSubmit": "Submit dispute",
   "disputeAccept": "Accept",
   "disputeReject": "Reject",
@@ -811,30 +851,35 @@
   "disputeCancelBtn": "Cancel",
   "disputeViewDetails": "View details",
   "disputeReportProblem": "Report a problem",
-
   "disputeCounterSplitLabel": "Proposed split",
   "disputeCounterMessageLabel": "Message (optional)",
   "disputeCounterMessagePlaceholder": "Explain your proposal...",
-
   "disputeRequestedAmount": "requested",
   "disputeDaysLeft": "{days} days left before escalation",
   "@disputeDaysLeft": {
-    "placeholders": { "days": { "type": "int" } }
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "disputeEscalationSoon": "Escalation imminent",
   "disputeLastProposal": "Last proposal",
   "disputeSplit": "{client} to client, {provider} to provider",
   "@disputeSplit": {
     "placeholders": {
-      "client": { "type": "String" },
-      "provider": { "type": "String" }
+      "client": {
+        "type": "String"
+      },
+      "provider": {
+        "type": "String"
+      }
     }
   },
   "disputeResolution": "Resolution",
   "disputeInProgress": "A dispute is in progress on this mission",
   "disputeClient": "Client",
   "disputeProvider": "Provider",
-
   "disputeOpenedLabel": "Dispute opened",
   "disputeCounterProposalLabel": "Proposal",
   "disputeCounterAcceptedLabel": "Proposal accepted",
@@ -845,7 +890,6 @@
   "disputeAutoResolvedLabel": "Dispute auto-resolved",
   "disputeCancellationRequestedLabel": "Cancellation request",
   "disputeCancellationRefusedLabel": "Cancellation refused",
-
   "disputeYourLastProposalRefused": "Your last proposal was refused",
   "disputeEscalatedNegotiationStillOpen": "The dispute is now under mediation. Until the admin renders a final decision, you can still reach an amicable agreement together.",
   "disputeCancellationRequestPending": "Cancellation request pending",
@@ -854,30 +898,34 @@
   "disputeCancellationRequestSent": "Cancellation request sent. Waiting for the other party's response.",
   "disputeAcceptCancellation": "Accept cancellation",
   "disputeRefuseCancellation": "Refuse",
-
   "disputeDecisionTitle": "Mediation decision",
   "disputeDecisionYourShare": "You receive {percent}% — {amount}",
   "@disputeDecisionYourShare": {
     "placeholders": {
-      "percent": { "type": "int" },
-      "amount": { "type": "String" }
+      "percent": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "disputeDecisionMessage": "Message from the admin",
   "disputeDecisionRenderedOn": "Rendered on {date}",
   "@disputeDecisionRenderedOn": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "disputeCancelledTitle": "Dispute cancelled",
   "disputeCancelledSubtitle": "The dispute was cancelled by mutual agreement.",
-
   "projectStatusDisputed": "Disputed",
-
   "permissionDenied": "You do not have permission to perform this action",
   "permissionDeniedSend": "You do not have permission to send messages",
   "permissionDeniedWithdraw": "You do not have permission to request payouts",
   "permissionDeniedEdit": "You do not have permission to edit this resource",
-
   "teamScreenTitle": "Team",
   "teamMembersSection": "Members",
   "teamNoMembers": "No members",
@@ -885,7 +933,6 @@
   "teamNoOrganizationDescription": "You are not attached to any organization yet.",
   "teamLoadError": "Could not load team",
   "teamRetry": "Retry",
-
   "teamInviteButton": "Invite",
   "teamInviteDialogTitle": "Invite a new member",
   "teamInviteDialogDescription": "Send a secure invitation link to a new teammate. They will set their own password on first sign-in.",
@@ -904,14 +951,17 @@
   "teamInviteCancelButton": "Cancel",
   "teamInviteSuccess": "Invitation sent to {email}",
   "@teamInviteSuccess": {
-    "placeholders": { "email": { "type": "String" } }
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   },
   "teamInviteEmailRequired": "Email is required",
   "teamInviteEmailInvalid": "Please enter a valid email address",
   "teamInviteFirstNameRequired": "First name is required",
   "teamInviteLastNameRequired": "Last name is required",
   "teamInviteFailed": "Could not send invitation. Please try again.",
-
   "teamRolePermissionsTitle": "Roles & permissions",
   "teamRolePermissionsSubtitle": "What each role can do in this organization.",
   "teamRolePermissionsReadOnlyTitle": "Read-only view",
@@ -920,7 +970,11 @@
   "teamRolePermissionsModifiedBadge": "Modified",
   "teamRolePermissionsPending": "{count, plural, =1{1 change pending} other{{count} changes pending}}",
   "@teamRolePermissionsPending": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "teamRolePermissionsDiscard": "Discard",
   "teamRolePermissionsSave": "Save",
@@ -928,15 +982,23 @@
   "teamRolePermissionsConfirmDescription": "{count, plural, =1{This will update 1 permission for the {role} role. Affected members will be signed out and must sign in again.} other{This will update {count} permissions for the {role} role. Affected members will be signed out and must sign in again.}}",
   "@teamRolePermissionsConfirmDescription": {
     "placeholders": {
-      "count": { "type": "int" },
-      "role": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "role": {
+        "type": "String"
+      }
     }
   },
   "teamRolePermissionsConfirmButton": "Save changes",
   "teamRolePermissionsCancelButton": "Cancel",
   "teamRolePermissionsSaveSuccess": "Permissions updated. {affected} session(s) invalidated.",
   "@teamRolePermissionsSaveSuccess": {
-    "placeholders": { "affected": { "type": "int" } }
+    "placeholders": {
+      "affected": {
+        "type": "int"
+      }
+    }
   },
   "teamRolePermissionsSaveFailed": "Could not save permissions. Please try again.",
   "teamRolePermissionsOwnerExclusiveTitle": "Owner-exclusive permissions",
@@ -958,17 +1020,19 @@
   "teamRolePermissionGroupBilling": "Billing",
   "teamRolePermissionGroupKyc": "KYC",
   "teamRolePermissionGroupDanger": "Danger zone",
-
   "teamMemberActions": "Actions",
   "teamMemberEdit": "Edit",
   "teamMemberRemove": "Remove",
   "teamMemberFallbackName": "Member",
   "teamMemberCannotEditSelf": "You cannot edit your own membership.",
   "teamMemberCannotRemoveSelf": "Use Leave organization instead.",
-
   "teamEditMemberDialogTitle": "Edit {name}",
   "@teamEditMemberDialogTitle": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "teamEditMemberRoleLabel": "Role",
   "teamEditMemberTitleLabel": "Title",
@@ -977,34 +1041,52 @@
   "teamEditMemberSuccess": "Member updated",
   "teamEditMemberFailed": "Could not update member. Please try again.",
   "teamEditMemberNoChanges": "No changes to save.",
-
   "teamRemoveMemberDialogTitle": "Remove member",
   "teamRemoveMemberConfirm": "Are you sure you want to remove {name} from the organization? They will lose access immediately.",
   "@teamRemoveMemberConfirm": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "teamRemoveMemberConfirmButton": "Remove",
   "teamRemoveMemberSuccess": "{name} has been removed",
   "@teamRemoveMemberSuccess": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "teamRemoveMemberFailed": "Could not remove member. Please try again.",
-
   "teamInvitationsSection": "Pending invitations",
   "teamInvitationsCountLabel": "Pending invitations ({count})",
   "@teamInvitationsCountLabel": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "teamInvitationsEmpty": "No pending invitations.",
   "teamInvitationsLoadFailed": "Could not load invitations.",
   "teamInvitationSentAgo": "Sent {days} day(s) ago",
   "@teamInvitationSentAgo": {
-    "placeholders": { "days": { "type": "int" } }
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "teamInvitationSentToday": "Sent today",
   "teamInvitationExpiresIn": "Expires in {days} day(s)",
   "@teamInvitationExpiresIn": {
-    "placeholders": { "days": { "type": "int" } }
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "teamInvitationExpired": "Expired",
   "teamInvitationCancelTooltip": "Cancel invitation",
@@ -1012,7 +1094,11 @@
   "teamInvitationCancelDialogTitle": "Cancel invitation",
   "teamInvitationCancelDialogBody": "Cancel the invitation sent to {email}? They will no longer be able to join with this link.",
   "@teamInvitationCancelDialogBody": {
-    "placeholders": { "email": { "type": "String" } }
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   },
   "teamInvitationCancelConfirm": "Cancel invitation",
   "teamInvitationCancelKeep": "Keep",
@@ -1020,7 +1106,6 @@
   "teamInvitationCancelFailed": "Could not cancel invitation. Please try again.",
   "teamInvitationResendSuccess": "Invitation resent",
   "teamInvitationResendFailed": "Could not resend invitation. Please try again.",
-
   "teamLeaveAction": "Leave organization",
   "teamLeaveDialogTitle": "Leave organization",
   "teamLeaveDialogBody": "You will lose access to this organization's data and conversations. This cannot be undone.",
@@ -1029,7 +1114,6 @@
   "teamLeaveConfirmButton": "Leave organization",
   "teamLeaveSuccess": "You have left the organization",
   "teamLeaveFailed": "Could not leave the organization. Please try again.",
-
   "teamTransferAction": "Transfer ownership",
   "teamTransferDialogTitle": "Transfer ownership",
   "teamTransferDialogBody": "Choose an Admin who will become the new Owner of this organization. You will become an Admin once they accept. This cannot be undone.",
@@ -1038,7 +1122,6 @@
   "teamTransferConfirmButton": "Send transfer request",
   "teamTransferSuccess": "Transfer request sent",
   "teamTransferFailed": "Could not initiate transfer. Please try again.",
-
   "teamPendingTransferTargetTitle": "You have been offered ownership",
   "teamPendingTransferTargetBody": "Accept to become the new Owner of this organization. Decline to keep your current role.",
   "teamPendingTransferInitiatorTitle": "Ownership transfer pending",
@@ -1047,7 +1130,11 @@
   "teamPendingTransferReadOnlyBody": "An ownership transfer is currently pending for this organization.",
   "teamPendingTransferExpiresOn": "Expires on {date}",
   "@teamPendingTransferExpiresOn": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "teamPendingTransferAccept": "Accept",
   "teamPendingTransferDecline": "Decline",
@@ -1062,21 +1149,22 @@
   "teamPendingTransferCancelDialogBody": "Cancel the pending ownership transfer? You will remain the Owner.",
   "teamPendingTransferCancelSuccess": "Transfer cancelled",
   "teamPendingTransferCancelFailed": "Could not cancel transfer. Please try again.",
-
   "teamRoleOwner": "Owner",
   "teamRoleAdmin": "Admin",
   "teamRoleMember": "Member",
   "teamRoleViewer": "Viewer",
-
   "teamW22Eyebrow": "ATELIER · TEAM",
   "teamW22TitleLead": "Your",
   "teamW22TitleAccent": "teammates and permissions",
   "teamW22Subtitle": "Run your organization: invite, adjust roles, hand over the wheel when it's time.",
   "teamMembersCount": "{count, plural, =0{No members} =1{1 member} other{{count} members}}",
   "@teamMembersCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "freelancesSearchM12Eyebrow": "ATELIER · TALENT",
   "freelancesSearchM12TitleLead": "Find the",
   "freelancesSearchM12TitleAccent": "very best talent",
@@ -1093,7 +1181,6 @@
   "freelancesSearchM12ErrorTitle": "Something went wrong",
   "freelancesSearchM12ErrorDescription": "Couldn't load profiles. Pull to refresh or try again.",
   "freelancesSearchM12RetryCta": "Try again",
-
   "expertiseSectionTitle": "Areas of expertise",
   "expertiseSectionSubtitle": "Pick up to {max} domains that showcase what you do best",
   "@expertiseSectionSubtitle": {
@@ -1142,7 +1229,6 @@
   "expertiseDomainLegal": "Legal",
   "expertiseDomainFinanceAccounting": "Finance & Accounting",
   "expertiseDomainHrRecruitment": "HR & Recruitment",
-
   "skillsDisplaySectionTitle": "Skills",
   "skillsDisplayMoreSuffix": "+{count}",
   "@skillsDisplayMoreSuffix": {
@@ -1206,7 +1292,6 @@
   },
   "skillsErrorDisabled": "Unavailable for this account type",
   "skillsErrorGeneric": "Something went wrong",
-
   "tier1AvailabilitySectionTitle": "Availability",
   "tier1AvailabilityStatusAvailableNow": "Available now",
   "tier1AvailabilityStatusAvailableSoon": "Available soon",
@@ -1218,7 +1303,11 @@
   "freelanceMetaPerDay": "{amount} /day",
   "@freelanceMetaPerDay": {
     "description": "Daily rate formatted for the freelance header meta row.",
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "tier1LocationSectionTitle": "Location",
   "tier1LocationCityLabel": "City",
@@ -1232,7 +1321,11 @@
   "tier1LocationTravelRadiusLabel": "Travel radius (km)",
   "tier1LocationTravelRadiusShort": "Up to {km} km",
   "@tier1LocationTravelRadiusShort": {
-    "placeholders": { "km": { "type": "int" } }
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
   },
   "tier1LocationTravelRadiusPlaceholder": "e.g. 50",
   "tier1LocationEmpty": "Add your city to help clients find you",
@@ -1248,7 +1341,11 @@
   "tier1LanguagesEditButton": "Update languages",
   "tier1LanguagesCountLabel": "{count} selected",
   "@tier1LanguagesCountLabel": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "tier1LanguagesNoResults": "No language found",
   "tier1LanguagesClearAll": "Clear all",
@@ -1313,7 +1410,11 @@
   "reputationStatusPending": "Pending",
   "reputationStatusOther": "Status: {status}",
   "@reputationStatusOther": {
-    "placeholders": { "status": { "type": "String" } }
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
   },
   "socialLinks": "Social networks",
   "editSocialLinks": "Edit social links",
@@ -1371,7 +1472,11 @@
   "gdprDeleteBlockedIntro": "You own one or more organizations with active members. Transfer ownership or dissolve them before deleting your account.",
   "gdprDeleteBlockedMemberCount": "{count} active members",
   "@gdprDeleteBlockedMemberCount": {
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "gdprCancelTitle": "Cancel deletion",
   "gdprCancelBody": "Cancel your account deletion request. Your account will be active again immediately.",
@@ -1382,7 +1487,11 @@
   "gdprBannerTitle": "Account scheduled for deletion",
   "gdprBannerBody": "Your account will be permanently deleted on {date}. Tap to cancel.",
   "@gdprBannerBody": {
-    "placeholders": {"date": {"type": "String"}}
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "gdprBannerBodyNoDate": "Your account is scheduled for deletion. Tap to cancel.",
   "m02_eyebrowLabel": "Account creation",
@@ -1478,12 +1587,20 @@
   "jobDetail_m08_durationIndefinite": "Open-ended",
   "jobDetail_m08_durationWeeks": "{count, plural, one {# week} other {# weeks}}",
   "@jobDetail_m08_durationWeeks": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "jobDetail_m08_summaryApplicants": "Applicants",
   "jobDetail_m08_summaryApplicantsValue": "{count, plural, =0 {0} one {# applicant} other {# applicants}}",
   "@jobDetail_m08_summaryApplicantsValue": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "jobDetail_m08_summaryProfiles": "Targeted profiles",
   "jobDetail_m08_summaryPublished": "Published",
@@ -1491,7 +1608,11 @@
   "jobDetail_m08_emptyBody": "Hold on, or share the listing to boost its visibility to freelancers and agencies.",
   "jobDetail_m08_appliedRelative": "Applied {when}",
   "@jobDetail_m08_appliedRelative": {
-    "placeholders": { "when": { "type": "String" } }
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
   },
   "jobDetail_m08_orgFreelance": "Freelance",
   "jobDetail_m08_orgAgency": "Agency",
@@ -1534,9 +1655,21 @@
   "proposalFlow_progress": "Progress",
   "proposalFlow_milestoneTrackerTitle": "Project progress",
   "proposalFlow_milestoneCount": "{total} milestones",
-  "@proposalFlow_milestoneCount": {"placeholders": {"total": {"type": "int"}}},
+  "@proposalFlow_milestoneCount": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "proposalFlow_milestoneSequence": "Milestone {sequence}",
-  "@proposalFlow_milestoneSequence": {"placeholders": {"sequence": {"type": "int"}}},
+  "@proposalFlow_milestoneSequence": {
+    "placeholders": {
+      "sequence": {
+        "type": "int"
+      }
+    }
+  },
   "proposalFlow_milestoneOneTime": "One-time payment",
   "proposalFlow_milestoneDueNow": "Fund now",
   "proposalFlow_status_pendingFunding": "Awaiting funding",
@@ -1549,7 +1682,13 @@
   "proposalFlow_status_refunded": "Refunded",
   "mobileDashboard_eyebrow": "ATELIER · DASHBOARD",
   "mobileDashboard_welcomePrefix": "Hello {name},",
-  "@mobileDashboard_welcomePrefix": {"placeholders": {"name": {"type": "String"}}},
+  "@mobileDashboard_welcomePrefix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mobileDashboard_welcomeAccent": "a great day ahead.",
   "mobileDashboard_providerSubtitle": "Track your missions, conversations and monthly earnings at a glance.",
   "mobileDashboard_agencySubtitle": "Run your agency: missions, team and invoicing in one place.",
@@ -1559,43 +1698,99 @@
   "mobileDashboard_switchToReferrer": "Switch to referrer mode",
   "mobileDashboard_switchToFreelance": "Back to freelance mode",
   "receiptsTabTitle": "Receipts",
-  "@receiptsTabTitle": {"description": "Label of the second tab in the billing screen — switches from invoices to receipts."},
+  "@receiptsTabTitle": {
+    "description": "Label of the second tab in the billing screen — switches from invoices to receipts."
+  },
   "invoicesTabTitle": "My invoices",
-  "@invoicesTabTitle": {"description": "Label of the first tab in the billing screen."},
+  "@invoicesTabTitle": {
+    "description": "Label of the first tab in the billing screen."
+  },
   "receiptsEmptyTitle": "No receipts yet",
-  "@receiptsEmptyTitle": {"description": "Title of the empty state on the receipts tab."},
+  "@receiptsEmptyTitle": {
+    "description": "Title of the empty state on the receipts tab."
+  },
   "receiptsEmptySubtitle": "Your payments automatically generate receipts that will appear here as soon as the first transaction settles.",
-  "@receiptsEmptySubtitle": {"description": "Subtitle of the empty state on the receipts tab."},
+  "@receiptsEmptySubtitle": {
+    "description": "Subtitle of the empty state on the receipts tab."
+  },
   "receiptsLegacyBadge": "Legacy receipt",
-  "@receiptsLegacyBadge": {"description": "Pill rendered on a receipt row when the snapshot is unavailable (legacy data)."},
+  "@receiptsLegacyBadge": {
+    "description": "Pill rendered on a receipt row when the snapshot is unavailable (legacy data)."
+  },
   "receiptsLegacyNotice": "This receipt predates the snapshot feature — the parties' billing details are not available. The PDF can still be downloaded.",
-  "@receiptsLegacyNotice": {"description": "Detail-screen notice when snapshot_available is false."},
+  "@receiptsLegacyNotice": {
+    "description": "Detail-screen notice when snapshot_available is false."
+  },
   "receiptDetailTitle": "Receipt",
-  "@receiptDetailTitle": {"description": "AppBar title of the receipt detail screen."},
+  "@receiptDetailTitle": {
+    "description": "AppBar title of the receipt detail screen."
+  },
   "receiptDownloadPdf": "Download PDF",
-  "@receiptDownloadPdf": {"description": "Primary CTA on the receipt detail screen."},
+  "@receiptDownloadPdf": {
+    "description": "Primary CTA on the receipt detail screen."
+  },
   "receiptDownloadPdfInProgress": "Downloading receipt…",
-  "@receiptDownloadPdfInProgress": {"description": "Snackbar shown while the receipt PDF is being fetched."},
+  "@receiptDownloadPdfInProgress": {
+    "description": "Snackbar shown while the receipt PDF is being fetched."
+  },
   "receiptDownloadPdfError": "Could not download the PDF.",
-  "@receiptDownloadPdfError": {"description": "Snackbar shown when the receipt PDF download fails."},
+  "@receiptDownloadPdfError": {
+    "description": "Snackbar shown when the receipt PDF download fails."
+  },
   "receiptPartyClient": "Client",
-  "@receiptPartyClient": {"description": "Section header for the client billing snapshot on a receipt."},
+  "@receiptPartyClient": {
+    "description": "Section header for the client billing snapshot on a receipt."
+  },
   "receiptPartyProvider": "Provider",
-  "@receiptPartyProvider": {"description": "Section header for the provider billing snapshot on a receipt."},
+  "@receiptPartyProvider": {
+    "description": "Section header for the provider billing snapshot on a receipt."
+  },
   "receiptPartyReferrer": "Referrer",
-  "@receiptPartyReferrer": {"description": "Section header for the referrer billing snapshot on a receipt."},
+  "@receiptPartyReferrer": {
+    "description": "Section header for the referrer billing snapshot on a receipt."
+  },
   "profileCompletionTitle": "Profile {percent}% complete",
-  "@profileCompletionTitle": {"placeholders": {"percent": {"type": "int"}}, "description": "Title rendered on the profile completion bar."},
+  "@profileCompletionTitle": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    },
+    "description": "Title rendered on the profile completion bar."
+  },
   "profileCompletionSubtitle": "{filled}/{total} sections completed",
-  "@profileCompletionSubtitle": {"placeholders": {"filled": {"type": "int"}, "total": {"type": "int"}}, "description": "Subtitle showing the filled/total ratio of completion sections."},
+  "@profileCompletionSubtitle": {
+    "placeholders": {
+      "filled": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    },
+    "description": "Subtitle showing the filled/total ratio of completion sections."
+  },
   "profileCompletionSubtitleComplete": "Every section is complete — great work!",
-  "@profileCompletionSubtitleComplete": {"description": "Subtitle when the profile is 100% complete."},
+  "@profileCompletionSubtitleComplete": {
+    "description": "Subtitle when the profile is 100% complete."
+  },
   "profileCompletionModalTitle": "Profile {percent}% complete",
-  "@profileCompletionModalTitle": {"placeholders": {"percent": {"type": "int"}}, "description": "Modal title for the missing-sections sheet."},
+  "@profileCompletionModalTitle": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    },
+    "description": "Modal title for the missing-sections sheet."
+  },
   "profileCompletionModalSubtitle": "Tap a section to complete it and boost your profile.",
-  "@profileCompletionModalSubtitle": {"description": "Modal description above the missing-sections list."},
+  "@profileCompletionModalSubtitle": {
+    "description": "Modal description above the missing-sections list."
+  },
   "profileCompletionModalCloseLabel": "Close",
-  "@profileCompletionModalCloseLabel": {"description": "Tooltip on the close icon of the missing-sections modal."},
+  "@profileCompletionModalCloseLabel": {
+    "description": "Tooltip on the close icon of the missing-sections modal."
+  },
   "profileCompletionSectionPhoto": "Profile photo",
   "@profileCompletionSectionPhoto": {},
   "profileCompletionSectionTitle": "Professional title",
@@ -1665,5 +1860,53 @@
   "statsLoadError": "Couldn't load this data. Try again.",
   "@statsLoadError": {},
   "statsEnterprisePlaceholderBody": "Enterprise stats (applications, active jobs) are coming soon.",
-  "@statsEnterprisePlaceholderBody": {}
+  "@statsEnterprisePlaceholderBody": {},
+  "twoFactorTitle": "Confirm it's really you.",
+  "@twoFactorTitle": {},
+  "twoFactorSubtitle": "We sent a 6-digit code to your email. Enter it below to finish signing in.",
+  "@twoFactorSubtitle": {},
+  "twoFactorCodeLabel": "Verification code",
+  "@twoFactorCodeLabel": {},
+  "twoFactorCodeHint": "123456",
+  "@twoFactorCodeHint": {},
+  "twoFactorVerifyCta": "Verify code",
+  "@twoFactorVerifyCta": {},
+  "twoFactorVerifying": "Verifying...",
+  "@twoFactorVerifying": {},
+  "twoFactorBackToLogin": "Back to sign in",
+  "@twoFactorBackToLogin": {},
+  "twoFactorResend": "Resend code",
+  "@twoFactorResend": {},
+  "twoFactorCodeLengthError": "The code must be 6 digits.",
+  "@twoFactorCodeLengthError": {},
+  "twoFactorSectionTitle": "Two-factor authentication",
+  "@twoFactorSectionTitle": {},
+  "twoFactorSectionDesc": "Add a second layer of security: a 6-digit code will be emailed to you on every sign in.",
+  "@twoFactorSectionDesc": {},
+  "twoFactorToggleTitle": "Email 2FA",
+  "@twoFactorToggleTitle": {},
+  "twoFactorToggleDescOn": "Active. A code will be required at every sign in.",
+  "@twoFactorToggleDescOn": {},
+  "twoFactorToggleDescOff": "Inactive. Enable 2FA to harden your account.",
+  "@twoFactorToggleDescOff": {},
+  "twoFactorEnablePrompt": "We just emailed a 6-digit code to confirm your email belongs to you. Enter it to finish enabling 2FA.",
+  "@twoFactorEnablePrompt": {},
+  "twoFactorDisablePrompt": "To disable 2FA, confirm your current password.",
+  "@twoFactorDisablePrompt": {},
+  "twoFactorCurrentPasswordLabel": "Current password",
+  "@twoFactorCurrentPasswordLabel": {},
+  "twoFactorConfirmEnableCta": "Enable 2FA",
+  "@twoFactorConfirmEnableCta": {},
+  "twoFactorConfirmDisableCta": "Disable 2FA",
+  "@twoFactorConfirmDisableCta": {},
+  "twoFactorCancel": "Cancel",
+  "@twoFactorCancel": {},
+  "twoFactorEnabledToast": "Email 2FA enabled.",
+  "@twoFactorEnabledToast": {},
+  "twoFactorDisabledToast": "Email 2FA disabled.",
+  "@twoFactorDisabledToast": {},
+  "twoFactorErrorPasswordRequired": "Password is required.",
+  "@twoFactorErrorPasswordRequired": {},
+  "twoFactorErrorGeneric": "Something went wrong. Try again in a moment.",
+  "@twoFactorErrorGeneric": {}
 }
