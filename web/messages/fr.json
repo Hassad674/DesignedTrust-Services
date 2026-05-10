@@ -1723,13 +1723,7 @@
     "ratingNoCount": "Profil sans avis",
     "ogRoleFreelance": "Freelance",
     "ogRoleAgency": "Agence",
-    "ogRoleReferrer": "Apporteur d'affaires",
-    "relatedHeadingFreelance": "Freelances similaires",
-    "relatedHeadingAgency": "Agences similaires",
-    "relatedHeadingReferrer": "Apporteurs similaires",
-    "relatedSubheading": "D'autres profils qui pourraient t'intéresser",
-    "relatedViewProfile": "Voir le profil",
-    "relatedCityFallback": "Localisation non précisée"
+    "ogRoleReferrer": "Apporteur d'affaires"
   },
   "proposal": {
     "createProposal": "Créer une proposition",

@@ -23,10 +23,8 @@ import {
 import {
   fetchPublicAverageRating,
   fetchPublicReviews,
-  fetchRelatedProfiles,
 } from "@/shared/lib/seo/server-fetchers"
 import { BreadcrumbNav } from "@/shared/components/seo/breadcrumb-nav"
-import { RelatedProfiles } from "@/shared/components/seo/related-profiles"
 
 type Props = {
   params: Promise<{ id: string; locale: string }>
@@ -74,39 +72,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function FreelancerProfilePage({ params }: Props) {
   const { id, locale } = await params
-  const [profile, rating, reviews, related, t, tSeo] = await Promise.all([
+  const [profile, rating, reviews, t, tSeo] = await Promise.all([
     fetchFreelanceProfileForMetadata(id),
     fetchPublicAverageRating(id),
     fetchPublicReviews(id, 5),
-    fetchRelatedProfiles({
-      type: "freelancer",
-      excludeOrgId: id,
-      primaryExpertise: undefined,
-      city: undefined,
-    }),
     getTranslations({ locale, namespace: "profile.freelance" }),
     getTranslations({ locale, namespace: "seo" }),
   ])
-
-  // Re-pick related using the resolved profile fields once we have
-  // them — fetchRelatedProfiles bootstrapped with empty filters keeps
-  // the parallel `Promise.all` shape clean.
-  const filteredRelated =
-    profile && related.length > 0
-      ? related
-          .filter((doc) => {
-            const docOrg =
-              doc.organization_id ?? doc.id.split(":")[0] ?? doc.id
-            return docOrg !== id
-          })
-          .sort((a, b) => {
-            const aMatch = primaryMatch(a, profile)
-            const bMatch = primaryMatch(b, profile)
-            if (aMatch !== bMatch) return bMatch - aMatch
-            return b.rating_average - a.rating_average
-          })
-          .slice(0, 6)
-      : related
 
   const breadcrumbCrumbs = [
     {
@@ -152,16 +124,6 @@ export default async function FreelancerProfilePage({ params }: Props) {
       ) : null}
       <BreadcrumbsJsonLd
         crumbs={breadcrumbCrumbs.map((c) => ({ name: c.label, item: c.item }))}
-      />
-      <RelatedProfiles
-        type="freelancer"
-        documents={filteredRelated}
-        labels={{
-          heading: tSeo("relatedHeadingFreelance"),
-          subheading: tSeo("relatedSubheading"),
-          viewProfile: tSeo("relatedViewProfile"),
-          cityFallback: tSeo("relatedCityFallback"),
-        }}
       />
     </div>
   )
@@ -252,15 +214,4 @@ function mergeKnowsAbout(skills: string[], expertises: string[]): string[] {
     .map((entry) => entry.trim())
     .filter(Boolean)
   return Array.from(new Set(combined))
-}
-
-function primaryMatch(
-  doc: { expertise_domains: string[]; city?: string },
-  profile: { expertise_domains?: string[]; city?: string },
-): number {
-  let score = 0
-  const primary = profile.expertise_domains?.[0]
-  if (primary && doc.expertise_domains?.includes(primary)) score += 10
-  if (profile.city && doc.city === profile.city) score += 4
-  return score
 }
