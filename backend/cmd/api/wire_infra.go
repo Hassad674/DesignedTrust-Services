@@ -15,6 +15,7 @@ import (
 	resendadapter "marketplace-backend/internal/adapter/resend"
 	s3adapter "marketplace-backend/internal/adapter/s3"
 	"marketplace-backend/internal/adapter/ws"
+	appaudit "marketplace-backend/internal/app/audit"
 	"marketplace-backend/internal/config"
 	jobdomain "marketplace-backend/internal/domain/job"
 	"marketplace-backend/internal/handler"
@@ -70,7 +71,15 @@ type infrastructure struct {
 	OrganizationRepo           *postgres.OrganizationRepository
 	OrganizationMemberRepo     *postgres.OrganizationMemberRepository
 	OrganizationInvitationRepo *postgres.OrganizationInvitationRepository
-	AuditRepo                  *postgres.AuditRepository
+	// AuditRepo is the PII-sanitizing wrapper around the postgres
+	// audit repo (B.10 / RGPD art. 5-1-c data minimization). Every
+	// Log call has its `metadata` redacted before persistence — see
+	// `internal/app/audit/sanitizing_repository.go` and
+	// `internal/domain/audit/sanitize.go`. List paths forward
+	// unchanged. Consumers always type their dependency as
+	// `repository.AuditRepository`, so the wrap is invisible to
+	// downstream wiring.
+	AuditRepo                  repository.AuditRepository
 	ModerationResultsRepo      repository.ModerationResultsRepository
 	MessageRepo                *postgres.ConversationRepository
 	Hasher                     service.HasherService
@@ -198,7 +207,7 @@ func wireInfrastructure(ctx context.Context, cfg *config.Config) (infrastructure
 		// keep their privileged path. Migration 129 added WITH CHECK
 		// (true) on audit_logs so INSERTs pass even without context;
 		// reads still need the per-user policy to admit the row.
-		AuditRepo:             postgres.NewAuditRepository(db).WithTxRunner(txRunner),
+		AuditRepo:             appaudit.NewSanitizingRepository(postgres.NewAuditRepository(db).WithTxRunner(txRunner)),
 		ModerationResultsRepo: postgres.NewModerationResultsRepository(db),
 		Hasher:                     crypto.NewBcryptHasher(),
 		TokenSvc:                   crypto.NewJWTService(cfg.JWTSecret, cfg.JWTAccessExpiry, cfg.JWTRefreshExpiry),
