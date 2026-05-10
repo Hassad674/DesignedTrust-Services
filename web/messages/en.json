@@ -7,10 +7,18 @@
     "orgTypeAgency": "agency",
     "orgTypeEnterprise": "enterprise",
     "roles": {
-      "owner": "Owner",
-      "admin": "Admin",
-      "member": "Member",
-      "viewer": "Viewer"
+      "owner": {
+        "label": "Owner"
+      },
+      "admin": {
+        "label": "Admin"
+      },
+      "member": {
+        "label": "Member"
+      },
+      "viewer": {
+        "label": "Viewer (read-only)"
+      }
     },
     "passwordLabel": "Create a password",
     "passwordPlaceholder": "At least 10 characters",
@@ -28,7 +36,8 @@
       "passwordMismatch": "Passwords do not match",
       "emailAlreadyTaken": "An account already exists with this email. Ask the organization to invite you with a different address.",
       "genericAccept": "Could not accept the invitation. Try again in a moment."
-    }
+    },
+    "eyebrow": "Invitation"
   },
   "team": {
     "title": "My team",
