@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 import { LegalShell } from "@/shared/components/legal/legal-shell"
+import { COOKIE_INVENTORY } from "@/shared/lib/cookie-consent-config"
 
-// /cookies — placeholder cookies and tracker disclosure.
-// Lists every cookie / localStorage key set by the service. Source of
-// truth aligned with the Tarteaucitron service config (Phase A.2).
+// /cookies — cookies and tracker disclosure.
+// Lists every cookie / localStorage key set by the service. Driven by
+// `shared/lib/cookie-consent-config.ts` so the table cannot drift from
+// the vanilla-cookieconsent CMP categories.
 export async function generateMetadata({
   params,
 }: {
@@ -18,8 +20,6 @@ export async function generateMetadata({
     robots: { index: false, follow: false },
   }
 }
-
-const ROW_KEYS = ["session", "consent", "stripe", "posthog", "ga4", "locale"] as const
 
 export default async function CookiesPage({
   params,
@@ -43,7 +43,7 @@ export default async function CookiesPage({
             </tr>
           </thead>
           <tbody className="divide-y divide-border text-foreground">
-            {ROW_KEYS.map((key) => (
+            {COOKIE_INVENTORY.map(({ key }) => (
               <tr key={key}>
                 <td className="px-4 py-3 font-mono text-xs">{t(`rows.${key}.name`)}</td>
                 <td className="px-4 py-3">{t(`rows.${key}.provider`)}</td>
