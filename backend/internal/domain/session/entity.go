@@ -13,7 +13,7 @@ package session
 
 import (
 	"errors"
-	"net"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -82,7 +82,7 @@ type Session struct {
 	JTI           string
 	ParentJTI     string // empty when this is the first session of a chain
 	UserAgentHash string
-	IPAnonymized  net.IP
+	IPAnonymized  string // CIDR string form ("203.0.113.0/24") or bare IP — both fit Postgres INET.
 	LoginMethod   LoginMethod
 	CreatedAt     time.Time
 	LastUsedAt    time.Time
@@ -109,7 +109,7 @@ type NewInput struct {
 	JTI           string
 	ParentJTI     string
 	UserAgentHash string
-	IPAnonymized  net.IP
+	IPAnonymized  string
 	LoginMethod   LoginMethod
 	ExpiresAt     time.Time
 }
@@ -125,10 +125,10 @@ func New(in NewInput) (*Session, error) {
 	if in.JTI == "" {
 		return nil, ErrJTIRequired
 	}
-	if in.UserAgentHash == "" {
+	if strings.TrimSpace(in.UserAgentHash) == "" {
 		return nil, ErrUserAgentRequired
 	}
-	if len(in.IPAnonymized) == 0 {
+	if strings.TrimSpace(in.IPAnonymized) == "" {
 		return nil, ErrIPRequired
 	}
 	if !in.LoginMethod.IsValid() {

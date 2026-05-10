@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"net"
 	"time"
 
 	"github.com/google/uuid"
@@ -62,7 +61,7 @@ func (r *UserSessionRepository) Create(ctx context.Context, s *session.Session) 
 		s.JTI,
 		s.ParentJTI,
 		s.UserAgentHash,
-		s.IPAnonymized.String(),
+		s.IPAnonymized,
 		string(s.LoginMethod),
 		s.CreatedAt,
 		s.LastUsedAt,
@@ -86,7 +85,7 @@ func (r *UserSessionRepository) FindByJTI(ctx context.Context, jti string) (*ses
 
 	const stmt = `
 		SELECT id, user_id, jti, COALESCE(parent_jti, ''), user_agent_hash,
-		       host(ip_anonymized), login_method, created_at, last_used_at,
+		       text(ip_anonymized), login_method, created_at, last_used_at,
 		       expires_at, revoked_at
 		FROM user_sessions
 		WHERE jti = $1
@@ -165,7 +164,7 @@ func (r *UserSessionRepository) ListActiveByUser(ctx context.Context, userID uui
 
 	const stmt = `
 		SELECT id, user_id, jti, COALESCE(parent_jti, ''), user_agent_hash,
-		       host(ip_anonymized), login_method, created_at, last_used_at,
+		       text(ip_anonymized), login_method, created_at, last_used_at,
 		       expires_at, revoked_at
 		FROM user_sessions
 		WHERE user_id = $1
@@ -224,9 +223,7 @@ func scanSession(row rowScanner) (*session.Session, error) {
 	}
 	s.ParentJTI = parent
 	s.LoginMethod = session.LoginMethod(method)
-	if ip := net.ParseIP(ipText); ip != nil {
-		s.IPAnonymized = ip
-	}
+	s.IPAnonymized = ipText
 	if revokedAt.Valid {
 		t := revokedAt.Time
 		s.RevokedAt = &t
