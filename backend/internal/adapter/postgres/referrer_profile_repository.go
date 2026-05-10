@@ -36,7 +36,9 @@ const referrerProfileSelectColumns = `
 	rp.availability_status, rp.expertise_domains, rp.created_at, rp.updated_at,
 	o.photo_url, o.city, o.country_code, o.latitude, o.longitude,
 	o.work_mode, o.travel_radius_km,
-	o.languages_professional, o.languages_conversational`
+	o.languages_professional, o.languages_conversational,
+	o.name,
+	COALESCE(u.first_name, ''), COALESCE(u.last_name, '')`
 
 // GetOrCreateByOrgID fetches the referrer profile for the given org
 // and JOINs the organization's shared-profile block. If no row
@@ -158,10 +160,15 @@ func (r *ReferrerProfileRepository) queryByOrgID(ctx context.Context, orgID uuid
 	ctx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
+	// Mirror the freelance read path: LEFT JOIN the owner user row so
+	// the public referrer profile heading can render the owner's
+	// first_name + last_name. The JOIN is left-side because a
+	// deleted-owner race would otherwise fail the read with sql.ErrNoRows.
 	query := `
 		SELECT ` + referrerProfileSelectColumns + `
 		  FROM referrer_profiles rp
 		  JOIN organizations     o ON o.id = rp.organization_id
+		  LEFT JOIN users        u ON u.id = o.owner_user_id
 		 WHERE rp.organization_id = $1`
 
 	view, err := scanReferrerProfileRow(r.db.QueryRowContext(ctx, query, orgID))
@@ -220,6 +227,7 @@ func scanReferrerProfileRow(row *sql.Row) (*repository.ReferrerProfileView, erro
 		&shared.PhotoURL, &shared.City, &shared.CountryCode,
 		&lat, &lng, pq.Array(&workMode), &travelRadius,
 		pq.Array(&langPro), pq.Array(&langConv),
+		&shared.OrgName, &shared.OwnerFirstName, &shared.OwnerLastName,
 	)
 	if err != nil {
 		return nil, err

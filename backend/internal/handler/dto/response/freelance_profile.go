@@ -38,6 +38,18 @@ type FreelanceProfileResponse struct {
 	LanguagesProfessional   []string `json:"languages_professional"`
 	LanguagesConversational []string `json:"languages_conversational"`
 
+	// ---- Identity (joined from organizations + owner user) ----
+	// OrgName is the organization's display name, OwnerFirstName /
+	// OwnerLastName come from the owner user row. Public profile
+	// pages render `${first_name} ${last_name}` as the H1 heading and
+	// the persona-specific `title` as the italic subtitle. Always
+	// non-nil strings so the JSON shape is stable; consumers fall
+	// back to `title` (and finally to a localised label) when the
+	// identity strings are empty.
+	OrgName   string `json:"org_name"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+
 	// ---- Decorations ----
 	Skills  []ProfileSkillSummary   `json:"skills"`
 	Pricing *FreelancePricingSummary `json:"pricing"`
@@ -109,6 +121,9 @@ func NewFreelanceProfileResponse(
 		TravelRadiusKm:          view.Shared.TravelRadiusKm,
 		LanguagesProfessional:   nilToEmptyStrings(view.Shared.LanguagesProfessional),
 		LanguagesConversational: nilToEmptyStrings(view.Shared.LanguagesConversational),
+		OrgName:                 view.Shared.OrgName,
+		FirstName:               view.Shared.OwnerFirstName,
+		LastName:                view.Shared.OwnerLastName,
 		Skills:                  skills,
 		Pricing:                 NewFreelancePricingSummary(pricing),
 		CreatedAt:               p.CreatedAt.Format("2006-01-02T15:04:05Z"),
