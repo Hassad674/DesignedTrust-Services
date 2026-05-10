@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Briefcase, Sparkles, ImagePlus } from "lucide-react"
+import { Plus, Briefcase } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useHasPermission } from "@/shared/hooks/use-permissions"
 import { useMyPortfolio, usePortfolioByOrganization, useDeletePortfolioItem } from "../hooks/use-portfolio"
@@ -15,6 +15,13 @@ const MAX_ITEMS = 30
 
 // --- Edit mode (profile dashboard) ---
 
+// Soleil v2 shell-parity refactor: outer wrapper, header and empty
+// state now mirror every other agency-profile section (social-links,
+// languages, location, project-history). Behavior — fetch, mutations,
+// modals — is untouched. The previous version painted the empty state
+// with a corail wash + gradient CTA that drifted from the rest of the
+// edit page; the new variant uses the canonical ivoire card +
+// muted-tone empty illustration + corail outline CTA.
 export function PortfolioSection() {
   const { data, isLoading } = useMyPortfolio()
   const deleteItem = useDeletePortfolioItem()
@@ -44,35 +51,32 @@ export function PortfolioSection() {
   }
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between gap-3 sm:mb-5">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-soft to-primary-soft/60 sm:h-10 sm:w-10">
-            <Briefcase className="h-5 w-5 text-primary-deep" />
-          </div>
-          <div className="min-w-0">
-            <h2 className="truncate text-base font-semibold tracking-tight text-foreground sm:text-lg">
-              {t("sectionTitle")}
-            </h2>
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              {items.length > 0
-                ? t("publicItemCount", { count: items.length })
-                : t("sectionSubtitle")}
+    <section className="bg-card border border-border rounded-2xl p-7 shadow-[var(--shadow-card)]">
+      {/* Header — matches social-links / languages / project-history */}
+      <div className="flex items-center justify-between mb-4 gap-3">
+        <div className="min-w-0">
+          <h2 className="font-serif text-xl font-medium tracking-[-0.005em] text-foreground">
+            {t("sectionTitle")}
+          </h2>
+          {items.length > 0 ? (
+            <p className="mt-1 truncate text-sm text-muted-foreground">
+              {t("publicItemCount", { count: items.length })}
             </p>
-          </div>
+          ) : null}
         </div>
 
-        {canEdit && items.length > 0 && items.length < MAX_ITEMS && (
-          <Button variant="ghost" size="auto"
+        {canEdit && items.length > 0 && items.length < MAX_ITEMS ? (
+          <Button
+            variant="ghost"
+            size="auto"
             onClick={openCreate}
             aria-label={t("addProject")}
-            className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-primary-deep px-3 text-sm font-medium text-white shadow-md transition-all hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] sm:px-4"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-primary/30 bg-primary-soft px-3 text-sm font-medium text-primary transition-colors hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 sm:px-4"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">{t("addProject")}</span>
           </Button>
-        )}
+        ) : null}
       </div>
 
       {/* Content */}
@@ -118,32 +122,36 @@ export function PortfolioSection() {
 
 // --- Empty state ---
 
+// Mirrors the project-history empty state: muted icon chip, neutral
+// title + italic muted-foreground description, corail-outline CTA.
+// No more full corail wash / decorative blurred circles / white text
+// on red — that pattern was unique to this card and broke parity with
+// every other section on the agency edit shell.
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   const t = useTranslations("portfolio")
   return (
-    <div className="relative overflow-hidden rounded-2xl border-2 border-dashed border-primary/30 bg-gradient-to-br from-primary-soft/60 via-white to-purple-50/40 px-4 py-8 text-center sm:px-6 sm:py-12">
-      {/* Decorative blurs */}
-      <div className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
-      <div className="pointer-events-none absolute -right-16 -bottom-16 h-48 w-48 rounded-full bg-purple-200/30 blur-3xl" />
-
-      <div className="relative">
-        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-deep shadow-lg shadow-primary/30 sm:mb-4 sm:h-16 sm:w-16">
-          <ImagePlus className="h-6 w-6 text-white sm:h-7 sm:w-7" />
-        </div>
-        <h3 className="text-base font-semibold text-foreground">
-          {t("emptyTitle")}
-        </h3>
-        <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground sm:text-sm">
-          {t("emptyDescription")}
-        </p>
-        <Button variant="ghost" size="auto"
-          onClick={onCreate}
-          className="mt-4 inline-flex h-10 items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-primary-deep px-4 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] sm:mt-5 sm:px-5"
-        >
-          <Sparkles className="h-4 w-4" />
-          {t("addFirstProject")}
-        </Button>
+    <div className="flex flex-col items-center justify-center py-10 text-center">
+      <div className="w-12 h-12 rounded-full bg-primary-soft flex items-center justify-center mb-3">
+        <Briefcase
+          className="w-6 h-6 text-primary"
+          aria-hidden="true"
+        />
       </div>
+      <p className="text-base font-medium text-foreground mb-1">
+        {t("emptyTitle")}
+      </p>
+      <p className="max-w-sm text-sm text-muted-foreground italic">
+        {t("emptyDescription")}
+      </p>
+      <Button
+        variant="ghost"
+        size="auto"
+        onClick={onCreate}
+        className="mt-4 inline-flex h-10 items-center gap-1.5 rounded-full border border-primary/30 bg-primary-soft px-4 text-sm font-medium text-primary transition-colors hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+      >
+        <Plus className="h-4 w-4" aria-hidden="true" />
+        {t("addFirstProject")}
+      </Button>
     </div>
   )
 }
