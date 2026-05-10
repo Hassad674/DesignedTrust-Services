@@ -2400,6 +2400,11 @@
     "invoicesTab": "Mes factures plateforme",
     "receiptsTab": "Reçus"
   },
+  "opportunitiesTabs": {
+    "navLabel": "Sections opportunités",
+    "allTab": "Toutes les offres",
+    "applicationsTab": "Mes candidatures"
+  },
   "receipts": {
     "listEyebrow": "ATELIER · REÇUS",
     "listSubtitle": "Utilise-les pour préparer tes factures officielles, ils ne remplacent pas tes obligations comptables.",

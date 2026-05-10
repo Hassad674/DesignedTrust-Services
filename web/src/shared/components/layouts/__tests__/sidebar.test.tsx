@@ -154,3 +154,24 @@ describe("Sidebar — referrer nav has Opportunités", () => {
     expect(referrerBlock).toContain('roles: ["provider"]')
   })
 })
+
+// --- Opportunities-tabs merge: legacy /my-applications entry removed ---
+
+describe("Sidebar — /my-applications entry removed (merged into /opportunities)", () => {
+  it("no longer references the legacy myApplications nav item", async () => {
+    // Source-level guard: the dedicated route + entry are gone, so no
+    // FREELANCE or REFERRER nav table should ship a myApplications
+    // labelKey or `/my-applications` href any more.
+    const fs = await import("node:fs")
+    const pathMod = await import("node:path")
+    const source = fs.readFileSync(
+      pathMod.resolve(__dirname, "../sidebar.tsx"),
+      "utf-8",
+    )
+    const codeOnly = source
+      .replace(/\/\/.*$/gm, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+    expect(codeOnly).not.toContain('"myApplications"')
+    expect(codeOnly).not.toContain("/my-applications")
+  })
+})

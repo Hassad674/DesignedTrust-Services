@@ -57,7 +57,6 @@ const FREELANCE_NAV: NavItem[] = [
   { labelKey: "projects", href: "/projects", icon: FolderOpen, roles: ["agency", "provider", "enterprise"] },
   { labelKey: "jobs", href: "/jobs", icon: Briefcase, roles: ["enterprise", "agency"] },
   { labelKey: "opportunities", href: "/opportunities", icon: Briefcase, roles: ["provider", "agency"] },
-  { labelKey: "myApplications", href: "/my-applications", icon: FileText, roles: ["provider", "agency"] },
   { labelKey: "team", href: "/team", icon: Users2, roles: ["agency", "enterprise"] },
   // `providerProfile` replaces the legacy "myProfile" label. Agencies
   // now see both this entry AND the new client-profile entry below,
@@ -101,7 +100,6 @@ const REFERRER_NAV: NavItem[] = [
   // Without this entry the apporteur cannot apply with the persona
   // radio added in the apply modal.
   { labelKey: "opportunities", href: "/opportunities", icon: Briefcase, roles: ["provider"] },
-  { labelKey: "myApplications", href: "/my-applications", icon: FileText, roles: ["provider"] },
   { labelKey: "referrerProfile", href: "/referral", icon: UserCircle, roles: ["provider"] },
   // Wallet is where apporteurs see their commission income. Without
   // this entry they'd have to switch back to freelance mode to check
