@@ -2400,6 +2400,11 @@
     "invoicesTab": "My platform invoices",
     "receiptsTab": "Receipts"
   },
+  "opportunitiesTabs": {
+    "navLabel": "Opportunities sections",
+    "allTab": "All offers",
+    "applicationsTab": "My applications"
+  },
   "receipts": {
     "listEyebrow": "ATELIER · RECEIPTS",
     "listSubtitle": "Use them to prepare your official invoices — they do not replace your accounting obligations.",

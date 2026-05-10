@@ -1,13 +1,16 @@
 import { getTranslations } from "next-intl/server"
-import { OpportunityList } from "@/features/job/components/opportunity-list"
+import { OpportunitiesTabs } from "./opportunities-tabs"
 
 // W-12 · Opportunités feed — Soleil v2
 //
 // Editorial hero with Fraunces serif title (italic corail accent on the
 // last word) and ATELIER mono eyebrow, mirrors `SoleilOpportunities`
 // in design/assets/sources/phase1/soleil-lotC.jsx (lines 165-171).
-// The page itself stays a Server Component — only the list below needs
-// client interactivity.
+// The page itself stays a Server Component — only the tabs surface below
+// needs client interactivity. The tabs merge the legacy
+// `/my-applications` route into this page so freelances/agencies have a
+// single entry point: "Toutes les offres" (default) and "Mes
+// candidatures" (lazy-mounted on activation).
 export default async function OpportunitiesPage() {
   const t = await getTranslations("opportunity")
 
@@ -25,7 +28,7 @@ export default async function OpportunitiesPage() {
           {t("heroSubtitle")}
         </p>
       </header>
-      <OpportunityList />
+      <OpportunitiesTabs />
     </div>
   )
 }
