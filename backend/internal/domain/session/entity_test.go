@@ -2,7 +2,6 @@ package session
 
 import (
 	"errors"
-	"net"
 	"testing"
 	"time"
 
@@ -36,7 +35,7 @@ func validInput() NewInput {
 		UserID:        uuid.New(),
 		JTI:           uuid.New().String(),
 		UserAgentHash: "deadbeefcafef00d",
-		IPAnonymized:  net.ParseIP("192.0.2.0"),
+		IPAnonymized:  "192.0.2.0/24",
 		LoginMethod:   LoginMethodPassword,
 		ExpiresAt:     time.Now().Add(24 * time.Hour),
 	}
@@ -69,7 +68,12 @@ func TestNew_validation(t *testing.T) {
 		},
 		{
 			name:    "missing ip",
-			mutate:  func(in *NewInput) { in.IPAnonymized = nil },
+			mutate:  func(in *NewInput) { in.IPAnonymized = "" },
+			wantErr: ErrIPRequired,
+		},
+		{
+			name:    "blank ip",
+			mutate:  func(in *NewInput) { in.IPAnonymized = "   " },
 			wantErr: ErrIPRequired,
 		},
 		{
