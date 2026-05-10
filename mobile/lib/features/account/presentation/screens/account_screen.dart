@@ -10,6 +10,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../auth/presentation/widgets/two_factor_section.dart';
 import '../../../profile_completion/presentation/widgets/profile_completion_bar.dart';
 import '../../../security/presentation/widgets/security_activity_section.dart';
 import '../../data/gdpr_repository_impl.dart';
@@ -109,7 +110,19 @@ class AccountScreen extends ConsumerWidget {
                 icon: Icons.verified_user_outlined,
                 title: l10n.accountSectionSecurity,
                 description: l10n.accountSectionSecurityDesc,
-                child: const SecurityActivitySection(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const TwoFactorSection(),
+                    const SizedBox(height: 16),
+                    Divider(
+                      height: 1,
+                      color: theme.dividerColor,
+                    ),
+                    const SizedBox(height: 16),
+                    const SecurityActivitySection(),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
               _AccountSection(
