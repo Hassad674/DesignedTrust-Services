@@ -357,6 +357,7 @@ describe("profile edit shell parity", () => {
       /location/i,
       /languages/i,
       /social links/i,
+      /portfolio/i,
     ]
 
     for (const re of targetTitles) {
@@ -368,6 +369,51 @@ describe("profile edit shell parity", () => {
       expect(matching.className).toContain(SOLEIL_CARD)
       expect(matching.className).toContain(SOLEIL_PAD)
       expect(matching.className).not.toContain(LEGACY_CARD_PAD)
+    }
+  })
+
+  // BATCH-PROFIL-FIX item — the previous Portfolio editor painted its
+  // empty state with a corail wash + bright red CTA that visually
+  // collided with the rest of the agency edit shell. Lock in the
+  // Soleil v2 ivoire pattern so future edits cannot regress.
+  it("agency edit page Portfolio section keeps a neutral ivoire shell — no full corail wash on the section or its empty state", () => {
+    const { container } = renderWithProviders(<AgencyProfilePage />)
+    const sections = Array.from(container.querySelectorAll("section"))
+    const portfolio = sections.find((s) => {
+      const heading = within(s).queryByRole("heading", { level: 2 })
+      return heading?.textContent
+        ? /portfolio/i.test(heading.textContent)
+        : false
+    })
+    expect(portfolio).toBeDefined()
+    if (!portfolio) return
+
+    // Outer wrapper uses bg-card (ivoire/white) — never the corail
+    // soft / corail full classes that turn the whole card pink.
+    expect(portfolio.className).toContain("bg-card")
+    expect(portfolio.className).not.toMatch(/(?:^|\s)bg-primary(?!-)/)
+    expect(portfolio.className).not.toMatch(/(?:^|\s)bg-primary-soft(?:\s|$)/)
+
+    // Empty state container (the immediate flex column rendered when
+    // no items exist) must not be wrapped in a corail-tinted block.
+    // The mock returns an empty list, so the empty state is on screen.
+    const emptyTitle = within(portfolio).getByText(/no projects yet/i)
+    const emptyContainer = emptyTitle.closest("div")?.parentElement
+    expect(emptyContainer).not.toBeNull()
+    if (emptyContainer) {
+      // No corail wash on the wrapper. The icon chip inside is allowed
+      // to use bg-primary-soft (small accent), but the wrapper itself
+      // must stay neutral.
+      expect(emptyContainer.className).not.toMatch(
+        /(?:^|\s)bg-primary(?!-)/,
+      )
+      expect(emptyContainer.className).not.toMatch(
+        /(?:^|\s)bg-primary-soft(?:\s|$)/,
+      )
+      expect(emptyContainer.className).not.toContain("from-primary")
+      expect(emptyContainer.className).not.toContain(
+        "border-dashed",
+      )
     }
   })
 })
