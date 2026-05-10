@@ -63,7 +63,7 @@ import 'app_localizations_fr.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('fr'),
+    Locale('fr')
   ];
 
   /// No description provided for @appTitle.
@@ -7615,6 +7615,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enterprise stats (applications, active jobs) are coming soon.'**
   String get statsEnterprisePlaceholderBody;
+
+  /// No description provided for @twoFactorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s really you.'**
+  String get twoFactorTitle;
+
+  /// No description provided for @twoFactorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to your email. Enter it below to finish signing in.'**
+  String get twoFactorSubtitle;
+
+  /// No description provided for @twoFactorCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get twoFactorCodeLabel;
+
+  /// No description provided for @twoFactorCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'123456'**
+  String get twoFactorCodeHint;
+
+  /// No description provided for @twoFactorVerifyCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify code'**
+  String get twoFactorVerifyCta;
+
+  /// No description provided for @twoFactorVerifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying...'**
+  String get twoFactorVerifying;
+
+  /// No description provided for @twoFactorBackToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get twoFactorBackToLogin;
+
+  /// No description provided for @twoFactorResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get twoFactorResend;
+
+  /// No description provided for @twoFactorCodeLengthError.
+  ///
+  /// In en, this message translates to:
+  /// **'The code must be 6 digits.'**
+  String get twoFactorCodeLengthError;
+
+  /// No description provided for @twoFactorSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-factor authentication'**
+  String get twoFactorSectionTitle;
+
+  /// No description provided for @twoFactorSectionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a second layer of security: a 6-digit code will be emailed to you on every sign in.'**
+  String get twoFactorSectionDesc;
+
+  /// No description provided for @twoFactorToggleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Email 2FA'**
+  String get twoFactorToggleTitle;
+
+  /// No description provided for @twoFactorToggleDescOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Active. A code will be required at every sign in.'**
+  String get twoFactorToggleDescOn;
+
+  /// No description provided for @twoFactorToggleDescOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive. Enable 2FA to harden your account.'**
+  String get twoFactorToggleDescOff;
+
+  /// No description provided for @twoFactorEnablePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'We just emailed a 6-digit code to confirm your email belongs to you. Enter it to finish enabling 2FA.'**
+  String get twoFactorEnablePrompt;
+
+  /// No description provided for @twoFactorDisablePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'To disable 2FA, confirm your current password.'**
+  String get twoFactorDisablePrompt;
+
+  /// No description provided for @twoFactorCurrentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get twoFactorCurrentPasswordLabel;
+
+  /// No description provided for @twoFactorConfirmEnableCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable 2FA'**
+  String get twoFactorConfirmEnableCta;
+
+  /// No description provided for @twoFactorConfirmDisableCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable 2FA'**
+  String get twoFactorConfirmDisableCta;
+
+  /// No description provided for @twoFactorCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get twoFactorCancel;
+
+  /// No description provided for @twoFactorEnabledToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Email 2FA enabled.'**
+  String get twoFactorEnabledToast;
+
+  /// No description provided for @twoFactorDisabledToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Email 2FA disabled.'**
+  String get twoFactorDisabledToast;
+
+  /// No description provided for @twoFactorErrorPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required.'**
+  String get twoFactorErrorPasswordRequired;
+
+  /// No description provided for @twoFactorErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Try again in a moment.'**
+  String get twoFactorErrorGeneric;
 }
 
 class _AppLocalizationsDelegate
@@ -7644,9 +7788,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }
