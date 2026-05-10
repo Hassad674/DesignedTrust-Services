@@ -4108,4 +4108,83 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get profileCompletionSectionClientAbout => 'Présentation client';
+
+  @override
+  String get twoFactorTitle => 'Confirme que c\'est bien toi.';
+
+  @override
+  String get twoFactorSubtitle =>
+      'On t\'a envoyé un code à 6 chiffres par email. Recopie-le ci-dessous pour finaliser ta connexion.';
+
+  @override
+  String get twoFactorCodeLabel => 'Code de vérification';
+
+  @override
+  String get twoFactorCodeHint => '123456';
+
+  @override
+  String get twoFactorVerifyCta => 'Vérifier le code';
+
+  @override
+  String get twoFactorVerifying => 'Vérification...';
+
+  @override
+  String get twoFactorBackToLogin => 'Revenir à la connexion';
+
+  @override
+  String get twoFactorResend => 'Renvoyer le code';
+
+  @override
+  String get twoFactorCodeLengthError => 'Le code doit comporter 6 chiffres.';
+
+  @override
+  String get twoFactorSectionTitle => 'Authentification à deux facteurs';
+
+  @override
+  String get twoFactorSectionDesc =>
+      'Ajoute une seconde couche de sécurité : un code à 6 chiffres te sera envoyé par email à chaque connexion.';
+
+  @override
+  String get twoFactorToggleTitle => '2FA par email';
+
+  @override
+  String get twoFactorToggleDescOn =>
+      'Active. Un code te sera demandé à chaque connexion.';
+
+  @override
+  String get twoFactorToggleDescOff =>
+      'Inactive. Active la 2FA pour renforcer la sécurité de ton compte.';
+
+  @override
+  String get twoFactorEnablePrompt =>
+      'On vient de t\'envoyer un code à 6 chiffres pour vérifier que ton email est bien à toi. Recopie-le pour finaliser l\'activation.';
+
+  @override
+  String get twoFactorDisablePrompt =>
+      'Pour désactiver la 2FA, confirme ton mot de passe actuel.';
+
+  @override
+  String get twoFactorCurrentPasswordLabel => 'Mot de passe actuel';
+
+  @override
+  String get twoFactorConfirmEnableCta => 'Activer la 2FA';
+
+  @override
+  String get twoFactorConfirmDisableCta => 'Désactiver la 2FA';
+
+  @override
+  String get twoFactorCancel => 'Annuler';
+
+  @override
+  String get twoFactorEnabledToast => '2FA par email activée.';
+
+  @override
+  String get twoFactorDisabledToast => '2FA par email désactivée.';
+
+  @override
+  String get twoFactorErrorPasswordRequired => 'Le mot de passe est requis.';
+
+  @override
+  String get twoFactorErrorGeneric =>
+      'Une erreur est survenue. Réessaye dans un instant.';
 }
