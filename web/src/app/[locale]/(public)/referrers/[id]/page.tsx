@@ -21,10 +21,8 @@ import {
 import {
   fetchPublicAverageRating,
   fetchPublicReviews,
-  fetchRelatedProfiles,
 } from "@/shared/lib/seo/server-fetchers"
 import { BreadcrumbNav } from "@/shared/components/seo/breadcrumb-nav"
-import { RelatedProfiles } from "@/shared/components/seo/related-profiles"
 
 type Props = {
   params: Promise<{ id: string; locale: string }>
@@ -68,16 +66,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ReferrerProfilePage({ params }: Props) {
   const { id, locale } = await params
-  const [profile, rating, reviews, related, t, tSeo] = await Promise.all([
+  const [profile, rating, reviews, t, tSeo] = await Promise.all([
     fetchReferrerProfileForMetadata(id),
     fetchPublicAverageRating(id),
     fetchPublicReviews(id, 5),
-    fetchRelatedProfiles({
-      type: "referrer",
-      excludeOrgId: id,
-      primaryExpertise: undefined,
-      city: undefined,
-    }),
     getTranslations({ locale, namespace: "profile.referrer" }),
     getTranslations({ locale, namespace: "seo" }),
   ])
@@ -85,21 +77,6 @@ export default async function ReferrerProfilePage({ params }: Props) {
   // as the on-page header: the raw organization UUID is unfit for any
   // public surface, including SEO payloads consumed by crawlers.
   const fallbackName = t("displayNameFallback")
-
-  const filteredRelated =
-    profile && related.length > 0
-      ? related
-          .sort((a, b) => {
-            // Referrers don't have expertise; rank by city + rating.
-            const aMatch =
-              profile.city && a.city === profile.city ? 4 : 0
-            const bMatch =
-              profile.city && b.city === profile.city ? 4 : 0
-            if (aMatch !== bMatch) return bMatch - aMatch
-            return b.rating_average - a.rating_average
-          })
-          .slice(0, 6)
-      : related
 
   const breadcrumbCrumbs = [
     {
@@ -143,16 +120,6 @@ export default async function ReferrerProfilePage({ params }: Props) {
       ) : null}
       <BreadcrumbsJsonLd
         crumbs={breadcrumbCrumbs.map((c) => ({ name: c.label, item: c.item }))}
-      />
-      <RelatedProfiles
-        type="referrer"
-        documents={filteredRelated}
-        labels={{
-          heading: tSeo("relatedHeadingReferrer"),
-          subheading: tSeo("relatedSubheading"),
-          viewProfile: tSeo("relatedViewProfile"),
-          cityFallback: tSeo("relatedCityFallback"),
-        }}
       />
     </div>
   )

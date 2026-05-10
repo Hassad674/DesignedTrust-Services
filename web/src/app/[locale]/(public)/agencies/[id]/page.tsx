@@ -18,10 +18,8 @@ import {
 import {
   fetchPublicAverageRating,
   fetchPublicReviews,
-  fetchRelatedProfiles,
 } from "@/shared/lib/seo/server-fetchers"
 import { BreadcrumbNav } from "@/shared/components/seo/breadcrumb-nav"
-import { RelatedProfiles } from "@/shared/components/seo/related-profiles"
 import type { Review, AverageRating } from "@/shared/types/review"
 
 type Props = {
@@ -72,31 +70,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AgencyProfilePage({ params }: Props) {
   const { id, locale } = await params
-  const [profile, rating, reviews, related, tProfile, tSeo] = await Promise.all([
+  const [profile, rating, reviews, tProfile, tSeo] = await Promise.all([
     fetchAgencyProfileForMetadata(id),
     fetchPublicAverageRating(id),
     fetchPublicReviews(id, 5),
-    fetchRelatedProfiles({
-      type: "agency",
-      excludeOrgId: id,
-      primaryExpertise: undefined,
-      city: undefined,
-    }),
     getTranslations({ locale, namespace: "profile.agency" }),
     getTranslations({ locale, namespace: "seo" }),
   ])
-
-  const filteredRelated =
-    profile && related.length > 0
-      ? related
-          .sort((a, b) => {
-            const aMatch = primaryMatch(a, profile)
-            const bMatch = primaryMatch(b, profile)
-            if (aMatch !== bMatch) return bMatch - aMatch
-            return b.rating_average - a.rating_average
-          })
-          .slice(0, 6)
-      : related
 
   const breadcrumbCrumbs = [
     {
@@ -139,16 +119,6 @@ export default async function AgencyProfilePage({ params }: Props) {
       ) : null}
       <BreadcrumbsJsonLd
         crumbs={breadcrumbCrumbs.map((c) => ({ name: c.label, item: c.item }))}
-      />
-      <RelatedProfiles
-        type="agency"
-        documents={filteredRelated}
-        labels={{
-          heading: tSeo("relatedHeadingAgency"),
-          subheading: tSeo("relatedSubheading"),
-          viewProfile: tSeo("relatedViewProfile"),
-          cityFallback: tSeo("relatedCityFallback"),
-        }}
       />
     </div>
   )
@@ -235,15 +205,4 @@ function mergeKnowsAbout(skills: string[], expertises: string[]): string[] {
     .map((entry) => entry.trim())
     .filter(Boolean)
   return Array.from(new Set(combined))
-}
-
-function primaryMatch(
-  doc: { expertise_domains: string[]; city?: string },
-  profile: { expertise_domains?: string[]; city?: string },
-): number {
-  let score = 0
-  const primary = profile.expertise_domains?.[0]
-  if (primary && doc.expertise_domains?.includes(primary)) score += 10
-  if (profile.city && doc.city === profile.city) score += 4
-  return score
 }

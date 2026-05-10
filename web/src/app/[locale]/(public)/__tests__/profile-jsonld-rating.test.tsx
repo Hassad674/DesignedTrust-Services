@@ -24,11 +24,9 @@ vi.mock("@/features/freelance-profile/api/freelance-profile-server", () => ({
 
 const fetchAvgMock = vi.fn()
 const fetchReviewsMock = vi.fn()
-const fetchRelatedMock = vi.fn()
 vi.mock("@/shared/lib/seo/server-fetchers", () => ({
   fetchPublicAverageRating: (...args: unknown[]) => fetchAvgMock(...args),
   fetchPublicReviews: (...args: unknown[]) => fetchReviewsMock(...args),
-  fetchRelatedProfiles: (...args: unknown[]) => fetchRelatedMock(...args),
 }))
 
 vi.mock("@/features/messaging/components/send-message-button", () => ({
@@ -67,8 +65,6 @@ beforeEach(() => {
   fetchProfileMock.mockReset()
   fetchAvgMock.mockReset()
   fetchReviewsMock.mockReset()
-  fetchRelatedMock.mockReset()
-  fetchRelatedMock.mockResolvedValue([])
 })
 
 async function renderPage(id: string, locale: string): Promise<string> {
