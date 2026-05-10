@@ -217,14 +217,18 @@ body {
 /* Soleil v2 — text selection uses the brand corail (primary-deep) so
  * highlighted text reads as part of the design instead of the browser
  * default blue. Foreground stays ivoire for AA contrast on the deep
- * corail background. */
-::selection {
-  background-color: var(--primary-deep);
-  color: var(--primary-foreground);
+ * corail background. !important defends against any scoped override
+ * from third-party widgets (Stripe Elements iframes are out of reach
+ * by design, but everything in our own DOM is covered). */
+::selection,
+*::selection {
+  background-color: var(--primary-deep) !important;
+  color: var(--primary-foreground) !important;
 }
-::-moz-selection {
-  background-color: var(--primary-deep);
-  color: var(--primary-foreground);
+::-moz-selection,
+*::-moz-selection {
+  background-color: var(--primary-deep) !important;
+  color: var(--primary-foreground) !important;
 }
 
 /* ============================================
