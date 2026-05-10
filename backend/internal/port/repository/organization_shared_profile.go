@@ -30,6 +30,18 @@ type OrganizationSharedProfile struct {
 	TravelRadiusKm          *int
 	LanguagesProfessional   []string
 	LanguagesConversational []string
+
+	// Identity bag JOINed alongside the shared-profile block on the
+	// public read paths. OrgName is the organization's display name
+	// (used as the heading on /agencies/[id] for agency orgs);
+	// OwnerFirstName / OwnerLastName are the owner user's identity
+	// fields used as the heading on /freelancers/[id] and
+	// /referrers/[id]. All three are best-effort: when a deleted user
+	// race or a partial migration leaves them empty, the strings stay
+	// "" and the consumer falls back to the persona-localised label.
+	OrgName        string
+	OwnerFirstName string
+	OwnerLastName  string
 }
 
 // SharedProfileLocationInput is the write payload for the location

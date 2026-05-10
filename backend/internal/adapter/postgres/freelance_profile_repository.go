@@ -43,7 +43,9 @@ const freelanceProfileSelectColumns = `
 	fp.availability_status, fp.expertise_domains, fp.created_at, fp.updated_at,
 	o.photo_url, o.city, o.country_code, o.latitude, o.longitude,
 	o.work_mode, o.travel_radius_km,
-	o.languages_professional, o.languages_conversational`
+	o.languages_professional, o.languages_conversational,
+	o.name,
+	COALESCE(u.first_name, ''), COALESCE(u.last_name, '')`
 
 // GetByOrgID fetches the freelance profile for the given org JOINed
 // with the organization's shared-profile block. One round-trip —
@@ -81,10 +83,17 @@ func (r *FreelanceProfileRepository) queryByOrgID(ctx context.Context, orgID uui
 	ctx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
+	// Public profile pages render the owner's first_name + last_name
+	// as the heading for freelance / referrer personas, so the
+	// hydrated view JOINs the owner user row alongside the shared
+	// org block. LEFT JOIN keeps the query resilient to a deleted
+	// owner race — the owner identity fields fall back to "" via the
+	// COALESCE in the SELECT list.
 	query := `
 		SELECT ` + freelanceProfileSelectColumns + `
 		  FROM freelance_profiles fp
 		  JOIN organizations      o ON o.id = fp.organization_id
+		  LEFT JOIN users         u ON u.id = o.owner_user_id
 		 WHERE fp.organization_id = $1`
 
 	view, err := scanFreelanceProfileRow(r.db.QueryRowContext(ctx, query, orgID))
@@ -312,6 +321,7 @@ func scanFreelanceProfileRow(row *sql.Row) (*repository.FreelanceProfileView, er
 		&shared.PhotoURL, &shared.City, &shared.CountryCode,
 		&lat, &lng, pq.Array(&workMode), &travelRadius,
 		pq.Array(&langPro), pq.Array(&langConv),
+		&shared.OrgName, &shared.OwnerFirstName, &shared.OwnerLastName,
 	)
 	if err != nil {
 		return nil, err

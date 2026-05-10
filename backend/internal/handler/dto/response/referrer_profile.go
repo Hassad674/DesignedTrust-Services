@@ -36,6 +36,14 @@ type ReferrerProfileResponse struct {
 	LanguagesProfessional   []string `json:"languages_professional"`
 	LanguagesConversational []string `json:"languages_conversational"`
 
+	// ---- Identity (joined from organizations + owner user) ----
+	// Same shape as FreelanceProfileResponse so the public referrer
+	// page can render `${first_name} ${last_name}` as the heading
+	// with the apporteur title underneath.
+	OrgName   string `json:"org_name"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+
 	Pricing *ReferrerPricingSummary `json:"pricing"`
 
 	CreatedAt string `json:"created_at"`
@@ -100,6 +108,9 @@ func NewReferrerProfileResponse(
 		TravelRadiusKm:          view.Shared.TravelRadiusKm,
 		LanguagesProfessional:   nilToEmptyStrings(view.Shared.LanguagesProfessional),
 		LanguagesConversational: nilToEmptyStrings(view.Shared.LanguagesConversational),
+		OrgName:                 view.Shared.OrgName,
+		FirstName:               view.Shared.OwnerFirstName,
+		LastName:                view.Shared.OwnerLastName,
 		Pricing:                 NewReferrerPricingSummary(pricing),
 		CreatedAt:               p.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		UpdatedAt:               p.UpdatedAt.Format("2006-01-02T15:04:05Z"),
