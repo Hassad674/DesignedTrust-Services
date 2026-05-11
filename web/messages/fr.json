@@ -856,8 +856,6 @@
       "kycCta": "Vérifier",
       "profileCompletion": "Ton profil est complété à {percent}% — finalise-le pour gagner en visibilité.",
       "profileCompletionCta": "Compléter",
-      "billingProfile": "Renseigne tes informations de facturation pour activer les paiements.",
-      "billingProfileCta": "Compléter",
       "unreadMessages": "Tu as {count, plural, one {# message non lu} other {# messages non lus}}.",
       "unreadMessagesCta": "Ouvrir"
     },
