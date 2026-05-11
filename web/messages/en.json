@@ -2962,5 +2962,86 @@
       "noViewsBody": "Share your profile link on LinkedIn to gain visibility — every visit shows up here.",
       "noViewsCta": "Share your profile"
     }
+  },
+  "walletUnified": {
+    "title": "Wallet",
+    "subtitle": "Your mission earnings and referral commissions in a single view.",
+    "totalEarned": "Total earnings",
+    "withdraw": "Withdraw",
+    "withdrawing": "Withdrawing…",
+    "noFunds": "No funds available",
+    "card": {
+      "escrowed": "In escrow",
+      "escrowedHint": "Funds held against milestones not yet approved.",
+      "available": "Available",
+      "availableHint": "Ready to transfer to your Stripe account.",
+      "transmitted": "Transferred",
+      "transmittedHint": "Already wired to your bank account."
+    },
+    "toast": {
+      "success": "Withdrawal in progress — we will email you once Stripe confirms.",
+      "partial": "Partial success — see the details."
+    },
+    "result": {
+      "title": "Withdrawal details",
+      "drained": "{amount} withdrawn",
+      "missionsLine": "Missions: {amount}",
+      "commissionsLine": "Commissions: {amount}",
+      "errorsHeading": "Errors",
+      "errorMissions": "Missions side",
+      "errorCommissions": "Commissions side",
+      "close": "Close"
+    },
+    "history": {
+      "title": "Earnings history",
+      "subtitle": "Your payments and commissions, newest first.",
+      "loadMore": "Load more",
+      "empty": "No wallet activity yet.",
+      "row": {
+        "mission": "Mission",
+        "commission": "Commission",
+        "untitled": "Untitled",
+        "ariaLabel": "{type} for {amount}, {status}"
+      },
+      "status": {
+        "paid": "Paid",
+        "pending": "Pending",
+        "escrowed": "In escrow",
+        "failed": "Failed"
+      }
+    }
+  },
+  "referralEndIntro": {
+    "ctaLabel": "End intro",
+    "modal": {
+      "title": "End this referral",
+      "body": "You are about to end the intro between {provider} and {client}. You will no longer earn commission on milestones approved from today onwards. Commissions already earned stay due. Confirm?",
+      "fallbackProvider": "the provider",
+      "fallbackClient": "the client",
+      "cancel": "Cancel",
+      "confirm": "End permanently"
+    },
+    "badge": "Intro ended on {date}",
+    "error": {
+      "forbidden": "You are not allowed to end this referral.",
+      "notFound": "This referral cannot be found.",
+      "generic": "We could not end this referral right now."
+    }
+  },
+  "referralIdentity": {
+    "reveal": {
+      "providerLink": "View the provider's profile",
+      "clientLink": "View the client's profile"
+    }
+  },
+  "referralProjection": {
+    "perMilestoneTitle": "Per-milestone projection",
+    "status": {
+      "escrowed": "≈ {amount} (in escrow)",
+      "pending": "{amount} pending",
+      "paid": "+{amount} received",
+      "failed": "{amount} failed"
+    },
+    "empty": "No commissionable milestones yet."
   }
 }

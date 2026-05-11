@@ -1,4 +1,6 @@
-import { Award, Globe2, MapPin, Sparkles, Star, Wallet } from "lucide-react"
+import Link from "next/link"
+import { Award, ExternalLink, Globe2, MapPin, Sparkles, Star, Wallet } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { cn } from "@/shared/lib/utils"
 import type { ProviderSnapshot } from "../types"
@@ -6,6 +8,17 @@ import type { ProviderSnapshot } from "../types"
 interface AnonymizedProviderCardProps {
   snapshot: ProviderSnapshot
   className?: string
+  /**
+   * When `revealed` is true the card stops masking the provider —
+   * the eyebrow and footer link expose the public profile URL so
+   * the apporteur (owner of the referral) can navigate to it.
+   * Set by the parent ReferralDetailView based on `viewerRole`.
+   * Defaults to false to preserve the masked behaviour for client +
+   * provider viewers.
+   */
+  revealed?: boolean
+  /** Provider's user id — used to build the public profile link. */
+  providerId?: string
 }
 
 // AnonymizedProviderCard renders the provider's safe-to-reveal attributes
@@ -18,7 +31,10 @@ interface AnonymizedProviderCardProps {
 export function AnonymizedProviderCard({
   snapshot,
   className,
+  revealed = false,
+  providerId,
 }: AnonymizedProviderCardProps) {
+  const t = useTranslations("referralIdentity.reveal")
   const hasAnyField =
     (snapshot.expertise_domains?.length ?? 0) > 0 ||
     snapshot.years_experience !== null && snapshot.years_experience !== undefined ||
@@ -35,18 +51,36 @@ export function AnonymizedProviderCard({
         className,
       )}
     >
-      <header className="mb-4 flex items-center gap-3">
-        <div className="grid h-12 w-12 place-items-center rounded-full bg-primary-soft text-primary">
-          <Sparkles className="h-6 w-6" aria-hidden="true" />
+      <header className="mb-4 flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="grid h-12 w-12 place-items-center rounded-full bg-primary-soft text-primary">
+            <Sparkles className="h-6 w-6" aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-foreground">
+              Prestataire recommandé
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {revealed
+                ? "Identité visible (tu es l'apporteur)"
+                : "Identité révélée à l'acceptation"}
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-base font-semibold text-foreground">
-            Prestataire recommandé
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Identité révélée à l&rsquo;acceptation
-          </p>
-        </div>
+        {revealed && providerId && (
+          <Link
+            href={`/freelances/${providerId}`}
+            data-testid="anonymized-provider-reveal-link"
+            className={cn(
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5",
+              "bg-primary text-[12px] font-semibold text-primary-foreground",
+              "transition-colors hover:bg-primary-deep",
+            )}
+          >
+            {t("providerLink")}
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
+        )}
       </header>
 
       {!hasAnyField ? (

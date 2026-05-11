@@ -3,8 +3,13 @@
 import { Briefcase } from "lucide-react"
 
 import { cn } from "@/shared/lib/utils"
-import { useReferralAttributions } from "../hooks/use-referrals"
-import type { ReferralAttribution } from "../types"
+import {
+  useReferralAttributions,
+  useReferralCommissions,
+} from "../hooks/use-referrals"
+import type { ReferralAttribution, ReferralCommission } from "../types"
+import { EndIntroAction } from "./end-intro-action"
+import { ProjectedCommissionsList } from "./projected-commissions-list"
 
 interface ReferralMissionsSectionProps {
   referralId: string
@@ -12,6 +17,11 @@ interface ReferralMissionsSectionProps {
   // amounts — the backend strips them from the DTO too, but hiding the
   // commission column on the client side avoids rendering empty cells.
   viewerIsClient: boolean
+  // viewerIsReferrer enables the per-attribution "Terminer l'intro"
+  // action (Run C). Only the apporteur can end an intro — the backend
+  // returns 403 otherwise, and the UI hides the button entirely for
+  // every other viewer.
+  viewerIsReferrer?: boolean
 }
 
 // ReferralMissionsSection lists every proposal attributed to the
@@ -31,8 +41,15 @@ interface ReferralMissionsSectionProps {
 export function ReferralMissionsSection({
   referralId,
   viewerIsClient,
+  viewerIsReferrer = false,
 }: ReferralMissionsSectionProps) {
   const { data, isLoading, isError } = useReferralAttributions(referralId)
+  // Per-milestone commission rows. Reserved for apporteur + provider
+  // viewers (backend 403s the client). We skip the fetch entirely
+  // for the client to avoid the noisy console error.
+  const { data: commissions } = useReferralCommissions(referralId, {
+    enabled: !viewerIsClient,
+  })
 
   if (isLoading) {
     return (
@@ -74,6 +91,10 @@ export function ReferralMissionsSection({
             <AttributionRow
               attribution={a}
               viewerIsClient={viewerIsClient}
+              viewerIsReferrer={viewerIsReferrer}
+              commissions={
+                commissions?.filter((c) => c.attribution_id === a.id) ?? []
+              }
             />
           </li>
         ))}
@@ -110,9 +131,13 @@ function SectionHeader({ count }: { count?: number }) {
 function AttributionRow({
   attribution,
   viewerIsClient,
+  viewerIsReferrer,
+  commissions,
 }: {
   attribution: ReferralAttribution
   viewerIsClient: boolean
+  viewerIsReferrer: boolean
+  commissions: ReferralCommission[]
 }) {
   const status = proposalStatus(attribution.proposal_status)
   const rate = attribution.rate_pct_snapshot
@@ -145,80 +170,105 @@ function AttributionRow({
   // nothing more.
   return (
     <div
-      className="flex items-start gap-3 rounded-lg px-2 py-3"
+      className="space-y-2 rounded-lg px-2 py-3"
       aria-label={`${title} — ${status.label}`}
     >
-      {/* Status dot — tiny, high contrast, left gutter */}
-      <span
-        className={cn(
-          "mt-1.5 h-2 w-2 shrink-0 self-start rounded-full",
-          status.dotCls,
-        )}
-        aria-hidden="true"
-      />
+      <div className="flex items-start gap-3">
+        {/* Status dot — tiny, high contrast, left gutter */}
+        <span
+          className={cn(
+            "mt-1.5 h-2 w-2 shrink-0 self-start rounded-full",
+            status.dotCls,
+          )}
+          aria-hidden="true"
+        />
 
-      {/* Main content: title + meta lines */}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-semibold text-foreground">
-            {title}
-          </span>
-          <span
-            className={cn(
-              "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium",
-              status.pillCls,
-            )}
-          >
-            {status.label}
-          </span>
-        </div>
-
-        {/* Milestone progress line — {paid}/{total} drives the bar */}
-        <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
-          <span className="tabular-nums">
-            {mDone}/{mTotal} jalons
-          </span>
-          {mTotal > 0 && (
-            <span
-              className="relative h-1 w-16 overflow-hidden rounded-full bg-muted"
-              role="progressbar"
-              aria-valuenow={progress}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={`Progression ${progress}%`}
-            >
-              <span
-                className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all"
-                style={{ width: `${progress}%` }}
-              />
+        {/* Main content: title + meta lines */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="truncate text-sm font-semibold text-foreground">
+              {title}
             </span>
-          )}
+            <span
+              className={cn(
+                "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium",
+                status.pillCls,
+              )}
+            >
+              {status.label}
+            </span>
+          </div>
+
+          {/* Milestone progress line — {paid}/{total} drives the bar */}
+          <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
+            <span className="tabular-nums">
+              {mDone}/{mTotal} jalons
+            </span>
+            {mTotal > 0 && (
+              <span
+                className="relative h-1 w-16 overflow-hidden rounded-full bg-muted"
+                role="progressbar"
+                aria-valuenow={progress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`Progression ${progress}%`}
+              >
+                <span
+                  className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </span>
+            )}
+          </div>
+
+          {/* Attribution date + rate — tertiary info */}
+          <div className="mt-0.5 text-[11px] text-muted-foreground">
+            Attribuée le {attributedOn}
+            {rate !== undefined && (
+              <>
+                {" · "}
+                Taux {rate.toFixed(rate % 1 === 0 ? 0 : 1)} %
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Attribution date + rate — tertiary info */}
-        <div className="mt-0.5 text-[11px] text-muted-foreground">
-          Attribuée le {attributedOn}
-          {rate !== undefined && (
-            <>
-              {" · "}
-              Taux {rate.toFixed(rate % 1 === 0 ? 0 : 1)} %
-            </>
-          )}
-        </div>
+        {/* Commission (right column) — primary value for apporteur.
+            Shows the paid amount first; stacks escrow and clawback
+            sub-lines so a mission in progress does not read "0 €" when
+            money is held but not yet released. Client viewer sees no
+            commission column at all (Modèle A). */}
+        {!viewerIsClient && (
+          <CommissionColumn
+            paid={paid}
+            escrow={escrow}
+            clawedBack={clawedBack}
+            isTerminated={isTerminated}
+          />
+        )}
       </div>
 
-      {/* Commission (right column) — primary value for apporteur.
-          Shows the paid amount first; stacks escrow and clawback
-          sub-lines so a mission in progress does not read "0 €" when
-          money is held but not yet released. Client viewer sees no
-          commission column at all (Modèle A). */}
+      {/* WALLET-UNIFY Run C: per-milestone projection sub-list —
+          replaces the misleading "0 €" sub-caption when the row is
+          mid-mission. Apporteur + provider only; the client sees no
+          commission numbers at all. */}
       {!viewerIsClient && (
-        <CommissionColumn
-          paid={paid}
-          escrow={escrow}
-          clawedBack={clawedBack}
-          isTerminated={isTerminated}
-        />
+        <div className="pl-5">
+          <ProjectedCommissionsList
+            commissions={commissions}
+            escrowCents={escrow}
+          />
+        </div>
+      )}
+
+      {/* WALLET-UNIFY Run C: per-attribution end-intro action —
+          only the apporteur (referrer) sees the destructive button.
+          Hidden once the proposal is completed (no further milestones
+          can be approved, ending is a no-op). */}
+      {viewerIsReferrer && !isTerminated && (
+        <div className="flex justify-end pl-5">
+          <EndIntroAction attributionId={attribution.id} />
+        </div>
       )}
     </div>
   )
