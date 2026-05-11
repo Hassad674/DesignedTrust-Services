@@ -132,11 +132,13 @@ void main() {
 
       await expectLater(
         repo.retryCommission(commissionId),
-        throwsA(isA<CommissionKYCRequiredException>().having(
-          (e) => e.onboardingUrl,
-          'onboardingUrl',
-          'https://stripe.com/connect/abc',
-        )),
+        throwsA(
+          isA<CommissionKYCRequiredException>().having(
+            (e) => e.onboardingUrl,
+            'onboardingUrl',
+            'https://stripe.com/connect/abc',
+          ),
+        ),
       );
     });
 
@@ -161,11 +163,13 @@ void main() {
 
       await expectLater(
         repo.retryCommission(commissionId),
-        throwsA(isA<DioException>().having(
-          (e) => e.response?.statusCode,
-          'statusCode',
-          409,
-        )),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.response?.statusCode,
+            'statusCode',
+            409,
+          ),
+        ),
       );
     });
   });
