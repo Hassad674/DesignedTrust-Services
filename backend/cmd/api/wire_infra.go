@@ -104,6 +104,12 @@ type infrastructure struct {
 	// 150). Best-effort: a nil value disables the enrichment and the
 	// row's city / country_code columns stay at their SQL default ''.
 	GeoIPSvc                   service.GeoIPLookup
+	// AuditBatchWriter is the background flusher behind AuditRepo
+	// when batching is enabled (PERF-F3). Held here so main.go can
+	// Stop() it on graceful shutdown, ensuring the in-flight buffer
+	// drains before the process exits. nil when batching is disabled
+	// (tests, env-flag opt-out).
+	AuditBatchWriter           *postgres.BatchAuditWriter
 	PresenceSvc                service.PresenceService
 	StreamBroadcaster          *redisadapter.StreamBroadcaster
 	MessagingRateLimiter       *redisadapter.MessagingRateLimiter
@@ -218,7 +224,16 @@ func wireInfrastructure(ctx context.Context, cfg *config.Config) (infrastructure
 		// keep their privileged path. Migration 129 added WITH CHECK
 		// (true) on audit_logs so INSERTs pass even without context;
 		// reads still need the per-user policy to admit the row.
-		AuditRepo:             appaudit.NewSanitizingRepository(postgres.NewAuditRepository(db).WithTxRunner(txRunner)),
+		// Decorator chain (outermost → innermost):
+		//   SanitizingRepository — PII redaction (B.10)
+		//   BatchAuditWriter     — 5s/100-event flush (PERF-F3)
+		//   AuditRepository (pg) — real INSERT
+		// Order matters: sanitization MUST happen before buffering so
+		// the PII redaction is applied EVEN if the batch writer
+		// falls back to the inner repo during shutdown. The List
+		// methods on the batch writer forward to the wrapped
+		// repository unchanged.
+		AuditRepo:             nil, // assigned below after batch writer constructed
 		ModerationResultsRepo: postgres.NewModerationResultsRepository(db),
 		Hasher:                     crypto.NewBcryptHasher(),
 		TokenSvc:                   crypto.NewJWTService(cfg.JWTSecret, cfg.JWTAccessExpiry, cfg.JWTRefreshExpiry),
@@ -244,6 +259,45 @@ func wireInfrastructure(ctx context.Context, cfg *config.Config) (infrastructure
 		GeoIPSvc:              geoipadapter.NewClient(),
 		MessagingRateLimiter:  redisadapter.NewMessagingRateLimiter(redisClient),
 		InvitationRateLimiter: redisadapter.NewInvitationRateLimiter(redisClient),
+	}
+
+	// PERF-F3 — assemble the audit decorator chain.
+	//
+	//   outermost: SanitizingRepository  (PII redaction, B.10)
+	//   middle:    BatchAuditWriter      (5s/100-event flush)
+	//   innermost: postgres.AuditRepository (real INSERT)
+	//
+	// Sanitization happens FIRST so the PII redaction is applied even
+	// if the batch writer's Log path falls back to a direct write
+	// during shutdown.
+	//
+	// The batch writer takes `db` as its sink — the multi-row INSERT
+	// runs on whichever pool `db` points at (currently BYPASSRLS,
+	// matching the pre-rollout AuditRepository.Log path). audit_logs
+	// is RLS-protected with WITH CHECK (true) (migration 129), so the
+	// INSERT passes regardless of session-level tenant context.
+	//
+	// Set PERF_AUDIT_BATCH_DISABLED=true to opt out of batching and
+	// fall back to the legacy per-event RunInTxWithTenant path. The
+	// opt-out is a safety valve for the first prod rollout; remove
+	// the env gate once the metric in audit_batch_events_at_shutdown
+	// shows stable behaviour for ≥ 7 d.
+	pgAuditRepo := postgres.NewAuditRepository(db).WithTxRunner(txRunner)
+	if os.Getenv("PERF_AUDIT_BATCH_DISABLED") == "true" {
+		slog.Warn("audit batch: disabled via PERF_AUDIT_BATCH_DISABLED — falling back to per-event RunInTxWithTenant")
+		infra.AuditRepo = appaudit.NewSanitizingRepository(pgAuditRepo)
+	} else {
+		batchWriter := postgres.NewBatchAuditWriter(pgAuditRepo, db, postgres.DefaultBatchAuditConfig())
+		batchWriter.Start(ctx)
+		infra.AuditBatchWriter = batchWriter
+		// Sanitizer wraps the batch writer so PII redaction is applied
+		// before the entry hits the buffer (and therefore also before
+		// the shutdown fallback path).
+		infra.AuditRepo = appaudit.NewSanitizingRepository(batchWriter)
+		slog.Info("audit batch: enabled",
+			"flush_interval", postgres.DefaultBatchAuditConfig().FlushInterval,
+			"flush_threshold", postgres.DefaultBatchAuditConfig().FlushThreshold,
+		)
 	}
 
 	infra.CookieCfg = buildCookieConfig(cfg)
@@ -291,6 +345,19 @@ func wireInfrastructure(ctx context.Context, cfg *config.Config) (infrastructure
 	closer := func() {
 		streamCancel()
 		hubCancel()
+		// Drain the audit batch writer FIRST so any in-flight events
+		// land in the DB while Postgres is still reachable. The
+		// 5s flush interval bounds the worst-case latency; 30 s is a
+		// generous upper bound for the final flush + 3 retries. The
+		// returned count is logged so ops can spot a stuck flusher.
+		if infra.AuditBatchWriter != nil {
+			queued := infra.AuditBatchWriter.Stop(30 * time.Second)
+			if queued > 0 {
+				slog.Warn("audit batch: drained events at shutdown", "audit_batch_events_at_shutdown", queued)
+			} else {
+				slog.Info("audit batch: clean shutdown", "audit_batch_events_at_shutdown", 0)
+			}
+		}
 		_ = redisClient.Close()
 		// Flush any buffered analytics events before exit so the
 		// last few seconds of activity are not dropped on graceful
