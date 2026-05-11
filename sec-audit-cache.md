@@ -180,18 +180,18 @@ Same test plan, swap types accordingly.
 
 ---
 
-## Per-vector verdict (placeholder)
+## Per-vector verdict (PART 2 in flight)
 
 | Vector | Description | Status |
 |--------|-------------|--------|
-| A | Race between bump and read | PENDING |
-| B | Invalidate fails but bump succeeds | PENDING |
-| C | Cache poisoning after Redis recovery | PENDING |
-| D | Singleflight identity confusion | PENDING |
-| E | Negative cache poisoning | PENDING |
-| F | TTL bypass attack | PENDING |
-| G | Concurrent invalidation idempotency | PENDING |
-| H | Org-overrides (A-G repeated) | PENDING |
+| A | Race between bump and read | IN-FLIGHT |
+| B | Invalidate fails but bump succeeds | IN-FLIGHT |
+| C | Cache poisoning after Redis recovery | IN-FLIGHT |
+| D | Singleflight identity confusion | IN-FLIGHT |
+| E | Negative cache poisoning | IN-FLIGHT |
+| F | TTL bypass attack | IN-FLIGHT |
+| G | Concurrent invalidation idempotency | IN-FLIGHT |
+| H | Org-overrides (A-G repeated) | IN-FLIGHT |
 
 ---
 
