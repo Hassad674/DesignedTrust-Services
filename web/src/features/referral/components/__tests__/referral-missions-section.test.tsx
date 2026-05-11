@@ -3,18 +3,42 @@ import { render, screen } from "@testing-library/react"
 
 import { ReferralMissionsSection } from "../referral-missions-section"
 
-// useReferralAttributions is the only data hook this component depends
-// on. We mock the entire hooks module so the component renders against
-// the controlled fixture below — no MSW, no QueryClientProvider needed.
-vi.mock("../../hooks/use-referrals", () => ({
-  useReferralAttributions: vi.fn(),
+// useReferralAttributions + useReferralCommissions are the two data
+// hooks this component now depends on (Run C added the per-milestone
+// projection). We mock both so the component renders against the
+// controlled fixtures below — no MSW, no QueryClientProvider needed.
+//
+// next-intl is mocked separately so the projection list (which uses
+// useTranslations) renders without needing the IntlProvider wiring.
+vi.mock("next-intl", () => ({
+  useTranslations:
+    (namespace?: string) =>
+    (key: string, params?: Record<string, string | number>) => {
+      const full = namespace ? `${namespace}.${key}` : key
+      return params ? `${full}(${JSON.stringify(params)})` : full
+    },
 }))
 
-import { useReferralAttributions } from "../../hooks/use-referrals"
+vi.mock("../../hooks/use-referrals", () => ({
+  useReferralAttributions: vi.fn(),
+  useReferralCommissions: vi.fn(),
+}))
+
+import {
+  useReferralAttributions,
+  useReferralCommissions,
+} from "../../hooks/use-referrals"
 
 function mockAttributions(rows: unknown[]) {
   ;(useReferralAttributions as ReturnType<typeof vi.fn>).mockReturnValue({
     data: rows,
+    isLoading: false,
+    isError: false,
+  })
+  // Default: no commission rows, so the projection list falls into
+  // the empty-state branch (silent — invisible to existing tests).
+  ;(useReferralCommissions as ReturnType<typeof vi.fn>).mockReturnValue({
+    data: [],
     isLoading: false,
     isError: false,
   })

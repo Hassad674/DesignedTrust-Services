@@ -59,8 +59,20 @@ export function ReferralDetailView({ referralId }: ReferralDetailViewProps) {
         )}
         {viewerRole === "referrer" && (
           <>
-            <AnonymizedProviderCard snapshot={referral.intro_snapshot.provider} />
-            <AnonymizedClientCard snapshot={referral.intro_snapshot.client} />
+            {/* WALLET-UNIFY Run C: the apporteur (owner) sees both
+                identities un-masked because they made the intro and
+                already know who's involved. Other viewers keep the
+                anonymised cards until the intro activates. */}
+            <AnonymizedProviderCard
+              snapshot={referral.intro_snapshot.provider}
+              revealed
+              providerId={referral.provider_id}
+            />
+            <AnonymizedClientCard
+              snapshot={referral.intro_snapshot.client}
+              revealed
+              clientId={referral.client_id}
+            />
           </>
         )}
       </div>
@@ -88,11 +100,14 @@ export function ReferralDetailView({ referralId }: ReferralDetailViewProps) {
 
       {/* Attributed proposals — visible to all three parties once the
           intro is active. The client sees the list without commission
-          amounts; apporteur and provider see the full picture. */}
+          amounts; apporteur and provider see the full picture.
+          WALLET-UNIFY Run C: the apporteur also sees the per-attribution
+          "Terminer l'intro" action via `viewerIsReferrer`. */}
       {referral.status === "active" && (
         <ReferralMissionsSection
           referralId={referral.id}
           viewerIsClient={viewerRole === "client"}
+          viewerIsReferrer={viewerRole === "referrer"}
         />
       )}
 
