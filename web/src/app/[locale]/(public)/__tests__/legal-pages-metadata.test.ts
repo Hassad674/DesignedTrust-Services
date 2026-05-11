@@ -36,19 +36,32 @@ import * as Cgu from "@/app/[locale]/(public)/cgu/page"
 import * as Cgv from "@/app/[locale]/(public)/cgv/page"
 import * as Sub from "@/app/[locale]/(public)/sous-processeurs/page"
 
+// The /legal index moved to the legal.docs namespace in D4: it now
+// serves as the sommaire of the 6 D4 documents while still hosting the
+// mentions légales block at the top. Title + description come from
+// `legal.docs.indexTitle` / `legal.docs.indexIntro`.
 const CASES = [
   { mod: Privacy, namespace: "legal.privacy", label: "privacy" },
   { mod: Cookies, namespace: "legal.cookies", label: "cookies" },
-  { mod: LegalMentions, namespace: "legal.mentions", label: "legal" },
+  {
+    mod: LegalMentions,
+    namespace: "legal",
+    titleKey: "docs.indexTitle",
+    introKey: "docs.indexIntro",
+    label: "legal",
+  },
   { mod: Cgu, namespace: "legal.cgu", label: "cgu" },
   { mod: Cgv, namespace: "legal.cgv", label: "cgv" },
   { mod: Sub, namespace: "legal.subprocessors", label: "sous-processeurs" },
 ] as const
 
 describe("legal placeholder pages metadata", () => {
-  for (const { mod, namespace, label } of CASES) {
-    it(`${label}: generateMetadata sets noindex + localized title and description`, async () => {
-      const generate = (mod as { generateMetadata?: unknown }).generateMetadata
+  for (const c of CASES) {
+    const titleKey = "titleKey" in c ? c.titleKey : "title"
+    const introKey = "introKey" in c ? c.introKey : "intro"
+    it(`${c.label}: generateMetadata sets noindex + localized title and description`, async () => {
+      const generate = (c.mod as { generateMetadata?: unknown })
+        .generateMetadata
       expect(typeof generate).toBe("function")
 
       const meta = await (generate as (args: {
@@ -57,8 +70,8 @@ describe("legal placeholder pages metadata", () => {
         params: Promise.resolve({ locale: "fr" }),
       })
 
-      expect(meta.title).toBe(`[${namespace}.title] | Marketplace Service`)
-      expect(meta.description).toBe(`[${namespace}.intro]`)
+      expect(meta.title).toBe(`[${c.namespace}.${titleKey}] | Marketplace Service`)
+      expect(meta.description).toBe(`[${c.namespace}.${introKey}]`)
       expect(meta.robots).toEqual({ index: false, follow: false })
     })
   }
