@@ -8,6 +8,7 @@ import {
   useReferralCommissions,
 } from "../hooks/use-referrals"
 import type { ReferralAttribution, ReferralCommission } from "../types"
+import { EndIntroAction } from "./end-intro-action"
 import { ProjectedCommissionsList } from "./projected-commissions-list"
 
 interface ReferralMissionsSectionProps {
@@ -16,6 +17,11 @@ interface ReferralMissionsSectionProps {
   // amounts — the backend strips them from the DTO too, but hiding the
   // commission column on the client side avoids rendering empty cells.
   viewerIsClient: boolean
+  // viewerIsReferrer enables the per-attribution "Terminer l'intro"
+  // action (Run C). Only the apporteur can end an intro — the backend
+  // returns 403 otherwise, and the UI hides the button entirely for
+  // every other viewer.
+  viewerIsReferrer?: boolean
 }
 
 // ReferralMissionsSection lists every proposal attributed to the
@@ -35,6 +41,7 @@ interface ReferralMissionsSectionProps {
 export function ReferralMissionsSection({
   referralId,
   viewerIsClient,
+  viewerIsReferrer = false,
 }: ReferralMissionsSectionProps) {
   const { data, isLoading, isError } = useReferralAttributions(referralId)
   // Per-milestone commission rows. Reserved for apporteur + provider
@@ -84,6 +91,7 @@ export function ReferralMissionsSection({
             <AttributionRow
               attribution={a}
               viewerIsClient={viewerIsClient}
+              viewerIsReferrer={viewerIsReferrer}
               commissions={
                 commissions?.filter((c) => c.attribution_id === a.id) ?? []
               }
@@ -123,10 +131,12 @@ function SectionHeader({ count }: { count?: number }) {
 function AttributionRow({
   attribution,
   viewerIsClient,
+  viewerIsReferrer,
   commissions,
 }: {
   attribution: ReferralAttribution
   viewerIsClient: boolean
+  viewerIsReferrer: boolean
   commissions: ReferralCommission[]
 }) {
   const status = proposalStatus(attribution.proposal_status)
@@ -248,6 +258,16 @@ function AttributionRow({
             commissions={commissions}
             escrowCents={escrow}
           />
+        </div>
+      )}
+
+      {/* WALLET-UNIFY Run C: per-attribution end-intro action —
+          only the apporteur (referrer) sees the destructive button.
+          Hidden once the proposal is completed (no further milestones
+          can be approved, ending is a no-op). */}
+      {viewerIsReferrer && !isTerminated && (
+        <div className="flex justify-end pl-5">
+          <EndIntroAction attributionId={attribution.id} />
         </div>
       )}
     </div>
