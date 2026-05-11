@@ -2963,5 +2963,86 @@
       "noViewsBody": "Partage le lien de ton profil sur LinkedIn pour gagner en visibilité — chaque visite est comptée ici.",
       "noViewsCta": "Partage ton profil"
     }
+  },
+  "walletUnified": {
+    "title": "Portefeuille",
+    "subtitle": "Tes revenus issus des missions et commissions d'apport, dans un seul écran.",
+    "totalEarned": "Total des revenus",
+    "withdraw": "Retirer",
+    "withdrawing": "Retrait en cours…",
+    "noFunds": "Aucun fonds disponible",
+    "card": {
+      "escrowed": "En séquestre",
+      "escrowedHint": "Fonds bloqués sur des jalons non encore approuvés.",
+      "available": "Disponible",
+      "availableHint": "Prêts à être virés sur ton compte Stripe.",
+      "transmitted": "Transmis",
+      "transmittedHint": "Déjà virés sur ton compte bancaire."
+    },
+    "toast": {
+      "success": "Retrait en cours — tu recevras un mail dès que Stripe confirme.",
+      "partial": "Retrait partiellement réussi — voir les détails."
+    },
+    "result": {
+      "title": "Détails du retrait",
+      "drained": "{amount} retirés",
+      "missionsLine": "Missions : {amount}",
+      "commissionsLine": "Commissions : {amount}",
+      "errorsHeading": "Erreurs",
+      "errorMissions": "Côté missions",
+      "errorCommissions": "Côté commissions",
+      "close": "Fermer"
+    },
+    "history": {
+      "title": "Historique des revenus",
+      "subtitle": "Tes paiements et commissions, du plus récent au plus ancien.",
+      "loadMore": "Charger plus",
+      "empty": "Pas encore de mouvement sur ton portefeuille.",
+      "row": {
+        "mission": "Mission",
+        "commission": "Commission",
+        "untitled": "Sans titre",
+        "ariaLabel": "{type} de {amount}, {status}"
+      },
+      "status": {
+        "paid": "Reçu",
+        "pending": "En attente",
+        "escrowed": "En séquestre",
+        "failed": "Échoué"
+      }
+    }
+  },
+  "referralEndIntro": {
+    "ctaLabel": "Terminer l'intro",
+    "modal": {
+      "title": "Terminer la mise en relation",
+      "body": "Tu vas mettre fin à ta mise en relation entre {provider} et {client}. Tu ne toucheras plus de commission sur les jalons approuvés à partir d'aujourd'hui. Les commissions déjà acquises restent dues. Confirmer ?",
+      "fallbackProvider": "le prestataire",
+      "fallbackClient": "le client",
+      "cancel": "Annuler",
+      "confirm": "Terminer définitivement"
+    },
+    "badge": "Intro terminée le {date}",
+    "error": {
+      "forbidden": "Tu n'es pas autorisé à terminer cette mise en relation.",
+      "notFound": "Cette mise en relation est introuvable.",
+      "generic": "Impossible de terminer la mise en relation pour le moment."
+    }
+  },
+  "referralIdentity": {
+    "reveal": {
+      "providerLink": "Voir le profil du prestataire",
+      "clientLink": "Voir le profil du client"
+    }
+  },
+  "referralProjection": {
+    "perMilestoneTitle": "Projection par jalon",
+    "status": {
+      "escrowed": "≈ {amount} (en séquestre)",
+      "pending": "{amount} en attente",
+      "paid": "+{amount} reçue",
+      "failed": "{amount} échouée"
+    },
+    "empty": "Pas encore de jalons commissionnables."
   }
 }
