@@ -100,11 +100,14 @@ export function ReferralDetailView({ referralId }: ReferralDetailViewProps) {
 
       {/* Attributed proposals — visible to all three parties once the
           intro is active. The client sees the list without commission
-          amounts; apporteur and provider see the full picture. */}
+          amounts; apporteur and provider see the full picture.
+          WALLET-UNIFY Run C: the apporteur also sees the per-attribution
+          "Terminer l'intro" action via `viewerIsReferrer`. */}
       {referral.status === "active" && (
         <ReferralMissionsSection
           referralId={referral.id}
           viewerIsClient={viewerRole === "client"}
+          viewerIsReferrer={viewerRole === "referrer"}
         />
       )}
 
