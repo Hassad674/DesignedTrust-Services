@@ -2,12 +2,14 @@
 
 import Link from "next/link"
 import {
+  CalendarClock,
   CheckCircle2,
   ChevronRight,
   Clock,
+  PiggyBank,
   Sparkles,
   Undo2,
-  UserCheck,
+  Wallet,
   XCircle,
 } from "lucide-react"
 import { cn } from "@/shared/lib/utils"
@@ -62,37 +64,64 @@ export function WalletCommissionList({
     return null
   }
 
+  // WALLET-UX metric strip mirrors the missions wallet grammar:
+  //   - Disponible      = paid commissions, money on the Connect account
+  //                       and eligible for Stripe's payout schedule to bank.
+  //   - En séquestre    = pending + pending_kyc (commissions queued or
+  //                       waiting on KYC, not yet transferred).
+  //   - Versées 30j     = rolling 30-day sum of paid commissions; the
+  //                       backend computes the window so the UI does not
+  //                       need to walk history rows.
+  //   - Cumul lifetime  = cumulative paid + clawed_back (i.e. the
+  //                       money that flowed at least once even if some
+  //                       was later reversed).
+  // The backend may serve undefined for paid_30d_cents / lifetime_cents
+  // on a deployment that hasn't been redeployed yet — we fall back to
+  // the locally-derived defaults so the strip never renders NaN.
+  const sequestreCents = summary.pending_cents + summary.pending_kyc_cents
+  const disponibleCents = summary.paid_cents
+  const paid30dCents = summary.paid_30d_cents ?? 0
+  const lifetimeCents =
+    summary.lifetime_cents ?? summary.paid_cents + summary.clawed_back_cents
+  const sequestreDescription =
+    summary.pending_kyc_cents > 0
+      ? "Dont KYC à compléter — complétez votre KYC pour les recevoir"
+      : "Commissions en file d'attente de virement"
+
   return (
     <section className="space-y-4">
       <SectionHeader icon={Sparkles} title="Mes commissions d'apport" />
 
-      {/* Mini-stats row — 3 compact cards, always horizontal, mirroring
-          the mobile native WalletCommissionsSection. */}
-      <div className="grid grid-cols-3 gap-2 md:gap-3">
+      {/* Mini-stats row — 4 compact cards mirroring the missions wallet
+          grammar (Disponible / En séquestre / Versées 30j / Cumul). */}
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
         <BalanceCard
-          icon={Clock}
-          label="En attente"
-          amount={summary.pending_cents + summary.pending_kyc_cents}
-          description={
-            summary.pending_kyc_cents > 0
-              ? "Dont KYC à compléter — complétez votre KYC pour les recevoir"
-              : "Commissions en file d'attente de virement"
-          }
-          color="amber"
-        />
-        <BalanceCard
-          icon={UserCheck}
-          label="Reçues"
-          amount={summary.paid_cents}
-          description="Déjà versées sur votre compte Stripe Connect"
+          icon={Wallet}
+          label="Disponible"
+          amount={disponibleCents}
+          description="Sur ton compte Stripe Connect, prêt pour le payout vers ta banque"
           color="green"
         />
         <BalanceCard
-          icon={Undo2}
-          label="Reprises"
-          amount={summary.clawed_back_cents}
-          description="Reversées suite à un remboursement client"
+          icon={Clock}
+          label="En séquestre"
+          amount={sequestreCents}
+          description={sequestreDescription}
+          color="amber"
+        />
+        <BalanceCard
+          icon={CalendarClock}
+          label="Versées 30j"
+          amount={paid30dCents}
+          description="Cumul des commissions reçues sur les 30 derniers jours"
           color="blue"
+        />
+        <BalanceCard
+          icon={PiggyBank}
+          label="Cumul lifetime"
+          amount={lifetimeCents}
+          description="Total cumulé depuis l'ouverture du compte"
+          color="green"
         />
       </div>
 

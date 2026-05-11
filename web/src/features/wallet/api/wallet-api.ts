@@ -19,6 +19,19 @@ export type CommissionWallet = {
   pending_kyc_cents: number
   paid_cents: number
   clawed_back_cents: number
+  /**
+   * Rolling 30-day sum of commissions paid out. Drives the
+   * "Versées 30j" tile on the apporteur wallet (WALLET-UX). Falls
+   * back to 0 when the backend hasn't been redeployed yet — every
+   * consumer must treat this field as optional-at-runtime.
+   */
+  paid_30d_cents?: number
+  /**
+   * Cumulative paid-out lifetime total (paid + clawed_back). Drives
+   * the "Cumul lifetime" tile. Also optional-at-runtime so the UI
+   * degrades to the locally-derived sum on older deployments.
+   */
+  lifetime_cents?: number
   currency: string
 }
 
