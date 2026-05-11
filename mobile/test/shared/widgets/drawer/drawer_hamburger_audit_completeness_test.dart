@@ -85,9 +85,12 @@ void main() {
         }
       }
     }
-    expect(missing, isEmpty,
-        reason: 'These routes are no longer declared in drawer_items.dart '
-            'but are still expected to be audited: $missing');
+    expect(
+      missing,
+      isEmpty,
+      reason: 'These routes are no longer declared in drawer_items.dart '
+          'but are still expected to be audited: $missing',
+    );
   });
 
   test('audit list covers all primary destinations OR they are flagged', () {

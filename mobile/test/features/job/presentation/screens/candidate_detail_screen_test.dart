@@ -37,7 +37,7 @@ const _profile = PublicProfileSummary(
   referrerEnabled: false,
 );
 
-final _item = ApplicationWithProfile(
+const _item = ApplicationWithProfile(
   application: _application,
   profile: _profile,
 );
