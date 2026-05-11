@@ -147,6 +147,14 @@ type AttributionResponse struct {
 	ProposalStatus            string    `json:"proposal_status,omitempty"`
 	RatePctSnapshot           *float64  `json:"rate_pct_snapshot,omitempty"`
 	AttributedAt              time.Time `json:"attributed_at"`
+	// EndedAt is the RFC3339-formatted timestamp at which the
+	// apporteur explicitly terminated this attribution via
+	// `POST /referrals/attributions/{id}/end`. Nil when the
+	// attribution is still active. WALLET-UNIFY Run D — surfaced
+	// in the DTO so the web/mobile UI can render the "Intro
+	// terminée" badge persistently after a page reload (the
+	// mutation already returns it, but the list endpoint must too).
+	EndedAt                   *string   `json:"ended_at,omitempty"`
 	TotalCommissionCents      *int64    `json:"total_commission_cents,omitempty"`
 	PendingCommissionCents    *int64    `json:"pending_commission_cents,omitempty"`
 	EscrowCommissionCents     *int64    `json:"escrow_commission_cents,omitempty"`
@@ -173,6 +181,14 @@ func NewAttributionListFromStats(rows []attributionWithStats, viewerID uuid.UUID
 			MilestonesPaid:    r.MilestonesPaid,
 			MilestonesPending: r.MilestonesPending,
 			MilestonesTotal:   r.MilestonesTotal,
+		}
+		// WALLET-UNIFY Run D — expose ended_at so the per-attribution
+		// "Intro terminée" badge persists across reloads on web+mobile.
+		// The domain field is *time.Time; project to a string pointer
+		// so JSON `omitempty` distinguishes "active" from "ended".
+		if r.Attribution.EndedAt != nil {
+			endedAt := r.Attribution.EndedAt.UTC().Format(time.RFC3339)
+			row.EndedAt = &endedAt
 		}
 		if !isClient {
 			rate := r.Attribution.RatePctSnapshot
