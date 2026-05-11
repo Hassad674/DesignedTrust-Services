@@ -176,7 +176,11 @@ func NewBatchAuditWriter(inner repository.AuditRepository, sink auditBatchSink, 
 	if cfg.ChannelCapacity <= 0 {
 		cfg.ChannelCapacity = d.ChannelCapacity
 	}
-	if cfg.MaxRetriesOnFlushFailure < 0 {
+	// Treat zero as "use default" so callers passing an empty struct
+	// get the production-tuned retry count. We never expose a true
+	// "zero retries" mode — if the first attempt fails, we always
+	// give the DB at least a few backoff retries before dropping.
+	if cfg.MaxRetriesOnFlushFailure <= 0 {
 		cfg.MaxRetriesOnFlushFailure = d.MaxRetriesOnFlushFailure
 	}
 	if cfg.FlushTimeout <= 0 {
