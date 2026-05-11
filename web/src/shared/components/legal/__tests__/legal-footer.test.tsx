@@ -39,7 +39,7 @@ function renderFooter() {
 }
 
 describe("LegalFooter", () => {
-  it("links to all legal routes including /decisions-automatisees (RGPD art. 22)", () => {
+  it("links to all legal routes including /decisions-automatisees (RGPD art. 22) and /legal/registre (D4)", () => {
     renderFooter()
     const expected = [
       "/privacy",
@@ -49,6 +49,8 @@ describe("LegalFooter", () => {
       "/cgv",
       "/sous-processeurs",
       "/decisions-automatisees",
+      // D4 (GDPR Phase C) — pointer to the legal-documents section.
+      "/legal/registre",
     ]
     for (const href of expected) {
       const link = document.querySelector(`a[href="${href}"]`)
