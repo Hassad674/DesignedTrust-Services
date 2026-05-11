@@ -222,14 +222,17 @@ void main() {
       final billingMatches = actions.where(
         (a) => a.id.toLowerCase().contains('billing'),
       );
-      expect(billingMatches, isEmpty,
-          reason: 'Billing should never surface in dashboard actions — '
-              'only KYC gates the payout flow.');
+      expect(
+        billingMatches,
+        isEmpty,
+        reason: 'Billing should never surface in dashboard actions — '
+            'only KYC gates the payout flow.',
+      );
     });
 
     test('actions are sorted critical → warning → info', () async {
       final conversations = <ConversationEntity>[
-        ConversationEntity(
+        const ConversationEntity(
           id: 'c1',
           otherUserId: 'u-x',
           otherOrgId: 'o-x',
