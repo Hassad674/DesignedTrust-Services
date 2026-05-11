@@ -59,8 +59,20 @@ export function ReferralDetailView({ referralId }: ReferralDetailViewProps) {
         )}
         {viewerRole === "referrer" && (
           <>
-            <AnonymizedProviderCard snapshot={referral.intro_snapshot.provider} />
-            <AnonymizedClientCard snapshot={referral.intro_snapshot.client} />
+            {/* WALLET-UNIFY Run C: the apporteur (owner) sees both
+                identities un-masked because they made the intro and
+                already know who's involved. Other viewers keep the
+                anonymised cards until the intro activates. */}
+            <AnonymizedProviderCard
+              snapshot={referral.intro_snapshot.provider}
+              revealed
+              providerId={referral.provider_id}
+            />
+            <AnonymizedClientCard
+              snapshot={referral.intro_snapshot.client}
+              revealed
+              clientId={referral.client_id}
+            />
           </>
         )}
       </div>
