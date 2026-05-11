@@ -6,6 +6,7 @@ import { LegalShell } from "@/shared/components/legal/legal-shell"
 // /privacy — placeholder Politique de confidentialité.
 // Phase A.4: minimal page with i18n + DPO email + sub-processor link.
 // Phase C.1 will replace this with the full policy MDX.
+
 export async function generateMetadata({
   params,
 }: {
