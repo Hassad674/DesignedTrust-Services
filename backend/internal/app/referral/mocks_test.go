@@ -206,6 +206,31 @@ func (f *fakeReferralRepo) ListAttributionsByReferral(ctx context.Context, refer
 	return out, nil
 }
 
+func (f *fakeReferralRepo) EndAttribution(ctx context.Context, attributionID, referrerID uuid.UUID) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	a, ok := f.attributionsByID[attributionID]
+	if !ok {
+		return referral.ErrAttributionNotFound
+	}
+	// RBAC: only the apporteur of the parent referral can end. The
+	// fake stores the parent referral under f.rows so we can resolve
+	// the referrer_id without a DB.
+	parent, parentOK := f.rows[a.ReferralID]
+	if !parentOK || parent.ReferrerID != referrerID {
+		return referral.ErrAttributionNotFound
+	}
+	if a.EndedAt != nil {
+		return referral.ErrAttributionAlreadyEnded
+	}
+	now := time.Now().UTC()
+	a.EndedAt = &now
+	// CreateAttribution stores the SAME pointer in both attributions
+	// and attributionsByID, so mutating one updates both. The Find*
+	// methods then return a value copy of the same backing struct.
+	return nil
+}
+
 func (f *fakeReferralRepo) ListAttributionsByReferralIDs(ctx context.Context, ids []uuid.UUID) ([]*referral.Attribution, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()

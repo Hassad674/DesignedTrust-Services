@@ -162,6 +162,9 @@ func (f *unitReferralRepo) ListAttributionsByReferral(_ context.Context, _ uuid.
 func (f *unitReferralRepo) ListAttributionsByReferralIDs(_ context.Context, _ []uuid.UUID) ([]*referral.Attribution, error) {
 	return nil, nil
 }
+func (f *unitReferralRepo) EndAttribution(_ context.Context, _ uuid.UUID, _ uuid.UUID) error {
+	return nil
+}
 func (f *unitReferralRepo) CreateCommission(_ context.Context, _ *referral.Commission) error {
 	return nil
 }
