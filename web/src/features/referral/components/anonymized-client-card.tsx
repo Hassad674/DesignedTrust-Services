@@ -1,4 +1,6 @@
-import { Briefcase, Building2, CalendarClock, Coins, MapPin } from "lucide-react"
+import Link from "next/link"
+import { Briefcase, Building2, CalendarClock, Coins, ExternalLink, MapPin } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { cn } from "@/shared/lib/utils"
 import type { ClientSnapshot } from "../types"
@@ -6,6 +8,15 @@ import type { ClientSnapshot } from "../types"
 interface AnonymizedClientCardProps {
   snapshot: ClientSnapshot
   className?: string
+  /**
+   * When `revealed` is true the card stops masking the client —
+   * the eyebrow flips to "tu es l'apporteur" and the header
+   * surfaces a profile link. Defaults to false to preserve the
+   * masked behaviour for the provider viewer.
+   */
+  revealed?: boolean
+  /** Client user id, used to build the public profile URL. */
+  clientId?: string
 }
 
 const SIZE_LABELS: Record<string, string> = {
@@ -22,7 +33,10 @@ const SIZE_LABELS: Record<string, string> = {
 export function AnonymizedClientCard({
   snapshot,
   className,
+  revealed = false,
+  clientId,
 }: AnonymizedClientCardProps) {
+  const t = useTranslations("referralIdentity.reveal")
   const hasAnyField =
     snapshot.industry ||
     snapshot.size_bucket ||
@@ -39,18 +53,36 @@ export function AnonymizedClientCard({
         className,
       )}
     >
-      <header className="mb-4 flex items-center gap-3">
-        <div className="grid h-12 w-12 place-items-center rounded-full bg-blue-50 text-blue-500">
-          <Building2 className="h-6 w-6" aria-hidden="true" />
+      <header className="mb-4 flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="grid h-12 w-12 place-items-center rounded-full bg-blue-50 text-blue-500">
+            <Building2 className="h-6 w-6" aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-foreground">
+              Client proposé
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {revealed
+                ? "Identité visible (tu es l'apporteur)"
+                : "Identité révélée à l'acceptation"}
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-base font-semibold text-foreground">
-            Client proposé
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Identité révélée à l&rsquo;acceptation
-          </p>
-        </div>
+        {revealed && clientId && (
+          <Link
+            href={`/enterprises/${clientId}`}
+            data-testid="anonymized-client-reveal-link"
+            className={cn(
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5",
+              "bg-primary text-[12px] font-semibold text-primary-foreground",
+              "transition-colors hover:bg-primary-deep",
+            )}
+          >
+            {t("clientLink")}
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
+        )}
       </header>
 
       {!hasAnyField ? (
