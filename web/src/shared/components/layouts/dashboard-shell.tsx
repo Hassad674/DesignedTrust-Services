@@ -4,6 +4,7 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import { Sidebar, SIDEBAR_STORAGE_KEY } from "./sidebar"
 import { Header } from "./header"
+import { DashboardLegalLinks } from "./dashboard-legal-links"
 import { cn } from "@/shared/lib/utils"
 import { useUser } from "@/shared/hooks/use-user"
 import { KYCBanner } from "@/shared/components/kyc-banner"
@@ -87,6 +88,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
              * content in a max-width container. */}
             {user && <KYCBanner user={user} />}
             {children}
+            <DashboardLegalLinks />
           </main>
         </div>
         <ChatWidget />

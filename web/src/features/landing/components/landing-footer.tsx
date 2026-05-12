@@ -38,18 +38,18 @@ const COMPANY_LINKS = [
 ] as const
 
 const LEGAL_LINKS = [
-  { labelKey: "legalTerms", href: "/" },
-  { labelKey: "legalPrivacy", href: "/" },
-  { labelKey: "legalNotices", href: "/" },
-  { labelKey: "legalCookies", href: "/" },
+  { labelKey: "legalTerms", href: "/legal/cgu" },
+  { labelKey: "legalPrivacy", href: "/legal/politique-confidentialite" },
+  { labelKey: "legalNotices", href: "/legal" },
+  { labelKey: "legalCookies", href: "/cookies" },
 ] as const
 
 const MOBILE_LINKS = [
   { labelKey: "understandHowItWorks", href: "#how-it-works" },
   { labelKey: "productPricing", href: "#pricing" },
-  { labelKey: "legalHelp", href: "/" },
-  { labelKey: "legalTerms", href: "/" },
-  { labelKey: "legalPrivacy", href: "/" },
+  { labelKey: "legalHelp", href: "/legal" },
+  { labelKey: "legalTerms", href: "/legal/cgu" },
+  { labelKey: "legalPrivacy", href: "/legal/politique-confidentialite" },
 ] as const
 
 export function LandingFooter() {

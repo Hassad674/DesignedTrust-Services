@@ -2616,6 +2616,15 @@
       }
     }
   },
+  "dashboardLegalLinks": {
+    "ariaLabel": "Liens légaux",
+    "cgu": "CGU",
+    "cgv": "CGV",
+    "privacy": "Confidentialité",
+    "cookies": "Cookies",
+    "notices": "Mentions légales",
+    "subprocessors": "Sous-processeurs"
+  },
   "legal": {
     "footer": {
       "ariaLabel": "Liens légaux et confidentialité",
