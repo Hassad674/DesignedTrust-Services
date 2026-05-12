@@ -114,6 +114,15 @@ func (s *Scheduler) tick(ctx context.Context) {
 
 // autoResolve handles the ghost scenario: respondent never replied within 7 days.
 // Funds go to the initiator.
+//
+// On top of the dispute_auto_resolved system message, this path emits the same
+// post-completion close-out as Service.restoreProposalAndDistribute (the
+// amiable + admin paths): a proposal_completed + evaluation_request
+// system message pair AND a proposal_completed notification to both
+// parties carrying the proposal-flow payload (proposal_id +
+// conversation_id + proposal_title) so the frontend can deep-link the
+// conversation and auto-open the review modal. Without these the
+// auto-resolved mission would silently drop the 14-day review CTA.
 func (s *Scheduler) autoResolve(ctx context.Context, d *disputedomain.Dispute) {
 	if err := d.AutoResolveForInitiator(); err != nil {
 		slog.Error("dispute scheduler: auto-resolve", "dispute_id", d.ID, "error", err)
@@ -124,13 +133,23 @@ func (s *Scheduler) autoResolve(ctx context.Context, d *disputedomain.Dispute) {
 		return
 	}
 
-	s.restoreAndDistribute(ctx, d)
+	p := s.restoreAndDistribute(ctx, d)
 
 	s.broadcastSystemMessage(ctx, d.ConversationID,
 		message.MessageTypeDisputeAutoResolved, buildAutoResolvedMetadata(d))
 	s.notifyBoth(ctx, d, "dispute_auto_resolved",
 		"Litige resolu automatiquement",
 		"Le litige a ete resolu automatiquement faute de reponse dans les 7 jours.")
+
+	// Close-out: the mission is now `completed` — emit the same
+	// proposal_completed + evaluation_request system messages and
+	// the proposal_completed notification that the normal completion
+	// path emits, so both parties get the 14-day review CTA in the
+	// conversation AND a clickable notification that deep-links into
+	// the review modal.
+	if p != nil {
+		s.emitCompletionMessages(ctx, p)
+	}
 
 	slog.Info("dispute scheduler: auto-resolved (ghost)",
 		"dispute_id", d.ID, "initiator_id", d.InitiatorID)
@@ -152,15 +171,20 @@ func (s *Scheduler) escalate(ctx context.Context, d *disputedomain.Dispute) {
 // Helpers
 // ---------------------------------------------------------------------------
 
-func (s *Scheduler) restoreAndDistribute(ctx context.Context, d *disputedomain.Dispute) {
+// restoreAndDistribute moves the proposal to `completed`, settles
+// escrow, and returns the loaded proposal so the caller can pipe it
+// into the close-out emission helpers without a second DB round-trip.
+// Returns nil if loading or restoring the proposal failed — the
+// caller is expected to skip subsequent message emission in that case.
+func (s *Scheduler) restoreAndDistribute(ctx context.Context, d *disputedomain.Dispute) *proposaldomain.Proposal {
 	p, err := s.proposals.GetByID(ctx, d.ProposalID)
 	if err != nil {
 		slog.Error("dispute scheduler: get proposal for restore", "error", err)
-		return
+		return nil
 	}
 	if err := p.RestoreFromDispute(proposaldomain.StatusCompleted); err != nil {
 		slog.Error("dispute scheduler: restore proposal", "error", err)
-		return
+		return nil
 	}
 	_ = s.proposals.Update(ctx, p)
 
@@ -176,6 +200,39 @@ func (s *Scheduler) restoreAndDistribute(ctx context.Context, d *disputedomain.D
 				slog.Error("dispute scheduler: refund to client",
 					"proposal_id", d.ProposalID, "error", err)
 			}
+		}
+	}
+	return p
+}
+
+// emitCompletionMessages fires the post-completion close-out:
+// proposal_completed + evaluation_request system messages in the
+// conversation + proposal_completed notification to both parties
+// with the proposal-flow data payload. Mirrors what
+// Service.restoreProposalAndDistribute does for the amiable + admin
+// resolution paths so the auto-resolve ghost path produces the same
+// "leave a review" CTA experience.
+//
+// Failures are best-effort — fund distribution has already happened
+// in restoreAndDistribute, and a missed message is recoverable on
+// the next view of the conversation.
+func (s *Scheduler) emitCompletionMessages(ctx context.Context, p *proposaldomain.Proposal) {
+	completedMeta := buildProposalCompletedMetadata(p)
+	s.broadcastSystemMessage(ctx, p.ConversationID,
+		message.MessageType("proposal_completed"), completedMeta)
+	s.broadcastSystemMessage(ctx, p.ConversationID,
+		message.MessageType("evaluation_request"), completedMeta)
+
+	data := buildProposalCompletedNotificationData(p)
+	for _, uid := range []uuid.UUID{p.ClientID, p.ProviderID} {
+		if err := s.notifications.Send(ctx, service.NotificationInput{
+			UserID: uid,
+			Type:   "proposal_completed",
+			Title:  "Mission terminée",
+			Body:   "La mission est marquée comme terminée après résolution du litige. Laissez un avis avant la fin de la fenêtre de 14 jours.",
+			Data:   data,
+		}); err != nil {
+			slog.Warn("dispute scheduler: send completion notification", "user_id", uid, "error", err)
 		}
 	}
 }
