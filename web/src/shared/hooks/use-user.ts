@@ -45,6 +45,15 @@ const AUTH_PUBLIC_PATHS = [
   // `useSession()` on every page, so this whitelist is the only
   // thing standing between the visitor and a surprise hop to /login.
   "/invitation",
+  // Legal / compliance surfaces are reachable from the unauthenticated
+  // footer (landing) and from email links sent by external counsel:
+  // an anonymous visitor MUST be able to read CGU / CGV / politique /
+  // cookies / mentions / sous-processeurs / registre / AIPD / DPA
+  // template without bouncing through /login. Same reasoning as
+  // /agencies — these are public legal pages, not gated content.
+  "/legal",
+  "/cookies",
+  "/sous-processeurs",
 ]
 
 // Locale prefixes the next-intl router prepends to every URL. Keep
