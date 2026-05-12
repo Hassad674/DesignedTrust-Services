@@ -32,6 +32,7 @@ export function CookieConsentProvider() {
     // an internal flag. We still wrap in a try/catch to never crash
     // the host app on a third-party hiccup.
     try {
+      const localeFooter = buildBannerFooter(t, locale)
       void CookieConsent.run({
         // RGPD-compliant default: nothing tracks before the user
         // makes a choice.
@@ -46,16 +47,25 @@ export function CookieConsentProvider() {
         // a no-op anyway and can be safely turned off.
         manageScriptTags: false,
         guiOptions: {
+          // CNIL deliberation 2020-091 + 2024 lignes directrices —
+          // the "Refuse all" button MUST carry the exact same visual
+          // weight as "Accept all" (size, contrast, font weight).
+          // Anything else is the #1 motive of CNIL cookie-banner
+          // sanctions (TF1, Decathlon, Carrefour, Yahoo, …).
+          // `equalWeightButtons: true` is the structural switch;
+          // matching CSS in `web/src/styles/cookie-consent.css`
+          // neutralises the residual style asymmetries shipped by
+          // vanilla-cookieconsent's default theme.
           consentModal: {
             layout: "box",
             position: "bottom right",
-            equalWeightButtons: false,
+            equalWeightButtons: true,
             flipButtons: false,
           },
           preferencesModal: {
             layout: "box",
             position: "right",
-            equalWeightButtons: false,
+            equalWeightButtons: true,
             flipButtons: false,
           },
         },
@@ -79,8 +89,8 @@ export function CookieConsentProvider() {
         language: {
           default: locale,
           translations: {
-            fr: buildTranslation(t),
-            en: buildTranslation(t),
+            fr: buildTranslation(t, localeFooter),
+            en: buildTranslation(t, localeFooter),
           },
         },
         onFirstConsent: ({ cookie }) => syncConsentToAnalytics(cookie.categories),
@@ -103,7 +113,10 @@ export function CookieConsentProvider() {
  * namespace used everywhere else in the app. Pulled out so the
  * (heavy) literal table is not inlined in the effect.
  */
-function buildTranslation(t: (k: string) => string): CookieConsent.Translation {
+function buildTranslation(
+  t: (k: string) => string,
+  footer: string,
+): CookieConsent.Translation {
   return {
     consentModal: {
       title: t("banner.title"),
@@ -111,7 +124,7 @@ function buildTranslation(t: (k: string) => string): CookieConsent.Translation {
       acceptAllBtn: t("banner.acceptAll"),
       acceptNecessaryBtn: t("banner.refuseAll"),
       showPreferencesBtn: t("banner.preferences"),
-      footer: t("banner.footer"),
+      footer,
     },
     preferencesModal: {
       title: t("preferences.title"),
@@ -137,6 +150,54 @@ function buildTranslation(t: (k: string) => string): CookieConsent.Translation {
       ],
     },
   }
+}
+
+/**
+ * Build the CMP banner footer as a locale-aware HTML string with the
+ * four required legal references (CNIL Recommendation 2020 point 6.3:
+ * the consent banner must surface a clear path to the long privacy
+ * policy, cookies notice, legal notice, and the sub-processors list).
+ *
+ * The legacy i18n value used to hardcode `/fr/privacy` + `/fr/cookies`
+ * — broken for English visitors and missing two of the four mandatory
+ * links. We now build the footer at runtime from locale-prefixed
+ * canonical routes, keeping the rendered HTML minimal so
+ * vanilla-cookieconsent's default styling stays consistent.
+ */
+function buildBannerFooter(
+  t: (k: string) => string,
+  locale: string,
+): string {
+  const prefix = `/${locale}`
+  const links: ReadonlyArray<{ href: string; label: string }> = [
+    {
+      href: `${prefix}/legal/politique-confidentialite`,
+      label: t("banner.linkPrivacy"),
+    },
+    { href: `${prefix}/cookies`, label: t("banner.linkCookies") },
+    { href: `${prefix}/legal`, label: t("banner.linkMentions") },
+    {
+      href: `${prefix}/sous-processeurs`,
+      label: t("banner.linkSubprocessors"),
+    },
+  ]
+  return links
+    .map(({ href, label }) => `<a href="${href}">${escapeHtml(label)}</a>`)
+    .join(" · ")
+}
+
+/**
+ * Minimal HTML-attribute escaper for the banner footer. The labels
+ * come from our i18n bundle (trusted), but we still escape defensively
+ * because the CMP renders this string via `innerHTML`.
+ */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
 }
 
 /**

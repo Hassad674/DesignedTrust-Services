@@ -2596,7 +2596,13 @@
       "acceptAll": "Accept all",
       "refuseAll": "Refuse all",
       "preferences": "Customise",
-      "footer": "<a href=\"/en/privacy\">Privacy policy</a> · <a href=\"/en/cookies\">Cookies</a>"
+      "footer": "<a href=\"/en/legal/politique-confidentialite\">Privacy policy</a> · <a href=\"/en/cookies\">Cookies</a> · <a href=\"/en/legal\">Legal notice</a> · <a href=\"/en/sous-processeurs\">Sub-processors</a>",
+      "linkPrivacy": "Privacy policy",
+      "linkCookies": "Cookies",
+      "linkMentions": "Legal notice",
+      "linkSubprocessors": "Sub-processors",
+      "manageLabel": "Manage cookies",
+      "manageAria": "Open the cookie preferences centre"
     },
     "preferences": {
       "title": "Cookie preferences",
@@ -2620,10 +2626,12 @@
     "ariaLabel": "Legal links",
     "cgu": "Terms",
     "cgv": "Sale terms",
+    "codeOfConduct": "Code of conduct",
     "privacy": "Privacy",
     "cookies": "Cookies",
     "notices": "Legal notice",
-    "subprocessors": "Sub-processors"
+    "subprocessors": "Sub-processors",
+    "automatedDecisions": "Automated decisions"
   },
   "legal": {
     "footer": {
@@ -2633,6 +2641,7 @@
       "legal": "Legal notice",
       "cgu": "Terms of use",
       "cgv": "Sales terms",
+      "codeOfConduct": "Code of conduct",
       "subprocessors": "Sub-processors",
       "automatedDecisions": "Automated decisions",
       "documents": "Full documents",
@@ -2712,11 +2721,44 @@
     },
     "mentions": {
       "title": "Legal notice",
-      "intro": "Pursuant to article 6 III of the French LCEN law no. 2004-575 of 21 June 2004, here are the service's legal mentions.",
+      "intro": "Pursuant to article 6 III of the French LCEN law no. 2004-575 of 21 June 2004, here are the legal mentions for the services.designedtrust.com platform (the \"Platform\").",
       "editorTitle": "Editor",
-      "editorPlaceholder": "Marketplace Service — legal entity details (company name, address, registry number, capital, publication director) being finalized.",
+      "editorCompanyLabel": "Company name",
+      "editorCompany": "Designed Trust SAS",
+      "editorFormLabel": "Legal form",
+      "editorForm": "Société par actions simplifiée (French simplified joint-stock company)",
+      "editorCapitalLabel": "Share capital",
+      "editorCapital": "Registration with the French commercial registry in progress — details available on request at support@designedtrust.com",
+      "editorRcsLabel": "RCS / SIREN",
+      "editorRcs": "Registration with the French commercial registry in progress — details available on request at support@designedtrust.com",
+      "editorVatLabel": "Intra-EU VAT number",
+      "editorVat": "Registration in progress — details available on request at support@designedtrust.com (intra-EU B2B reverse charge: art. 196 directive 2006/112/EC)",
+      "editorAddressLabel": "Registered office",
+      "editorAddress": "Registration in progress — France. Full postal address available on request at support@designedtrust.com",
+      "editorDirectorLabel": "Publication director",
+      "editorDirector": "The Président of Designed Trust SAS — identity available on request at support@designedtrust.com",
+      "editorContactLabel": "Contact email",
+      "editorFallback": "The corporate details above (registered name, RCS, share capital, address) will be updated automatically once registration with the French commercial registry is finalised. For any formal identification request, write to support@designedtrust.com — first reply within 5 business days.",
+      "editorPlaceholder": "Designed Trust SAS — Société par actions simplifiée. Registration with the French commercial registry in progress (final registered name, RCS, share capital, postal address, publication director). Details available on request at support@designedtrust.com.",
+      "dpoTitle": "Data Protection Officer (DPO)",
+      "dpoBody": "For any question on the protection of your personal data, or to exercise your GDPR rights (access, rectification, erasure, portability, objection, restriction, withdrawal of consent), write to {email}. You also have the right to lodge a complaint with the French Data Protection Authority (CNIL): {cnil}.",
       "hostingTitle": "Hosting",
-      "hostingDescription": "Frontend hosted by Vercel Inc. (340 S Lemon Ave #4133, Walnut, CA 91789, USA). API hosted by Railway Corp. (1771 Page Mill Rd, Palo Alto, CA 94304, USA). Database hosted by Neon (EU region)."
+      "hostingFrontend": "Frontend (services.designedtrust.com) — Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA. Phone: +1 (650) 396-7700. Non-EU transfers framed by the EU-US Data Privacy Framework (EU decision 2023/1795) and the standard contractual clauses 2021/914.",
+      "hostingBackend": "Backend / API — Railway Corp., 251 Little Falls Drive, Wilmington, DE 19808, USA. Non-EU transfers framed by the standard contractual clauses 2021/914 (Module 2).",
+      "hostingDatabase": "Database — Neon Inc. (EU AWS cluster eu-central-1, Frankfurt, Germany). Data stored in the European Union.",
+      "hostingStorage": "Object storage and CDN — Cloudflare Inc., 101 Townsend Street, San Francisco, CA 94107, USA (Cloudflare R2). Non-EU transfers framed by the EU-US Data Privacy Framework and the standard contractual clauses 2021/914.",
+      "hostingDescription": "Frontend hosted by Vercel Inc. (340 S Lemon Ave #4133, Walnut, CA 91789, USA). API hosted by Railway Corp. (251 Little Falls Drive, Wilmington, DE 19808, USA). Database hosted by Neon Inc. (EU eu-central-1 cluster). Object storage by Cloudflare R2 (Cloudflare Inc., 101 Townsend Street, San Francisco, CA 94107, USA).",
+      "pspTitle": "Payment service provider",
+      "pspBody": "Payments and escrow flow through Stripe Payments Europe Ltd, an electronic money institution authorised by the Central Bank of Ireland, headquartered at 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Ireland. The Platform acts as a limited authorized agent of Stripe for the collection of payments and is not itself a payment service provider under PSD2 (EU directive 2015/2366).",
+      "contactTitle": "Contact and complaints",
+      "contactBody": "For any complaint, report, or general enquiry: {email}. Target first-response time: 5 business days. Illegal-content reports under DSA (Regulation (EU) 2022/2065 art. 16) are prioritised.",
+      "mediationTitle": "Mediation and jurisdiction",
+      "mediationBody": "The Platform is strictly reserved for professional use (B2B). Contracts entered into via the Platform are governed by French commercial law. Disputes are first addressed amicably; failing which, the Paris Commercial Court has jurisdiction. Users qualifying as consumers (under art. L.611-1 of the French Consumer Code) may refer the matter to the consumer mediator: reference being registered with the Médiateur National de la Consommation — details available on request at support@designedtrust.com.",
+      "ipTitle": "Intellectual property",
+      "ipBody": "All elements of the Platform (texts, graphics, logos, icons, photographs, source code) are the exclusive property of Designed Trust SAS or of users who granted a usage licence under the Terms of Use. Any unauthorised reproduction, representation or exploitation is strictly prohibited and may give rise to proceedings under the French Intellectual Property Code.",
+      "cookieManageTitle": "Manage my cookies",
+      "cookieManageDescription": "You can change or withdraw your consent for analytics cookies at any time.",
+      "hostingDescriptionLegacy": "Frontend hosted by Vercel Inc. (340 S Lemon Ave #4133, Walnut, CA 91789, USA). API hosted by Railway Corp. (1771 Page Mill Rd, Palo Alto, CA 94304, USA). Database hosted by Neon (EU region)."
     },
     "cgu": {
       "title": "Terms of use",
@@ -2821,6 +2863,11 @@
           "title": "Sales terms",
           "summary": "15 articles covering business model, KYC, Stripe Connect transaction cycle, payments, business referral, invoices, DAC 7, and dormant funds (Eckert law).",
           "reference": "Pending counsel + auditor validation"
+        },
+        "codeOfConduct": {
+          "title": "Code of conduct and moderation policy",
+          "summary": "Prohibited conduct (harassment, spam, platform circumvention, fraud, etc.), reporting mechanism, graduated sanctions, appeal procedure, and DSA art. 14 / 23 commitments.",
+          "reference": "DSA art. 14, 16, 17, 23"
         }
       },
       "labels": {

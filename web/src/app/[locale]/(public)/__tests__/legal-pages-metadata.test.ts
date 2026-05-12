@@ -1,12 +1,17 @@
 /**
- * Phase A.4 — placeholder legal route metadata tests.
+ * Phase A.4 → legal-max-blindage — placeholder legal route metadata
+ * tests.
  *
- * The 6 placeholder pages (/privacy, /cookies, /legal, /cgu, /cgv,
+ * The remaining placeholder pages (/cookies, /legal, /cgu, /cgv,
  * /sous-processeurs) all expose generateMetadata that:
  *   1. interpolates a localized title with " | Marketplace Service" suffix
- *   2. sets robots noindex/nofollow (placeholders are not indexable
- *      until Phase C content lands)
+ *   2. sets robots noindex/nofollow (internal placeholder shells —
+ *      indexable canonical surfaces live under /legal/*)
  *   3. surfaces the localized intro string as the description
+ *
+ * The legacy short /privacy page was removed in the legal-max-blindage
+ * round (CNIL requires a single privacy policy — /legal/politique-confidentialite
+ * is now the only canonical version).
  *
  * Mocks next-intl/server, next-intl, and the @i18n/navigation Link so
  * the page modules can be imported in a node environment without a
@@ -29,7 +34,6 @@ vi.mock("@i18n/navigation", () => ({
   Link: ({ children }: { children: React.ReactNode }) => children,
 }))
 
-import * as Privacy from "@/app/[locale]/(public)/privacy/page"
 import * as Cookies from "@/app/[locale]/(public)/cookies/page"
 import * as LegalMentions from "@/app/[locale]/(public)/legal/page"
 import * as Cgu from "@/app/[locale]/(public)/cgu/page"
@@ -40,26 +44,30 @@ import * as Sub from "@/app/[locale]/(public)/sous-processeurs/page"
 // serves as the sommaire of the 6 D4 documents while still hosting the
 // mentions légales block at the top. Title + description come from
 // `legal.docs.indexTitle` / `legal.docs.indexIntro`.
+//
+// Stripe + DSA art. 14 require the /legal index to be indexable (the
+// "Conditions générales claires" obligation). It now intentionally
+// omits the `robots` metadata so the default policy (indexable) applies.
 const CASES = [
-  { mod: Privacy, namespace: "legal.privacy", label: "privacy" },
-  { mod: Cookies, namespace: "legal.cookies", label: "cookies" },
+  { mod: Cookies, namespace: "legal.cookies", label: "cookies", indexable: false },
   {
     mod: LegalMentions,
     namespace: "legal",
     titleKey: "docs.indexTitle",
     introKey: "docs.indexIntro",
     label: "legal",
+    indexable: true,
   },
-  { mod: Cgu, namespace: "legal.cgu", label: "cgu" },
-  { mod: Cgv, namespace: "legal.cgv", label: "cgv" },
-  { mod: Sub, namespace: "legal.subprocessors", label: "sous-processeurs" },
+  { mod: Cgu, namespace: "legal.cgu", label: "cgu", indexable: false },
+  { mod: Cgv, namespace: "legal.cgv", label: "cgv", indexable: false },
+  { mod: Sub, namespace: "legal.subprocessors", label: "sous-processeurs", indexable: false },
 ] as const
 
 describe("legal placeholder pages metadata", () => {
   for (const c of CASES) {
     const titleKey = "titleKey" in c ? c.titleKey : "title"
     const introKey = "introKey" in c ? c.introKey : "intro"
-    it(`${c.label}: generateMetadata sets noindex + localized title and description`, async () => {
+    it(`${c.label}: generateMetadata interpolates a localized title and description`, async () => {
       const generate = (c.mod as { generateMetadata?: unknown })
         .generateMetadata
       expect(typeof generate).toBe("function")
@@ -72,7 +80,12 @@ describe("legal placeholder pages metadata", () => {
 
       expect(meta.title).toBe(`[${c.namespace}.${titleKey}] | Marketplace Service`)
       expect(meta.description).toBe(`[${c.namespace}.${introKey}]`)
-      expect(meta.robots).toEqual({ index: false, follow: false })
+      if (c.indexable) {
+        // Stripe + DSA art. 14: the legal index MUST be crawlable.
+        expect(meta.robots).toBeUndefined()
+      } else {
+        expect(meta.robots).toEqual({ index: false, follow: false })
+      }
     })
   }
 })

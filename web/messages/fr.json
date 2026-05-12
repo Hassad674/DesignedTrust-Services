@@ -2596,7 +2596,13 @@
       "acceptAll": "Tout accepter",
       "refuseAll": "Tout refuser",
       "preferences": "Personnaliser",
-      "footer": "<a href=\"/fr/privacy\">Politique de confidentialité</a> · <a href=\"/fr/cookies\">Cookies</a>"
+      "footer": "<a href=\"/fr/legal/politique-confidentialite\">Politique de confidentialité</a> · <a href=\"/fr/cookies\">Cookies</a> · <a href=\"/fr/legal\">Mentions légales</a> · <a href=\"/fr/sous-processeurs\">Sous-processeurs</a>",
+      "linkPrivacy": "Politique de confidentialité",
+      "linkCookies": "Cookies",
+      "linkMentions": "Mentions légales",
+      "linkSubprocessors": "Sous-processeurs",
+      "manageLabel": "Gérer mes cookies",
+      "manageAria": "Ouvrir le centre de préférences cookies"
     },
     "preferences": {
       "title": "Préférences de cookies",
@@ -2620,10 +2626,12 @@
     "ariaLabel": "Liens légaux",
     "cgu": "CGU",
     "cgv": "CGV",
+    "codeOfConduct": "Code de conduite",
     "privacy": "Confidentialité",
     "cookies": "Cookies",
     "notices": "Mentions légales",
-    "subprocessors": "Sous-processeurs"
+    "subprocessors": "Sous-processeurs",
+    "automatedDecisions": "Décisions automatisées"
   },
   "legal": {
     "footer": {
@@ -2633,6 +2641,7 @@
       "legal": "Mentions légales",
       "cgu": "CGU",
       "cgv": "CGV",
+      "codeOfConduct": "Code de conduite",
       "subprocessors": "Sous-processeurs",
       "automatedDecisions": "Décisions automatisées",
       "documents": "Documents complets",
@@ -2712,11 +2721,44 @@
     },
     "mentions": {
       "title": "Mentions légales",
-      "intro": "Conformément à l'article 6 III de la loi LCEN n° 2004-575 du 21 juin 2004, voici les mentions légales du service.",
+      "intro": "Conformément à l'article 6 III de la loi LCEN n° 2004-575 du 21 juin 2004, voici les mentions légales du service services.designedtrust.com (la « Plateforme »).",
       "editorTitle": "Éditeur",
-      "editorPlaceholder": "Marketplace Service — informations légales (raison sociale, adresse, RCS, capital, directeur de publication) en cours de finalisation.",
+      "editorCompanyLabel": "Dénomination",
+      "editorCompany": "Designed Trust SAS",
+      "editorFormLabel": "Forme juridique",
+      "editorForm": "Société par actions simplifiée (SAS)",
+      "editorCapitalLabel": "Capital social",
+      "editorCapital": "Informations en cours d'enregistrement auprès du greffe — disponibles sur demande à support@designedtrust.com",
+      "editorRcsLabel": "RCS / SIREN",
+      "editorRcs": "Informations en cours d'enregistrement auprès du greffe — disponibles sur demande à support@designedtrust.com",
+      "editorVatLabel": "N° TVA intracommunautaire",
+      "editorVat": "Informations en cours d'enregistrement — disponibles sur demande à support@designedtrust.com (auto-liquidation B2B intra-UE : art. 196 directive 2006/112/CE)",
+      "editorAddressLabel": "Siège social",
+      "editorAddress": "Informations en cours d'enregistrement auprès du greffe — France. Adresse postale complète disponible sur demande à support@designedtrust.com",
+      "editorDirectorLabel": "Directeur de la publication",
+      "editorDirector": "Le Président de Designed Trust SAS — identité disponible sur demande à support@designedtrust.com",
+      "editorContactLabel": "Email de contact",
+      "editorFallback": "Les informations corporate ci-dessus (raison sociale, RCS, capital, adresse) seront mises à jour automatiquement dès la finalisation de l'enregistrement au greffe. Pour toute requête formelle d'identification de l'éditeur, écris à support@designedtrust.com — réponse sous 5 jours ouvrés.",
+      "editorPlaceholder": "Designed Trust SAS — Société par actions simplifiée. Informations en cours d'enregistrement auprès du greffe (raison sociale finalisée, RCS, capital, adresse postale, directeur de publication). Détails disponibles sur demande à support@designedtrust.com.",
+      "dpoTitle": "Délégué à la protection des données (DPO)",
+      "dpoBody": "Pour toute question relative à la protection de tes données personnelles ou pour exercer tes droits RGPD (accès, rectification, effacement, portabilité, opposition, limitation, retrait du consentement), écris à {email}. Tu disposes également du droit d'introduire une réclamation auprès de la CNIL : {cnil}.",
       "hostingTitle": "Hébergement",
-      "hostingDescription": "Frontend hébergé par Vercel Inc. (340 S Lemon Ave #4133, Walnut, CA 91789, USA). API hébergée par Railway Corp. (1771 Page Mill Rd, Palo Alto, CA 94304, USA). Base de données hébergée par Neon (région UE)."
+      "hostingFrontend": "Frontend (services.designedtrust.com) — Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA. Téléphone : +1 (650) 396-7700. Transferts hors UE encadrés par EU-US Data Privacy Framework (décision UE 2023/1795) et clauses contractuelles types 2021/914.",
+      "hostingBackend": "Backend / API — Railway Corp., 251 Little Falls Drive, Wilmington, DE 19808, USA. Transferts hors UE encadrés par clauses contractuelles types 2021/914 (Module 2).",
+      "hostingDatabase": "Base de données — Neon Inc. (cluster EU AWS eu-central-1 Frankfurt, Allemagne). Données stockées en Union européenne.",
+      "hostingStorage": "Stockage objet et CDN — Cloudflare Inc., 101 Townsend Street, San Francisco, CA 94107, USA (Cloudflare R2). Transferts hors UE encadrés par EU-US Data Privacy Framework et clauses contractuelles types 2021/914.",
+      "hostingDescription": "Frontend hébergé par Vercel Inc. (340 S Lemon Ave #4133, Walnut, CA 91789, USA). API hébergée par Railway Corp. (251 Little Falls Drive, Wilmington, DE 19808, USA). Base de données hébergée par Neon Inc. (cluster EU eu-central-1). Stockage objet par Cloudflare R2 (Cloudflare Inc., 101 Townsend Street, San Francisco, CA 94107, USA).",
+      "pspTitle": "Prestataire de services de paiement",
+      "pspBody": "Les paiements et le séquestre transitent par Stripe Payments Europe Ltd, établissement de monnaie électronique agréé par la Banque centrale d'Irlande, dont le siège social est situé 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Irlande. La Plateforme agit en qualité d'agent commercial limité de Stripe pour la collecte des paiements (« limited authorized agent ») et n'est pas elle-même prestataire de services de paiement au sens de la directive PSD2 (UE) 2015/2366.",
+      "contactTitle": "Contact et réclamations",
+      "contactBody": "Pour toute réclamation, signalement ou demande générale : {email}. Délai cible de première réponse : 5 jours ouvrés. Les signalements de contenu illicite au titre du DSA (Règlement UE 2022/2065 art. 16) sont traités avec une priorité accrue.",
+      "mediationTitle": "Médiation et juridiction compétente",
+      "mediationBody": "La Plateforme est strictement réservée à un usage professionnel (B2B). Les contrats conclus via la Plateforme relèvent du droit commercial français. En cas de litige, les Parties s'efforcent de trouver une solution amiable. À défaut, le Tribunal de commerce de Paris est compétent. Les utilisateurs disposant de la qualité de consommateur (au sens de l'art. L.611-1 du Code de la consommation) peuvent saisir le médiateur de la consommation : référence en cours d'inscription auprès du Médiateur National de la Consommation — coordonnées disponibles sur demande à support@designedtrust.com.",
+      "ipTitle": "Propriété intellectuelle",
+      "ipBody": "L'ensemble des éléments composant la Plateforme (textes, graphismes, logos, icônes, photographies, code source) est la propriété exclusive de Designed Trust SAS ou des utilisateurs ayant accordé une licence d'usage à la Plateforme dans les conditions des CGU. Toute reproduction, représentation ou exploitation non autorisée est strictement prohibée et susceptible de poursuites au titre du Code de la propriété intellectuelle.",
+      "cookieManageTitle": "Gérer mes cookies",
+      "cookieManageDescription": "Tu peux à tout moment modifier ou retirer ton consentement sur l'usage des cookies de mesure d'audience.",
+      "hostingDescriptionLegacy": "Frontend hébergé par Vercel Inc. (340 S Lemon Ave #4133, Walnut, CA 91789, USA). API hébergée par Railway Corp. (1771 Page Mill Rd, Palo Alto, CA 94304, USA). Base de données hébergée par Neon (région UE)."
     },
     "cgu": {
       "title": "Conditions Générales d'Utilisation",
@@ -2821,6 +2863,11 @@
           "title": "Conditions Générales de Vente",
           "summary": "15 articles couvrant modèle économique, KYC, cycle de transaction Stripe Connect, paiements, apport d'affaires, factures, DAC 7 et dispositif Eckert.",
           "reference": "À valider avocat + commissaire aux comptes"
+        },
+        "codeOfConduct": {
+          "title": "Code de conduite et politique de modération",
+          "summary": "Comportements interdits (harcèlement, spam, contournement de plateforme, fraude, etc.), mécanisme de signalement, sanctions graduées, procédure d'appel et engagements DSA art. 14 / 23.",
+          "reference": "DSA art. 14, 16, 17, 23"
         }
       },
       "labels": {
