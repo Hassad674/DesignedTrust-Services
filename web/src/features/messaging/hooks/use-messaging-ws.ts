@@ -11,7 +11,12 @@ import { proposalQueryKey } from "@/shared/lib/query-keys/proposal"
 
 const HEARTBEAT_INTERVAL = 30_000
 const TYPING_CLEAR_DELAY = 5_000
-const MAX_RECONNECT_DELAY = 30_000
+// Bornes du backoff exponentiel : un plancher de 2 s évite les
+// reconnexions immédiates qui saturaient le rate-limit IP en dev
+// React 19 StrictMode (cf. revert perf c0c68dbf). Le plafond 60 s
+// laisse une fenêtre de retry raisonnable avant abandon visuel.
+const MIN_RECONNECT_DELAY = 2_000
+const MAX_RECONNECT_DELAY = 60_000
 
 async function getWSUrl(): Promise<string> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
@@ -50,6 +55,13 @@ export function useMessagingWS(userId: string | undefined) {
   const lastSeqMapRef = useRef<Record<string, number>>({})
   const userIdRef = useRef(userId)
   const typingTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+  // Sentinel synchrone : `connect()` est async et fait `await getWSUrl()`
+  // avant `new WebSocket()`. Deux invocations parallèles (StrictMode,
+  // changement de dépendance) peuvent passer le guard readyState
+  // pendant la microtask de l'await. Ce sentinel bloque toute
+  // deuxième entrée tant qu'une connexion est en vol — reset
+  // obligatoire dans onopen / onclose / onerror / catch / cleanup.
+  const pendingConnectRef = useRef(false)
 
   // Ref to track the currently active (viewed) conversation.
   // Updated by the parent component via setActiveConversationId.
@@ -326,22 +338,31 @@ export function useMessagingWS(userId: string | undefined) {
 
   const connect = useCallback(async () => {
     if (!userId) return
-    // StrictMode-safe guard: React 19 dev StrictMode re-runs every
-    // useEffect (run → cleanup → run again). Without checking
-    // CONNECTING, the second run races the first socket's handshake
-    // and opens a parallel WS. The backend closes the duplicate,
-    // the surviving socket observes the onclose and reconnects —
-    // producing the 4-8 s reconnect storm. This re-introduces the
-    // guard lost in revert 5fbab1db without re-applying the rest of
-    // the (unrelated) perf commit.
+    // Guard 1 — déjà OPEN/CONNECTING. React 19 dev StrictMode re-runs
+    // every useEffect (run → cleanup → run again). Sans ce guard, le
+    // second run race la handshake du premier socket et ouvre un WS
+    // parallèle (le backend ferme le doublon, le survivant voit
+    // onclose et reconnecte → tempête 4-8 s en dev).
     const state = wsRef.current?.readyState
     if (state === WebSocket.OPEN || state === WebSocket.CONNECTING) return
+    // Guard 2 — connect() déjà en vol (await getWSUrl). Empêche la
+    // race async où deux appels parallèles passent le guard readyState
+    // avant que `new WebSocket()` ne soit exécuté.
+    if (pendingConnectRef.current) return
+    pendingConnectRef.current = true
 
-    const url = await getWSUrl()
+    let url: string
+    try {
+      url = await getWSUrl()
+    } catch (err) {
+      pendingConnectRef.current = false
+      throw err
+    }
     const ws = new WebSocket(url)
     wsRef.current = ws
 
     ws.onopen = () => {
+      pendingConnectRef.current = false
       setIsConnected(true)
       reconnectAttemptRef.current = 0
 
@@ -366,21 +387,28 @@ export function useMessagingWS(userId: string | undefined) {
     }
 
     ws.onclose = () => {
+      pendingConnectRef.current = false
       setIsConnected(false)
       if (heartbeatRef.current) {
         clearInterval(heartbeatRef.current)
         heartbeatRef.current = null
       }
 
-      // Exponential backoff reconnect
+      // Backoff exponentiel borné par MIN_RECONNECT_DELAY (2 s) +
+      // jitter 0-500 ms. Re-introduit après revert perf c0c68dbf :
+      // sans le plancher, plusieurs onglets reconnectent en lockstep
+      // et saturent le rate-limit IP ; sans le jitter, des onglets
+      // ouverts en même temps relancent tous au même tick.
       const attempt = reconnectAttemptRef.current
-      const delay = Math.min(1000 * Math.pow(2, attempt), MAX_RECONNECT_DELAY)
+      const base = Math.min(MIN_RECONNECT_DELAY * 2 ** attempt, MAX_RECONNECT_DELAY)
+      const jitter = Math.floor(Math.random() * 500)
       reconnectAttemptRef.current = attempt + 1
 
-      reconnectTimeoutRef.current = setTimeout(connect, delay)
+      reconnectTimeoutRef.current = setTimeout(connect, base + jitter)
     }
 
     ws.onerror = () => {
+      pendingConnectRef.current = false
       ws.close()
     }
   }, [userId, sendFrame])
@@ -389,6 +417,7 @@ export function useMessagingWS(userId: string | undefined) {
     connect()
 
     return () => {
+      pendingConnectRef.current = false
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current)
       }
