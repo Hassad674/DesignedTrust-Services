@@ -21,9 +21,36 @@ import { markAsRead } from "../api/messaging-api"
 import { unreadCountQueryKey } from "@/shared/hooks/use-unread-count"
 import { ReviewModal } from "@/shared/components/review/review-modal"
 import { deriveReviewSide } from "@/shared/lib/review/derive-side"
+import { useCanReview } from "@/shared/hooks/review/use-reviews"
 import { ReportDialog } from "@/shared/components/reporting/report-dialog"
-import type { Conversation, ConversationListResponse, Message } from "../types"
+import type { Conversation, ConversationListResponse, Message, ProposalMessageMetadata } from "../types"
 import type { ReviewSide } from "@/shared/types/review"
+
+// findEvaluationMetadata scans the loaded conversation messages for
+// the canonical evaluation_request (preferred) or proposal_completed
+// system message that matches the target proposal id, and returns
+// its enriched metadata. The evaluation_request side is
+// authoritative because the backend always emits it alongside the
+// completion message for completed-by-dispute and normal flows.
+function findEvaluationMetadata(
+  messages: Message[],
+  proposalId: string,
+): ProposalMessageMetadata | null {
+  for (const m of messages) {
+    if (m.type !== "evaluation_request" && m.type !== "proposal_completed") continue
+    const meta = m.metadata as ProposalMessageMetadata | undefined
+    if (!meta?.proposal_id) continue
+    if (meta.proposal_id !== proposalId) continue
+    if (
+      !meta.proposal_client_organization_id ||
+      !meta.proposal_provider_organization_id
+    ) {
+      continue
+    }
+    return meta
+  }
+  return null
+}
 
 export function MessagingPage() {
   const t = useTranslations("messaging")
@@ -266,6 +293,77 @@ export function MessagingPage() {
   }, [activeConversation])
 
   const typingUserForConversation = activeId ? typingUsers[activeId] : undefined
+
+  // Notification deep-link auto-open of the review modal.
+  //
+  // When the user clicks a "Mission terminée — laissez un avis"
+  // notification, we land on /messages?id=<conv>&openReview=1&
+  // reviewProposalId=<id>. As soon as the conversation messages are
+  // loaded, find the matching proposal_completed / evaluation_request
+  // system message, read the participant orgs from its metadata, and
+  // open the modal. After opening we strip the params from the URL so
+  // a refresh doesn't re-open the modal.
+  //
+  // Already-reviewed guard: the existing ReviewModal calls into
+  // useCreateReview, which the backend rejects with `already_reviewed`
+  // if the user has submitted. To avoid even showing the form in that
+  // case, we use `useCanReview` here and silently swallow when false
+  // (the user already submitted). The notification stays marked as
+  // read — we don't surface a toast since the brief asks for a quiet
+  // fallback.
+  const openReviewQueryParam = searchParams.get("openReview")
+  const reviewProposalIdParam = searchParams.get("reviewProposalId")
+  const wantsAutoOpenReview =
+    openReviewQueryParam === "1" && !!reviewProposalIdParam
+  const autoOpenedRef = useRef(false)
+  // Gate the can-review fetch on the auto-open intent so we never
+  // probe permissions for a proposal the user didn't click into.
+  const canReview = useCanReview(
+    wantsAutoOpenReview ? reviewProposalIdParam ?? undefined : undefined,
+  )
+
+  useEffect(() => {
+    if (!wantsAutoOpenReview || !reviewProposalIdParam) return
+    if (autoOpenedRef.current) return
+    if (reviewTarget) return
+    if (!allMessages.length) return
+    if (!canReview.data) return
+    if (canReview.data.data.can_review !== true) {
+      // Already reviewed or not eligible — clear the URL params and
+      // bail out silently so a refresh doesn't keep retrying.
+      autoOpenedRef.current = true
+      router.replace(`/messages?id=${activeId ?? ""}`)
+      return
+    }
+
+    const evaluation = findEvaluationMetadata(allMessages, reviewProposalIdParam)
+    if (!evaluation) return
+    // findEvaluationMetadata already filters out rows without enriched
+    // org ids, so we can safely coerce here.
+    const side = deriveReviewSide(org?.id, {
+      client_id: evaluation.proposal_client_organization_id ?? "",
+      provider_id: evaluation.proposal_provider_organization_id ?? "",
+    })
+    if (!side) return
+
+    autoOpenedRef.current = true
+    setReviewTarget({
+      proposalId: evaluation.proposal_id,
+      proposalTitle: evaluation.proposal_title,
+      side,
+    })
+    // Clean the URL so a refresh doesn't keep re-opening the modal.
+    router.replace(`/messages?id=${activeId ?? ""}`)
+  }, [
+    wantsAutoOpenReview,
+    reviewProposalIdParam,
+    reviewTarget,
+    allMessages,
+    canReview.data,
+    org?.id,
+    router,
+    activeId,
+  ])
 
   return (
     <div className="-mx-5 -mt-5 flex h-[calc(100vh-3.5rem)] overflow-hidden bg-card">

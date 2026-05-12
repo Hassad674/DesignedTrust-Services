@@ -29,8 +29,10 @@ import {
   Briefcase,
   Sparkles,
 } from "lucide-react"
+import { useRouter } from "@i18n/navigation"
 import { useMarkAsRead } from "../hooks/use-notification-actions"
 import type { Notification, NotificationType } from "../types"
+import { buildReviewDeepLink } from "../lib/review-deep-link"
 
 type Accent = "accent" | "success" | "mute"
 
@@ -75,6 +77,7 @@ interface NotificationItemProps {
 
 export function NotificationItem({ notification, onClose }: NotificationItemProps) {
   const t = useTranslations("notifications")
+  const router = useRouter()
   const markAsRead = useMarkAsRead()
   const Icon = iconMap[notification.type] ?? Bell
   const accent = accentMap[notification.type] ?? "mute"
@@ -84,6 +87,17 @@ export function NotificationItem({ notification, onClose }: NotificationItemProp
   function handleClick() {
     if (isUnread) {
       markAsRead.mutate(notification.id)
+    }
+    // Review-related notifications deep-link to the conversation with
+    // a flag the messaging page reads to auto-open the review modal.
+    // The backend ships the navigation hints (proposal_id +
+    // conversation_id) in `notification.data` — see the dispute and
+    // proposal services. We never invent a URL: if the payload is
+    // missing we silently fall back to the legacy "just mark as read"
+    // behaviour so a malformed notification is never a hard error.
+    const href = buildReviewDeepLink(notification)
+    if (href) {
+      router.push(href)
     }
     onClose?.()
   }
