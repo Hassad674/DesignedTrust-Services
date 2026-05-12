@@ -1189,6 +1189,7 @@
     "socialLinkErrorTwitter": "Must be a twitter.com or x.com URL",
     "socialLinkErrorGithub": "Must be a github.com URL",
     "awaitingReview": "Awaiting review",
+    "leaveYourReview": "Leave your review on this project",
     "historyLoadError": "Could not load project history",
     "completedOn": "Completed on {date}",
     "expertise": {

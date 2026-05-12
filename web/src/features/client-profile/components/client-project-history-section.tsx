@@ -1,8 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import { FileText } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { ProjectHistoryCard } from "@/shared/components/profile/project-history-card"
+import { ProjectHistoryCard, type ProjectHistoryCardEntry } from "@/shared/components/profile/project-history-card"
+import { ReviewModal } from "@/shared/components/review/review-modal"
 import type { ClientProjectHistoryEntry } from "../api/client-profile-api"
 
 interface ClientProjectHistorySectionProps {
@@ -13,6 +15,13 @@ interface ClientProjectHistorySectionProps {
   // coach mark so the owner understands where future history will
   // appear.
   readOnly?: boolean
+  /**
+   * When true, the rows are interactive for an eligible viewer (the
+   * provider side of each completed proposal can leave their review).
+   * Defaults to true on the public surface — eligibility itself is
+   * gated by the can-review server probe on each row.
+   */
+  reviewable?: boolean
 }
 
 // ClientProjectHistorySection renders the client-facing counterpart
@@ -27,8 +36,11 @@ interface ClientProjectHistorySectionProps {
 export function ClientProjectHistorySection(
   props: ClientProjectHistorySectionProps,
 ) {
-  const { entries, readOnly = false } = props
+  const { entries, readOnly = false, reviewable = true } = props
   const count = entries.length
+  const [reviewTarget, setReviewTarget] = useState<ProjectHistoryCardEntry | null>(
+    null,
+  )
 
   // Public surface: hide the card entirely on a zero-history client
   // so the page does not surface a conspicuous empty block to
@@ -36,6 +48,14 @@ export function ClientProjectHistorySection(
   if (readOnly && count === 0) {
     return null
   }
+
+  // The viewer of a CLIENT profile is potentially the PROVIDER of
+  // those proposals — so the side to submit is provider_to_client.
+  // useCanReview itself gates whether the viewer was actually a
+  // counterparty, so a non-participant never sees a clickable row.
+  const handleOpenReview = reviewable
+    ? (entry: ProjectHistoryCardEntry) => setReviewTarget(entry)
+    : undefined
 
   return (
     <section className="bg-card border border-border rounded-xl p-4 shadow-sm sm:p-6">
@@ -46,10 +66,23 @@ export function ClientProjectHistorySection(
         <ul className="space-y-4">
           {entries.map((entry) => (
             <li key={entry.proposal_id}>
-              <ProjectHistoryCard entry={entry} />
+              <ProjectHistoryCard
+                entry={entry}
+                onOpenReview={handleOpenReview}
+              />
             </li>
           ))}
         </ul>
+      )}
+
+      {reviewTarget && reviewable && (
+        <ReviewModal
+          isOpen
+          proposalId={reviewTarget.proposal_id}
+          proposalTitle={reviewTarget.title}
+          side="provider_to_client"
+          onClose={() => setReviewTarget(null)}
+        />
       )}
     </section>
   )

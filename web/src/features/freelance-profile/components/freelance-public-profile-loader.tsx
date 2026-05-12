@@ -73,7 +73,13 @@ export function FreelancePublicProfileLoader({
         }
       />
       <PublicFreelanceSocialLinks orgId={orgId} />
-      <ProjectHistorySection orgId={orgId} readOnly />
+      <ProjectHistorySection
+        orgId={orgId}
+        readOnly
+        // The profile owner is a provider — a viewer eligible to leave
+        // a review here can only be the client side of the proposal.
+        reviewSide="client_to_provider"
+      />
     </div>
   )
 }

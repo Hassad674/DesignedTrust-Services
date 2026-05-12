@@ -1,9 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import { FileText } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { ProjectHistoryCard } from "./project-history-card"
+import { ProjectHistoryCard, type ProjectHistoryCardEntry } from "./project-history-card"
 import { useProjectHistory } from "@/shared/hooks/profile/use-project-history"
+import { ReviewModal } from "@/shared/components/review/review-modal"
+import type { ReviewSide } from "@/shared/types/review"
 
 interface ProjectHistorySectionProps {
   orgId: string | undefined
@@ -17,6 +20,15 @@ interface ProjectHistorySectionProps {
     title: string
     description: string
   }
+  /**
+   * Side of the double-blind review the CURRENT VIEWER would submit
+   * when clicking a row. When undefined, rows are non-interactive.
+   * The parent profile page is responsible for computing this from
+   * the relationship between the viewer's org and the profile owner
+   * (client → provider profile means the viewer reviews provider,
+   * provider → client profile means the viewer reviews client).
+   */
+  reviewSide?: ReviewSide
 }
 
 // ProjectHistorySection is the generic "completed projects" block
@@ -26,7 +38,7 @@ interface ProjectHistorySectionProps {
 // freelance phrasing. Keeps data fetching + rendering in one place
 // so features don't re-implement the skeleton/empty/error trio.
 export function ProjectHistorySection(props: ProjectHistorySectionProps) {
-  const { orgId, readOnly = false, forceEmpty = false, emptyOverride } = props
+  const { orgId, readOnly = false, forceEmpty = false, emptyOverride, reviewSide } = props
   const t = useTranslations("profile")
   const query = useProjectHistory(forceEmpty ? undefined : orgId)
   const data = forceEmpty ? undefined : query.data
@@ -35,6 +47,10 @@ export function ProjectHistorySection(props: ProjectHistorySectionProps) {
 
   const entries = forceEmpty ? [] : (data?.data ?? [])
   const count = entries.length
+
+  const [reviewTarget, setReviewTarget] = useState<ProjectHistoryCardEntry | null>(
+    null,
+  )
 
   // Public viewers normally want the section hidden when there is
   // nothing to show — except when the consumer ships a persona-
@@ -50,6 +66,12 @@ export function ProjectHistorySection(props: ProjectHistorySectionProps) {
   ) {
     return null
   }
+
+  // Only wire the open-review callback when a side has been resolved
+  // by the parent (the viewer is a counterparty of these projects).
+  const handleOpenReview = reviewSide
+    ? (entry: ProjectHistoryCardEntry) => setReviewTarget(entry)
+    : undefined
 
   return (
     <section className="bg-card border border-border rounded-2xl p-5 shadow-[var(--shadow-card)] sm:p-7">
@@ -67,10 +89,26 @@ export function ProjectHistorySection(props: ProjectHistorySectionProps) {
         <ul className="space-y-4">
           {entries.map((entry) => (
             <li key={entry.proposal_id}>
-              <ProjectHistoryCard entry={entry} />
+              <ProjectHistoryCard
+                entry={entry}
+                onOpenReview={handleOpenReview}
+              />
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Review modal — mounted at the section level so a single
+          ReviewModal instance serves every row. Persona-neutral: the
+          modal's `side` prop selects the right form variant. */}
+      {reviewTarget && reviewSide && (
+        <ReviewModal
+          isOpen
+          proposalId={reviewTarget.proposal_id}
+          proposalTitle={reviewTarget.title}
+          side={reviewSide}
+          onClose={() => setReviewTarget(null)}
+        />
       )}
     </section>
   )

@@ -10,7 +10,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen, fireEvent } from "@testing-library/react"
 import { NextIntlClientProvider } from "next-intl"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { createElement } from "react"
 
 import { NotificationItem } from "../notification-item"
 import type { Notification, NotificationType } from "../../types"
@@ -42,14 +41,12 @@ function wrapper({ children }: { children: React.ReactNode }) {
       mutations: { retry: false },
     },
   })
-  return createElement(
-    QueryClientProvider,
-    { client: qc },
-    createElement(
-      NextIntlClientProvider,
-      { locale: "fr", messages },
-      children,
-    ),
+  return (
+    <QueryClientProvider client={qc}>
+      <NextIntlClientProvider locale="fr" messages={messages}>
+        {children}
+      </NextIntlClientProvider>
+    </QueryClientProvider>
   )
 }
 
