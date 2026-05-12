@@ -284,10 +284,17 @@ func (m *mockUserRepo) SaveKYCNotificationState(context.Context, uuid.UUID, map[
 
 type mockMessageSender struct {
 	lastInput *service.SystemMessageInput
+	// inputs preserves every captured SendSystemMessage call so tests
+	// covering the auto-resolve scheduler path can assert that BOTH the
+	// dispute_auto_resolved message AND the proposal_completed +
+	// evaluation_request review prompt are emitted (lastInput only sees
+	// the final one).
+	inputs []service.SystemMessageInput
 }
 
 func (m *mockMessageSender) SendSystemMessage(_ context.Context, input service.SystemMessageInput) error {
 	m.lastInput = &input
+	m.inputs = append(m.inputs, input)
 	return nil
 }
 func (m *mockMessageSender) FindOrCreateConversation(_ context.Context, _ service.FindOrCreateConversationInput) (uuid.UUID, error) {

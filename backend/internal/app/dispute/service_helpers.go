@@ -55,6 +55,40 @@ func (s *Service) notifyBothParties(ctx context.Context, d *disputedomain.Disput
 	s.sendNotification(ctx, d.RespondentID, notifType, title, body, d.ID)
 }
 
+// sendProposalNotification fires a notification carrying an arbitrary
+// data payload (typically the proposal-flow shape: proposal_id,
+// conversation_id, proposal_title). Used for the post-resolution
+// "leave a review" prompt so the frontend can deep-link to the
+// conversation and auto-open the review modal — the dispute_id-only
+// payload was opaque to the click handler.
+func (s *Service) sendProposalNotification(ctx context.Context, userID uuid.UUID, notifType, title, body string, data json.RawMessage) {
+	if err := s.notifications.Send(ctx, portservice.NotificationInput{
+		UserID: userID,
+		Type:   notifType,
+		Title:  title,
+		Body:   body,
+		Data:   data,
+	}); err != nil {
+		slog.Warn("dispute: send proposal notification failed", "user_id", userID, "type", notifType, "error", err)
+	}
+}
+
+// buildProposalCompletedNotificationData mirrors the payload shape
+// produced by app/proposal/service_create.go::buildNotificationData
+// (proposal_id + conversation_id + proposal_title) so the
+// post-dispute "Mission terminée — laissez un avis" notifications
+// share the same click-target contract as the normal completion flow.
+// The web notification-item handler keys off this payload to navigate
+// to /messages?id={conversation_id}&openReview=1.
+func buildProposalCompletedNotificationData(p *proposaldomain.Proposal) json.RawMessage {
+	data, _ := json.Marshal(map[string]string{
+		"proposal_id":     p.ID.String(),
+		"conversation_id": p.ConversationID.String(),
+		"proposal_title":  p.Title,
+	})
+	return data
+}
+
 // ---------------------------------------------------------------------------
 // Fund distribution + proposal restore
 // ---------------------------------------------------------------------------
@@ -117,14 +151,21 @@ func (s *Service) restoreProposalAndDistribute(ctx context.Context, d *disputedo
 		message.MessageType("proposal_completed"), completedMeta)
 	s.sendSystemMessage(ctx, p.ConversationID, uuid.Nil,
 		message.MessageType("evaluation_request"), completedMeta)
-	s.sendNotification(ctx, p.ClientID, "proposal_completed",
+	// Notifications use the proposal-flow payload shape (proposal_id +
+	// conversation_id + proposal_title) so the frontend notification
+	// click handler can navigate to /messages?id={conv}&openReview=1
+	// like it does for normal mission-completed flows. Previously these
+	// notifications only carried dispute_id, leaving the frontend with
+	// no way to open the review modal.
+	completedNotifData := buildProposalCompletedNotificationData(p)
+	s.sendProposalNotification(ctx, p.ClientID, "proposal_completed",
 		"Mission terminée",
 		"La mission est marquée comme terminée après résolution du litige. Laissez un avis avant la fin de la fenêtre de 14 jours.",
-		d.ID)
-	s.sendNotification(ctx, p.ProviderID, "proposal_completed",
+		completedNotifData)
+	s.sendProposalNotification(ctx, p.ProviderID, "proposal_completed",
 		"Mission terminée",
 		"La mission est marquée comme terminée après résolution du litige. Laissez un avis avant la fin de la fenêtre de 14 jours.",
-		d.ID)
+		completedNotifData)
 
 	// 5 — distribute escrow per the resolution split. Unchanged from
 	//     pre-fix behaviour except it is now always reached even when
