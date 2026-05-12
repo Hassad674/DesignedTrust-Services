@@ -312,6 +312,49 @@ describe("useGlobalWS", () => {
     expect(handler).not.toHaveBeenCalled()
   })
 
+  it("StrictMode guard: does not open a second socket when one is still CONNECTING", async () => {
+    // Regression for the post-revert WS reconnect storm. React 19
+    // StrictMode runs every useEffect twice in dev (run → cleanup →
+    // run). Without the CONNECTING guard, the second run races the
+    // first socket's handshake and opens a parallel WS; the backend
+    // closes the duplicate; the survivor sees the onclose and
+    // reconnects in a tight 4-8 s loop. The guard short-circuits the
+    // second connect() when wsRef points to a socket that is still
+    // CONNECTING (or OPEN) so only one WS is ever in flight.
+    const useGlobalWS = await importHook()
+
+    let firstInstance: MockWebSocket | null = null
+
+    const { rerender } = renderHook(
+      ({ uid }: { uid: string }) => useGlobalWS(uid),
+      {
+        wrapper: createWrapper(),
+        initialProps: { uid: "user-123" },
+      },
+    )
+
+    await act(async () => {
+      await vi.runAllTimersAsync()
+    })
+
+    firstInstance = MockWebSocket.lastInstance
+    expect(firstInstance).not.toBeNull()
+    // First WS is still CONNECTING — we never called simulateOpen.
+    expect(firstInstance!.readyState).toBe(MockWebSocket.CONNECTING)
+
+    // Force a re-render with the same userId. In real StrictMode this
+    // is the second mount pass; here we exercise the same code path
+    // (the effect runs `connect()` against the live ref). With the
+    // guard in place, `lastInstance` must NOT have changed.
+    rerender({ uid: "user-123" })
+
+    await act(async () => {
+      await vi.runAllTimersAsync()
+    })
+
+    expect(MockWebSocket.lastInstance).toBe(firstInstance)
+  })
+
   it("cleans up WebSocket on unmount", async () => {
     const useGlobalWS = await importHook()
 

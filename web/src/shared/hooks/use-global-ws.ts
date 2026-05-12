@@ -90,7 +90,16 @@ export function useGlobalWS(userId: string | undefined, onCallEvent?: CallEventH
 
   const connect = useCallback(async () => {
     if (!userId) return
-    if (wsRef.current?.readyState === WebSocket.OPEN) return
+    // StrictMode-safe guard: React 19 dev StrictMode re-runs every
+    // useEffect (run → cleanup → run again). Without checking
+    // CONNECTING, the second run races the first socket's handshake
+    // and opens a parallel WS. The backend then closes the duplicate,
+    // the surviving socket observes the onclose and reconnects —
+    // producing the 4-8 s reconnect storm observed in dev. This
+    // guard re-introduces the protection lost in revert 5fbab1db
+    // without re-applying the rest of the (unrelated) perf commit.
+    const state = wsRef.current?.readyState
+    if (state === WebSocket.OPEN || state === WebSocket.CONNECTING) return
 
     const url = await getWSUrl()
     const ws = new WebSocket(url)
