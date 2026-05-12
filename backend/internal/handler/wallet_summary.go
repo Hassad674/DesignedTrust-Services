@@ -15,7 +15,6 @@ import (
 
 	paymentapp "marketplace-backend/internal/app/payment"
 	referralapp "marketplace-backend/internal/app/referral"
-	domainreferral "marketplace-backend/internal/domain/referral"
 	"marketplace-backend/internal/handler/middleware"
 	portservice "marketplace-backend/internal/port/service"
 	res "marketplace-backend/pkg/response"
@@ -236,38 +235,52 @@ func missionLeg(w *paymentapp.WalletOverview) summaryBreakdownLeg {
 	}
 }
 
-// commissionLeg derives the commission-side totals from rows + projections.
+// commissionLeg derives the commission-side totals from the
+// projection stream — the canonical source of truth for commission
+// aggregates.
 //
-//   - TransmittedCents: sum of records with status=paid AND PaidAt set
-//     (paid_at being non-empty is the marker that the Stripe transfer
-//     actually settled).
-//   - EscrowedCents: sum of projections with status in {Escrowed,
-//     Pending} — projections by definition have no DB row yet, so they
-//     are "in flight" from the apporteur's perspective.
-//   - AvailableCents: sum of records with status in {pending_kyc,
-//     failed} — those are the rows the unified withdraw endpoint can
-//     drain.
-//   - TotalCents: sum of all three.
+// History: the previous implementation summed BOTH the DB records
+// AND the SourceProjection projections, which double-counted any
+// commission whose row had been persisted while a SourceProjection
+// entry was emitted in parallel (e.g. attribution timing race, or an
+// `approved` milestone whose row was missed by the per-milestone
+// lookup → safety-net ProjectionPending). Symptom: a single 1298 €
+// pending_kyc commission showed as 1298 € in BOTH the "séquestre"
+// AND "disponible" cards.
+//
+// Fix: projections already cover EVERY state via dispatchMilestone:
+//
+//   - funded/submitted/disputed (active escrow) → ProjectionEscrowed
+//     (source=projection).
+//   - approved/released + commission row → SourceRow row carrying the
+//     row's status (paid → ProjectionPaid, failed → ProjectionFailed,
+//     pending_kyc/pending → ProjectionPending, clawed_back/cancelled
+//     → ProjectionFailed bucket).
+//   - approved/released + missing row → safety-net ProjectionPending
+//     (source=projection).
+//   - pending_funding / cancelled / refunded → SKIP.
+//
+// So the records loop is redundant — and worse, it double-counts.
+// The records slice still feeds the recent_transactions timeline
+// (records are the human-facing history), but aggregates derive only
+// from the projection stream.
+//
+// Bucket mapping:
+//   - ProjectionPaid       → TransmittedCents (money already at the apporteur)
+//   - ProjectionEscrowed   → EscrowedCents     (locked, awaiting milestone release)
+//   - ProjectionPending    → AvailableCents    (drainable via withdraw — UI shows "Retirer")
+//   - ProjectionFailed     → AvailableCents    (retire-eligible too, same drain path)
+//   - TotalCents = sum of all three.
 func commissionLeg(view commissionSideView) summaryBreakdownLeg {
 	leg := summaryBreakdownLeg{}
-	for _, r := range view.records {
-		switch r.Status {
-		case string(domainreferral.CommissionPaid):
-			leg.TransmittedCents += r.CommissionCents
-		case string(domainreferral.CommissionPendingKYC), string(domainreferral.CommissionFailed):
-			leg.AvailableCents += r.CommissionCents
-		}
-	}
 	for _, p := range view.projections {
-		// Projections are about money not-yet-paid. Row-backed
-		// projections are also surfaced via the records loop above —
-		// we count them ONCE on the records side to avoid double
-		// counting.
-		if p.Source == referralapp.SourceRow {
-			continue
-		}
-		if p.Status == referralapp.ProjectionEscrowed || p.Status == referralapp.ProjectionPending {
+		switch p.Status {
+		case referralapp.ProjectionPaid:
+			leg.TransmittedCents += p.ProjectedCents
+		case referralapp.ProjectionEscrowed:
 			leg.EscrowedCents += p.ProjectedCents
+		case referralapp.ProjectionPending, referralapp.ProjectionFailed:
+			leg.AvailableCents += p.ProjectedCents
 		}
 	}
 	leg.TotalCents = leg.AvailableCents + leg.EscrowedCents + leg.TransmittedCents
