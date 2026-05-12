@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/app_notification.dart';
+import '../../domain/review_deep_link.dart';
 import '../providers/notification_provider.dart';
 import '../widgets/notification_tile.dart';
 
@@ -215,9 +217,8 @@ class _Body extends ConsumerWidget {
           return _NotificationGroup(
             group: groups[index],
             isLast: index == groups.length - 1,
-            onTap: (notification) => ref
-                .read(notificationListProvider.notifier)
-                .markAsRead(notification.id),
+            onTap: (notification) =>
+                _handleTap(context, ref, notification),
             onDelete: (notification) => ref
                 .read(notificationListProvider.notifier)
                 .deleteNotification(notification.id),
@@ -225,6 +226,22 @@ class _Body extends ConsumerWidget {
         },
       ),
     );
+  }
+}
+
+// Tap handler — marks the notification as read AND, for review-related
+// kinds, navigates to the chat screen with the openReview flag so the
+// review sheet auto-opens. Non-review kinds (or review notifications
+// shipped with a stale dispute-only payload) only mark-as-read.
+void _handleTap(
+  BuildContext context,
+  WidgetRef ref,
+  AppNotification notification,
+) {
+  ref.read(notificationListProvider.notifier).markAsRead(notification.id);
+  final link = buildReviewDeepLink(notification);
+  if (link != null) {
+    context.go(link.toRoute(RoutePaths.chat));
   }
 }
 

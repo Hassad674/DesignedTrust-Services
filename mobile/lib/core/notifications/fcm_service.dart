@@ -38,6 +38,21 @@ String? routeForFcmData(Map<String, dynamic> data) {
     return RoutePaths.notifications;
   }
 
+  // Mission-completed notifications carry the proposal flow payload
+  // (proposal_id + conversation_id + proposal_title) — route to the
+  // conversation with an openReview flag so the chat screen auto-opens
+  // the review modal. Falls back to the notification center when the
+  // payload is missing (e.g. stale notifications shipped with only
+  // dispute_id).
+  if (type == 'proposal_completed' || type == 'review_received') {
+    final conversationId = data['conversation_id']?.toString() ?? '';
+    final proposalId = data['proposal_id']?.toString() ?? '';
+    if (conversationId.isEmpty || proposalId.isEmpty) {
+      return RoutePaths.notifications;
+    }
+    return '${RoutePaths.chat}/$conversationId?openReview=1&reviewProposalId=$proposalId';
+  }
+
   if (type.startsWith('proposal') || type == 'milestone_funded' ||
       type == 'milestone_submitted' || type == 'milestone_approved') {
     final proposalId = data['proposal_id']?.toString() ?? '';

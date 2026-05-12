@@ -22,6 +22,7 @@ class ProjectHistoryCard extends StatelessWidget {
     required this.completedAt,
     this.review,
     this.footer,
+    this.onLeaveReview,
   });
 
   /// Proposal title. Renders only when non-empty (callers may hide
@@ -41,6 +42,13 @@ class ProjectHistoryCard extends StatelessWidget {
   /// Optional widget appended after the review body. Used on the
   /// client surface to attach the provider chip.
   final Widget? footer;
+
+  /// When non-null AND the entry has no review yet, the awaiting-
+  /// review placeholder becomes a tappable button that fires this
+  /// callback. Parents pass it on profiles where the viewer is the
+  /// counterparty and is eligible to leave their review. Anonymous
+  /// visitors (or already-reviewed entries) do not pass a callback.
+  final VoidCallback? onLeaveReview;
 
   @override
   Widget build(BuildContext context) {
@@ -132,11 +140,11 @@ class ProjectHistoryCard extends StatelessWidget {
           ],
           const SizedBox(height: 12),
 
-          // Body: review or awaiting state
+          // Body: review or awaiting state (clickable when eligible)
           if (review != null)
             ReviewCardWidget(review: review!)
           else
-            const AwaitingReviewBox(),
+            AwaitingReviewBox(onTap: onLeaveReview),
 
           if (footer != null) ...[
             const SizedBox(height: 10),
@@ -151,38 +159,74 @@ class ProjectHistoryCard extends StatelessWidget {
 /// Placeholder rendered inside [ProjectHistoryCard] when no review has
 /// been submitted yet. Exposed publicly so feature-level widgets can
 /// reuse the same visual outside of a card body if ever needed.
+///
+/// When [onTap] is non-null, the placeholder becomes a tappable
+/// "Laisser ton avis" button — that's the entry point of the
+/// double-blind reviews flow from a partner's profile project history.
 class AwaitingReviewBox extends StatelessWidget {
-  const AwaitingReviewBox({super.key});
+  const AwaitingReviewBox({super.key, this.onTap});
+
+  /// Tap handler. When null, the placeholder stays static (read-only).
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
+    final isInteractive = onTap != null;
+    final iconColor = isInteractive
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant;
+    final textColor = isInteractive
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant;
+    final label = isInteractive
+        ? 'Laisser ton avis sur ce projet'
+        : 'Awaiting review';
+
+    final content = Row(
+      children: [
+        Icon(
+          isInteractive ? Icons.edit_outlined : Icons.schedule,
+          size: 16,
+          color: iconColor,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: textColor,
+            fontWeight: isInteractive ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
+      ],
+    );
+
+    final container = Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
+        color: isInteractive
+            ? theme.colorScheme.primaryContainer
+            : theme.colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.dividerColor,
+          color: isInteractive
+              ? theme.colorScheme.primary.withValues(alpha: 0.4)
+              : theme.dividerColor,
           style: BorderStyle.solid,
         ),
       ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.schedule,
-            size: 16,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            'Awaiting review',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
+      child: content,
+    );
+
+    if (!isInteractive) return container;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: container,
       ),
     );
   }

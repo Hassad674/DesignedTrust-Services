@@ -115,8 +115,13 @@ void main() {
     expect(find.text('PROPOSAL_PAGE:p_widget_test'), findsOneWidget);
   });
 
-  testWidgets('FCM tap on review_received navigates to /profile',
+  testWidgets(
+      'FCM tap on review_received without payload falls back to /notifications',
       (tester) async {
+    // New behaviour: review_received WITHOUT the proposal-flow payload
+    // (legacy / stale notification) now degrades to the notification
+    // center instead of /profile. With a full payload it would deep-
+    // link into the chat with openReview=1 (see fcm_route_test.dart).
     final router = _buildProbeRouter();
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
 
@@ -124,7 +129,7 @@ void main() {
     router.push(route!);
     await tester.pumpAndSettle();
 
-    expect(find.text('PROFILE_PAGE'), findsOneWidget);
+    expect(find.text('NOTIF_PAGE'), findsOneWidget);
   });
 
   testWidgets('FCM tap on unknown type falls back to /notifications',

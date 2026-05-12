@@ -79,10 +79,39 @@ void main() {
       );
     });
 
-    test('review_received → /profile', () {
+    test('review_received with conversation_id + proposal_id → /chat with openReview flag', () {
+      // New behaviour: review-related notifications now deep-link into
+      // the conversation with the openReview query so the chat screen
+      // auto-opens the review sheet (mobile parity with the web
+      // notification-item handler).
+      expect(
+        routeForFcmData({
+          'notification_type': 'review_received',
+          'conversation_id': 'c_123',
+          'proposal_id': 'p_456',
+        }),
+        '${RoutePaths.chat}/c_123?openReview=1&reviewProposalId=p_456',
+      );
+    });
+
+    test('proposal_completed with conversation_id + proposal_id → /chat with openReview flag', () {
+      expect(
+        routeForFcmData({
+          'notification_type': 'proposal_completed',
+          'conversation_id': 'c_789',
+          'proposal_id': 'p_abc',
+        }),
+        '${RoutePaths.chat}/c_789?openReview=1&reviewProposalId=p_abc',
+      );
+    });
+
+    test('review_received without payload → /notifications (degrades gracefully)', () {
+      // Stale dispute-flow notifications shipped only with dispute_id.
+      // The tap handler must not crash — it falls back to the
+      // notification center.
       expect(
         routeForFcmData({'notification_type': 'review_received'}),
-        RoutePaths.profile,
+        RoutePaths.notifications,
       );
     });
 
