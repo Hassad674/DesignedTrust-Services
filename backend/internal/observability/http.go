@@ -47,8 +47,31 @@ func HTTPMiddleware(operation string, opts ...otelhttp.Option) func(http.Handler
 		otelhttp.WithFilter(filterPathExclusions),
 	}, opts...)
 	return func(next http.Handler) http.Handler {
-		return otelhttp.NewHandler(next, operation, allOpts...)
+		instrumented := otelhttp.NewHandler(next, operation, allOpts...)
+		// /api/v1/ws bypasses the otelhttp.NewHandler wrap entirely
+		// (not just the span — the ResponseWriter wrap itself). The
+		// otelhttp.WrapResponseWriter calls WriteHeader after the WS
+		// hijack, writing garbage bytes onto the hijacked TCP socket.
+		// Strict browser clients (Chromium/Firefox/Edge) reject the
+		// upgrade with ERR_INVALID_HTTP_RESPONSE; Node `ws` tolerates
+		// the garbage. otelhttp.WithFilter() alone is not sufficient
+		// because it only skips the *span*, not the writer wrap.
+		// See filterPathExclusions for the full repro narrative.
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if isHijackPath(r.URL.Path) {
+				next.ServeHTTP(w, r)
+				return
+			}
+			instrumented.ServeHTTP(w, r)
+		})
 	}
+}
+
+// isHijackPath returns true for paths whose handler hijacks the
+// underlying TCP connection (currently only the WebSocket endpoint).
+// Hijacking paths must NOT be wrapped by otelhttp.NewHandler.
+func isHijackPath(p string) bool {
+	return p == "/api/v1/ws"
 }
 
 // filterPathExclusions skips spans for noisy infra endpoints that
@@ -56,9 +79,23 @@ func HTTPMiddleware(operation string, opts ...otelhttp.Option) func(http.Handler
 // Health probes fire every 5 seconds per pod; metrics scrapes every
 // 15 seconds per Prometheus instance — none of those are user
 // traffic and recording them costs disk + ingest budget.
+//
+// /api/v1/ws is excluded for a different, critical reason:
+// otelhttp.NewHandler wraps the http.ResponseWriter with its own
+// instrumentation wrapper. When the WebSocket handshake hijacks the
+// underlying TCP connection (via http.Hijacker), the otelhttp
+// wrapper's later WriteHeader call writes spurious bytes onto the
+// hijacked socket. Permissive clients (Node `ws`) tolerate the
+// garbage; strict browser clients (Chromium / Firefox / Edge)
+// reject the upgrade with ERR_INVALID_HTTP_RESPONSE and the WS
+// never opens — taking realtime messaging down with it. Skipping
+// the wrap for /api/v1/ws keeps the hijack path clean. Repro
+// confirmed by Playwright e2e/realtime-bug.spec.ts and 7371
+// "WriteHeader on hijacked connection" warnings in production-like
+// backend logs.
 func filterPathExclusions(r *http.Request) bool {
 	switch r.URL.Path {
-	case "/health", "/ready", "/metrics":
+	case "/health", "/ready", "/metrics", "/api/v1/ws":
 		return false
 	}
 	return true

@@ -185,11 +185,20 @@ func (c *compressingResponseWriter) WriteHeader(status int) {
 	c.status = status
 	c.wroteHeader = true
 
-	// 204 / 304 carry no body. Forward the status and flip to
-	// passthrough so any stray Write is forwarded raw (it would be
-	// a protocol violation, but we don't want to gzip-frame zero
-	// bytes either).
-	if status == http.StatusNoContent || status == http.StatusNotModified {
+	// Statuses that carry no body must be forwarded immediately to
+	// the underlying writer and pinned to passthrough — buffering
+	// them defeats the compression middleware AND breaks protocol
+	// flows that follow the status line directly with raw bytes:
+	//
+	//   - 1xx Informational (101 Switching Protocols especially) —
+	//     a WebSocket / HTTP upgrade emits 101 and then hijacks the
+	//     connection to write frames directly. If the 101 status
+	//     line is swallowed by our buffer, the client receives the
+	//     raw WS frames preceded by nothing, and strict browsers
+	//     (Chromium / Firefox / Edge) reject the handshake with
+	//     ERR_INVALID_HTTP_RESPONSE. Repro: e2e/realtime-bug.spec.ts.
+	//   - 204 No Content / 304 Not Modified — bodyless by spec.
+	if status < 200 || status == http.StatusNoContent || status == http.StatusNotModified {
 		c.passthrough = true
 		c.ResponseWriter.WriteHeader(status)
 		return
