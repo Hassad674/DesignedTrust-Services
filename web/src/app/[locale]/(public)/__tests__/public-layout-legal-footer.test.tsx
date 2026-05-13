@@ -80,14 +80,15 @@ describe("PublicLayout — LegalFooter wiring", () => {
     // <footer role="contentinfo"> is emitted by the LegalFooter component.
     const footer = screen.getByRole("contentinfo")
     expect(footer).toBeInTheDocument()
+    // FR locale + as-needed + non-default → /fr/<canonical-or-mapped>.
     const expected = [
-      "/privacy",
-      "/cookies",
-      "/legal",
-      "/cgu",
-      "/cgv",
-      "/sous-processeurs",
-      "/decisions-automatisees",
+      "/fr/privacy",
+      "/fr/cookies",
+      "/fr/legal",
+      "/fr/cgu",
+      "/fr/cgv",
+      "/fr/sous-processeurs",
+      "/fr/decisions-automatisees",
     ]
     for (const href of expected) {
       const link = footer.querySelector(`a[href="${href}"]`)
@@ -105,14 +106,15 @@ describe("PublicLayout — LegalFooter wiring", () => {
     expect(footer).toBeInTheDocument()
     // DashboardShell stub branch was used — verify both elements live.
     expect(screen.getByTestId("stub-dashboard-shell")).toBeInTheDocument()
+    // FR locale + as-needed + non-default → /fr/<canonical-or-mapped>.
     const expected = [
-      "/privacy",
-      "/cookies",
-      "/legal",
-      "/cgu",
-      "/cgv",
-      "/sous-processeurs",
-      "/decisions-automatisees",
+      "/fr/privacy",
+      "/fr/cookies",
+      "/fr/legal",
+      "/fr/cgu",
+      "/fr/cgv",
+      "/fr/sous-processeurs",
+      "/fr/decisions-automatisees",
     ]
     for (const href of expected) {
       const link = footer.querySelector(`a[href="${href}"]`)

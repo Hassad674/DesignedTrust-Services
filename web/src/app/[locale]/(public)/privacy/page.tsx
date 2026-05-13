@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
-import { Link } from "@i18n/navigation"
+import { legalHref } from "@i18n/routing"
 import { LegalShell } from "@/shared/components/legal/legal-shell"
 
 // /privacy — placeholder Politique de confidentialité.
@@ -60,12 +60,12 @@ export default async function PrivacyPage({
         <p className="text-sm text-muted-foreground">
           {t.rich("subprocessorsDescription", {
             link: () => (
-              <Link
-                href="/sous-processeurs"
+              <a
+                href={legalHref("/sous-processeurs", locale)}
                 className="text-accent underline-offset-4 hover:underline"
               >
-                /sous-processeurs
-              </Link>
+                {legalHref("/sous-processeurs", locale)}
+              </a>
             ),
           })}
         </p>
@@ -78,12 +78,12 @@ export default async function PrivacyPage({
         <p className="text-sm text-muted-foreground">
           {t.rich("automatedDecisionsDescription", {
             link: () => (
-              <Link
-                href="/decisions-automatisees"
+              <a
+                href={legalHref("/decisions-automatisees", locale)}
                 className="text-accent underline-offset-4 hover:underline"
               >
-                /decisions-automatisees
-              </Link>
+                {legalHref("/decisions-automatisees", locale)}
+              </a>
             ),
           })}
         </p>
