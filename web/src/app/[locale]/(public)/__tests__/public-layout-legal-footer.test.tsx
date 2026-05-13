@@ -81,11 +81,12 @@ describe("PublicLayout — LegalFooter wiring", () => {
     const footer = screen.getByRole("contentinfo")
     expect(footer).toBeInTheDocument()
     const expected = [
-      "/privacy",
+      "/legal/politique-confidentialite",
       "/cookies",
       "/legal",
-      "/cgu",
-      "/cgv",
+      "/legal/cgu",
+      "/legal/cgv",
+      "/legal/code-de-conduite",
       "/sous-processeurs",
       "/decisions-automatisees",
     ]
@@ -106,11 +107,12 @@ describe("PublicLayout — LegalFooter wiring", () => {
     // DashboardShell stub branch was used — verify both elements live.
     expect(screen.getByTestId("stub-dashboard-shell")).toBeInTheDocument()
     const expected = [
-      "/privacy",
+      "/legal/politique-confidentialite",
       "/cookies",
       "/legal",
-      "/cgu",
-      "/cgv",
+      "/legal/cgu",
+      "/legal/cgv",
+      "/legal/code-de-conduite",
       "/sous-processeurs",
       "/decisions-automatisees",
     ]

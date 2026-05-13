@@ -80,11 +80,14 @@ export default function RegisterProviderPage() {
         {/* Footer — micro */}
         <div className="text-center font-mono text-[11px] text-subtle-foreground">
           © Atelier ·{" "}
-          <Link href="/terms" className="hover:text-foreground">
+          <Link href="/legal/cgu" className="hover:text-foreground">
             {tAuth("terms")}
           </Link>{" "}
           ·{" "}
-          <Link href="/privacy" className="hover:text-foreground">
+          <Link
+            href="/legal/politique-confidentialite"
+            className="hover:text-foreground"
+          >
             {tAuth("privacy")}
           </Link>
         </div>

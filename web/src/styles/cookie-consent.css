@@ -72,3 +72,29 @@
   --cc-btn-border-radius: 999px;
   --cc-pm-toggle-border-radius: 999px;
 }
+
+/*
+ * CNIL deliberation 2020-091 — equal visual weight between "Accept all"
+ * and "Refuse all" buttons. `equalWeightButtons: true` on the CMP API
+ * is the structural switch; this CSS guards against the residual
+ * stylistic asymmetries shipped by vanilla-cookieconsent's default
+ * theme (slight opacity, lighter border on the secondary button) so
+ * the two CTAs are visually indistinguishable.
+ *
+ * Selectors prefixed with `#cc-main` to keep the override scoped to
+ * the CMP and avoid leaking onto the rest of the design system.
+ */
+#cc-main .cm__btn--secondary,
+#cc-main .pm__btn--secondary {
+  font-weight: 600;
+  opacity: 1;
+}
+
+#cc-main .cm__btn,
+#cc-main .pm__btn {
+  /* Both CTAs share the same vertical rhythm so the eye does not
+   * favour one over the other. Vanilla-cookieconsent already wires
+   * `padding` via tokens — we re-assert the height parity in case a
+   * future upgrade re-introduces the asymmetry. */
+  min-height: 44px;
+}

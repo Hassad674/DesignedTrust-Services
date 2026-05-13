@@ -16,10 +16,12 @@ import { Link } from "@i18n/navigation"
 const LINKS = [
   { href: "/legal/cgu", labelKey: "cgu" },
   { href: "/legal/cgv", labelKey: "cgv" },
+  { href: "/legal/code-de-conduite", labelKey: "codeOfConduct" },
   { href: "/legal/politique-confidentialite", labelKey: "privacy" },
   { href: "/cookies", labelKey: "cookies" },
   { href: "/legal", labelKey: "notices" },
   { href: "/sous-processeurs", labelKey: "subprocessors" },
+  { href: "/decisions-automatisees", labelKey: "automatedDecisions" },
 ] as const
 
 export function DashboardLegalLinks() {

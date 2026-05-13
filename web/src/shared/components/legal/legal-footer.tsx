@@ -1,23 +1,32 @@
 import { useTranslations } from "next-intl"
 import { Link } from "@i18n/navigation"
 import { getDpoEmail } from "@/shared/lib/dpo"
+import { CookieConsentManageButton } from "@/shared/components/analytics/cookie-consent-manage-button"
 
 // LegalFooter — minimalist legal-link footer rendered under public
-// pages. Surfaces the 6 legal placeholder routes plus the DPO email so
-// every visitor has a one-click path to exercise their RGPD rights.
+// pages. Surfaces the 7 legal routes plus the DPO email + a persistent
+// "Manage cookies" entry point so every visitor has a one-click path
+// to exercise their RGPD rights (CNIL Recommendation 2020 point 6.3).
 //
-// Server-renderable (no client interaction). Uses Soleil v2 tokens.
+// Note: `/privacy` has been merged into `/legal/politique-confidentialite`
+// (the long canonical version) — CNIL requires a single policy, not
+// two parallel documents. The "privacy" footer key now resolves to the
+// long URL.
+//
+// Server-renderable (no client interaction). The cookie manage button
+// is the only client-island in here. Uses Soleil v2 tokens.
 export function LegalFooter() {
   const t = useTranslations("legal.footer")
   const dpoEmail = getDpoEmail()
   const year = new Date().getFullYear()
 
   const links: ReadonlyArray<{ href: string; key: string }> = [
-    { href: "/privacy", key: "privacy" },
+    { href: "/legal/politique-confidentialite", key: "privacy" },
     { href: "/cookies", key: "cookies" },
     { href: "/legal", key: "legal" },
-    { href: "/cgu", key: "cgu" },
-    { href: "/cgv", key: "cgv" },
+    { href: "/legal/cgu", key: "cgu" },
+    { href: "/legal/cgv", key: "cgv" },
+    { href: "/legal/code-de-conduite", key: "codeOfConduct" },
     { href: "/sous-processeurs", key: "subprocessors" },
     { href: "/decisions-automatisees", key: "automatedDecisions" },
     // D4 (GDPR Phase C) — link to /legal/registre as the canonical
@@ -49,6 +58,7 @@ export function LegalFooter() {
           >
             {t("dpoContact")}
           </a>
+          <CookieConsentManageButton variant="inline" />
         </nav>
         <p className="text-muted-foreground/80">{t("copyright", { year })}</p>
       </div>

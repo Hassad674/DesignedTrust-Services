@@ -102,7 +102,7 @@ describe("AuthPageShell", () => {
     expect(brandLink).toHaveAttribute("href", "/")
   })
 
-  it("links the footer terms to /terms and privacy to /privacy", () => {
+  it("links the footer terms to /legal/cgu and privacy to /legal/politique-confidentialite", () => {
     renderShell(baseProps)
     const termsLink = screen.getByRole("link", {
       name: messages.auth.terms,
@@ -110,8 +110,12 @@ describe("AuthPageShell", () => {
     const privacyLink = screen.getByRole("link", {
       name: messages.auth.privacy,
     })
-    expect(termsLink).toHaveAttribute("href", "/terms")
-    expect(privacyLink).toHaveAttribute("href", "/privacy")
+    // Phase legal-max-blindage — the auth shell now points at the
+    // canonical legal routes (CGU lives at /legal/cgu, single privacy
+    // policy at /legal/politique-confidentialite). The stub /terms
+    // and /privacy URLs would 404 in production.
+    expect(termsLink).toHaveAttribute("href", "/legal/cgu")
+    expect(privacyLink).toHaveAttribute("href", "/legal/politique-confidentialite")
   })
 
   it("uses the same hero copy regardless of page-specific eyebrow / title", () => {

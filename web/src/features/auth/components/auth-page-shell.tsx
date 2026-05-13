@@ -89,11 +89,14 @@ export function AuthPageShell({
         {/* Footer — micro */}
         <div className="text-center font-mono text-[11px] text-subtle-foreground">
           © Atelier ·{" "}
-          <Link href="/terms" className="hover:text-foreground">
+          <Link href="/legal/cgu" className="hover:text-foreground">
             {t("terms")}
           </Link>{" "}
           ·{" "}
-          <Link href="/privacy" className="hover:text-foreground">
+          <Link
+            href="/legal/politique-confidentialite"
+            className="hover:text-foreground"
+          >
             {t("privacy")}
           </Link>
         </div>
