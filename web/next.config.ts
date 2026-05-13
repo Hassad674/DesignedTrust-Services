@@ -107,16 +107,77 @@ const nextConfig: NextConfig = {
   // Without this, session_id cookie set by Railway won't be sent to Vercel.
   // Uses API_BACKEND_URL (server-only) for the rewrite destination.
   // In development, NEXT_PUBLIC_API_URL is set so the client calls directly — no proxy needed.
+  //
+  // Legal-segment rewrites: when the EN locale is active, users browse
+  // English URL segments (`/legal/terms`, `/subprocessors`, …) but the
+  // on-disk routes live under the canonical FR slugs (`/legal/cgu`,
+  // `/sous-processeurs`, …). These rewrites serve the same page from
+  // the EN-named URL without duplicating page files. Keep this table
+  // in sync with `legalPathnames` in `i18n/routing.ts` — a regression
+  // test pins the two together.
   async rewrites() {
     const backendUrl =
       process.env.API_BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL;
-    if (!backendUrl) return [];
-    return [
+    const legalRewrites = [
+      { source: "/en/legal/terms", destination: "/en/legal/cgu" },
+      { source: "/en/legal/sales-terms", destination: "/en/legal/cgv" },
       {
-        source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`,
+        source: "/en/legal/privacy",
+        destination: "/en/legal/politique-confidentialite",
+      },
+      {
+        source: "/en/legal/processing-register",
+        destination: "/en/legal/registre",
+      },
+      { source: "/en/legal/dpia", destination: "/en/legal/aipd" },
+      {
+        source: "/en/legal/code-of-conduct",
+        destination: "/en/legal/code-de-conduite",
+      },
+      { source: "/en/subprocessors", destination: "/en/sous-processeurs" },
+      {
+        source: "/en/automated-decisions",
+        destination: "/en/decisions-automatisees",
+      },
+      // Default-locale (no prefix) variants — when the EN visitor lands
+      // on the bare path (e.g. /subprocessors), the next-intl middleware
+      // does NOT add a /en prefix because EN is the default. Rewrite
+      // before the file-system match so we still serve the FR slug.
+      { source: "/legal/terms", destination: "/legal/cgu" },
+      { source: "/legal/sales-terms", destination: "/legal/cgv" },
+      {
+        source: "/legal/privacy",
+        destination: "/legal/politique-confidentialite",
+      },
+      {
+        source: "/legal/processing-register",
+        destination: "/legal/registre",
+      },
+      { source: "/legal/dpia", destination: "/legal/aipd" },
+      {
+        source: "/legal/code-of-conduct",
+        destination: "/legal/code-de-conduite",
+      },
+      { source: "/subprocessors", destination: "/sous-processeurs" },
+      {
+        source: "/automated-decisions",
+        destination: "/decisions-automatisees",
       },
     ];
+    const apiRewrites = backendUrl
+      ? [
+          {
+            source: "/api/:path*",
+            destination: `${backendUrl}/api/:path*`,
+          },
+        ]
+      : [];
+    return {
+      // beforeFiles — legal rewrites must hit BEFORE the file-system
+      // router tries to resolve the EN slugs (which don't exist on
+      // disk). API rewrites stay in `beforeFiles` too — same reason.
+      beforeFiles: [...legalRewrites, ...apiRewrites],
+    };
   },
 
   // Experimental performance optimizations

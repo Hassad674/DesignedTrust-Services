@@ -1,5 +1,6 @@
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@i18n/navigation"
+import { legalHref, legalPathnames } from "@i18n/routing"
 
 // LandingFooter — site footer.
 //
@@ -197,9 +198,24 @@ function FooterLink({
   link: { labelKey: string; href: string }
 }) {
   const t = useTranslations("landing.footer")
+  const locale = useLocale()
   if (link.href.startsWith("#")) {
     return (
       <a href={link.href} className="transition-colors hover:text-foreground">
+        {t(link.labelKey)}
+      </a>
+    )
+  }
+  // Legal routes have locale-aware URL segments (FR slugs canonical,
+  // EN-named on EN locale). We fall back to next-intl Link for every
+  // other route so client-side prefetch + smart navigation still kick
+  // in for product / understand / company links.
+  if (link.href in legalPathnames) {
+    return (
+      <a
+        href={legalHref(link.href, locale)}
+        className="transition-colors hover:text-foreground"
+      >
         {t(link.labelKey)}
       </a>
     )

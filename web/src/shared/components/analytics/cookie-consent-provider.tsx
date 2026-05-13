@@ -8,6 +8,7 @@ import "vanilla-cookieconsent/dist/cookieconsent.css"
 import "@/styles/cookie-consent.css"
 
 import { applyCustomConsent } from "@/shared/lib/posthog-consent"
+import { legalHref } from "@i18n/routing"
 
 /**
  * Mounts the vanilla-cookieconsent CMP and gates analytics opt-in on
@@ -168,16 +169,20 @@ function buildBannerFooter(
   t: (k: string) => string,
   locale: string,
 ): string {
-  const prefix = `/${locale}`
+  // legalHref() resolves the canonical FR slug to the locale-aware
+  // segment (e.g. `/legal/cgu` → `/legal/terms` on EN) and adds the
+  // `/<locale>` prefix only for non-default locales. Pairs with the
+  // `beforeFiles` rewrites in next.config.ts so the EN URLs reach
+  // the canonical pages without duplicate page files.
   const links: ReadonlyArray<{ href: string; label: string }> = [
     {
-      href: `${prefix}/legal/politique-confidentialite`,
+      href: legalHref("/legal/politique-confidentialite", locale),
       label: t("banner.linkPrivacy"),
     },
-    { href: `${prefix}/cookies`, label: t("banner.linkCookies") },
-    { href: `${prefix}/legal`, label: t("banner.linkMentions") },
+    { href: legalHref("/cookies", locale), label: t("banner.linkCookies") },
+    { href: legalHref("/legal", locale), label: t("banner.linkMentions") },
     {
-      href: `${prefix}/sous-processeurs`,
+      href: legalHref("/sous-processeurs", locale),
       label: t("banner.linkSubprocessors"),
     },
   ]
