@@ -226,7 +226,7 @@ const queryInsertMessage = `
 //      truncation server-side so we don't ship full payloads)
 // $5 = message sender_id (NULL for system messages — mirrors mig 130)
 //
-// Decision (locked, see docs/plans/P6_brief.md): maintenance applicatif
+// Decision (locked, internal design note): maintenance applicatif
 // in createMessageInTx, NOT a PG trigger. Writes are visible in code,
 // debuggable, and the SET LOCAL tenant context already covers the RLS
 // USING expression on the row.

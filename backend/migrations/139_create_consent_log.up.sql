@@ -1,4 +1,4 @@
--- Phase A.3 of the GDPR roadmap (gdpr-roadmap.md).
+-- Phase A.3 of the GDPR roadmap (internal design note).
 --
 -- Records every consent decision (accept_all / refuse_all / custom)
 -- made by a visitor through the cookie banner. Provides server-side

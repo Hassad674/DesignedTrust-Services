@@ -1,4 +1,4 @@
--- Phase B.5 of the GDPR roadmap (gdpr-roadmap.md) — Art. 22 disclosure.
+-- Phase B.5 of the GDPR roadmap (internal design note) — Art. 22 disclosure.
 --
 -- Stores user-facing appeals against the platform's three automated
 -- decisions: AI moderation (text + media), search ranking, and Stripe

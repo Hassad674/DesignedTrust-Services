@@ -10,7 +10,7 @@
  * Prerequisites:
  *   - The team E2E backend must be running on http://localhost:8084
  *     against the isolated marketplace_go_team DB. Run the orchestrator
- *     bash script first (or start it manually — see PROGRESS.md CP1).
+ *     bash script first (or start it manually — see the internal CP1 runbook).
  *
  * Run:
  *   cd web && npx playwright test e2e/team-phase1-contract.spec.ts --reporter=list

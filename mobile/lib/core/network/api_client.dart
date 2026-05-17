@@ -268,7 +268,7 @@ class ApiClient {
 ///
 /// Extracted as a top-level pure function so the rule can be unit-tested
 /// without standing up an [ApiClient] (which requires platform plugins
-/// like FlutterSecureStorage). See SEC-08 in auditsecurite.md.
+/// like FlutterSecureStorage). See SEC-08 in the internal security audit.
 @visibleForTesting
 bool isApiUrlSafeForReleaseBuild(String apiUrl, {required bool isDebug}) {
   if (isDebug) return true;

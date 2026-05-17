@@ -145,7 +145,7 @@ func (r *MediaRepository) ClearSource(ctx context.Context, mediaContext string, 
 	case "profile_photo":
 		// TODO(phase5-bug): profiles.user_id was dropped in m.067. This branch
 		// is dead until ClearSource is updated to receive an organization_id
-		// for profile contexts. Flagged in auditqualite.md.
+		// for profile contexts. Flagged by the internal quality audit.
 		query = "UPDATE profiles SET photo_url = '' WHERE user_id = $1" // authorship-by-user-ok
 	case "profile_video":
 		query = "UPDATE profiles SET presentation_video_url = '' WHERE user_id = $1" // authorship-by-user-ok

@@ -623,7 +623,7 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 	})
 	gdprHandler := gdpr.Handler
 
-	// Consent log (Phase A.3 of gdpr-roadmap.md): records every
+	// Consent log (Phase A.3 of the GDPR roadmap): records every
 	// accept/refuse on the cookie banner with anonymized IP + UA hash.
 	// Wired here next to GDPR because both serve the same compliance
 	// surface; the feature is fully removable — drop these three lines
@@ -632,7 +632,7 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 	consentSvc := consentapp.NewService(consentRepo)
 	consentHandler := handler.NewConsentHandler(consentSvc)
 
-	// RGPD art. 22 (Phase B.5 of gdpr-roadmap.md): authenticated user
+	// RGPD art. 22 (Phase B.5 of the GDPR roadmap): authenticated user
 	// files an appeal for human review of an automated decision (AI
 	// moderation, search ranking, Stripe risk scoring). Wired here next
 	// to GDPR/Consent because all three serve the same compliance
@@ -646,7 +646,7 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 	})
 	automatedDecisionHandler := handler.NewAutomatedDecisionAppealHandler(automatedDecisionSvc)
 
-	// Phase B.1 of gdpr-roadmap.md — retention scheduler. Sweeps stale
+	// Phase B.1 of the GDPR roadmap — retention scheduler. Sweeps stale
 	// rows from messages (3y), notifications (90d), device_tokens
 	// (60d inactivity), search_queries (12mo → anonymize) and
 	// audit_logs (24mo → archive). Runs hourly in prod, every minute

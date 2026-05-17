@@ -3,7 +3,7 @@
 -- P5 (RGPD endpoints): adds soft-delete support on users for the
 -- GDPR right-to-erasure flow.
 --
--- Decision 3 (locked, see docs/plans/P5_brief.md): we soft-delete
+-- Decision 3 (locked, internal design note): we soft-delete
 -- the user at T0, lock them out, and keep the row for 30 days. A
 -- daily cron purges hard at T+30. This column is the single anchor
 -- for that flow.

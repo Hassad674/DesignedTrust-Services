@@ -240,8 +240,8 @@ func (w *WalletService) fetchMilestoneStatuses(ctx context.Context, records []*d
 }
 
 // aggregateBuckets dispatches every record into its money bucket
-// based on (transfer_status, payment_status, milestone.status). See
-// _plan_wallet_v2.md for the full decision matrix.
+// based on (transfer_status, payment_status, milestone.status).
+// The full decision matrix is documented below in classifyRecordBucket.
 //
 // Conservative default: missing milestone status → EscrowAmount. We
 // never put money in AvailableAmount unless we can PROVE the milestone
@@ -285,7 +285,7 @@ const (
 // payment record + the milestone-status lookup table, return the
 // bucket the record's ProviderPayout should land in.
 //
-// Decision matrix (mirrors _plan_wallet_v2.md):
+// Decision matrix (internal design note):
 //
 //	transfer_status=completed                                       → Transferred
 //	status=succeeded ∧ transfer=pending ∧ milestone=approved        → Available (client signed off)
