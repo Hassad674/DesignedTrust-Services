@@ -62,10 +62,12 @@ export function BrandLogo({ variant = "full", className }: BrandLogoProps) {
     )
   }
 
-  // Full lockup: mark (200 wide) + gap + wordmark, on a 760×200 canvas.
+  // Full lockup: mark (200 wide) + gap + wordmark, on a 980×200 canvas.
+  // 980 (not 760) so the full "DesignedTrust" wordmark at fontSize 92
+  // never clips on its right edge — the 760 box cut off "…st".
   return (
     <svg
-      viewBox="0 0 760 200"
+      viewBox="0 0 980 200"
       className={className}
       role="img"
       aria-label={BRAND_LABEL}
