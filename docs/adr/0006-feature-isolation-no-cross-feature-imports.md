@@ -130,7 +130,7 @@ through code review only — and an independent F.5 audit catalogued
 ~14 cross-feature imports inside `internal/app` (notably
 `moderation` is reached into by 6 services, and `proposal` is
 imported by `review` / `dispute` / `invoicing`). These violations
-are real and tracked in `auditqualite.md` for resolution in F.6
+are real and tracked internally for resolution in F.6
 (extraction of moderation/proposal as ports in `internal/port/`).
 The rule still holds across the harder boundary
 (`app -> domain <- port <- adapter`); the gap sits inside `app/`

@@ -324,7 +324,7 @@ Set the bucket CORS policy via the Cloudflare dashboard or `wrangler`:
 
 The `MaxAgeSeconds: 600` matches what we set in
 `backend/internal/handler/middleware/cors.go` (reduced from 86400 in
-Phase 0 — see SEC-36 in `auditsecurite.md`).
+Phase 0 — see SEC-36 in the internal security audit).
 
 ### Object naming
 

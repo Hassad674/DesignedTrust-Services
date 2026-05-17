@@ -151,9 +151,8 @@ false positives**, all annotated inline.
 
 ## Roadmap teasers
 
-The project is pre-1.0 and built in named phases (the audit history
-lives at the repo root in `auditsecurite.md`, `auditperf.md`,
-`auditqualite.md`, and `bugacorriger.md`). What is shipped:
+The project is pre-1.0 and built in named, internally-audited
+phases. What is shipped:
 
 - **Phase 0 — quick wins** (2026-04-22): housekeeping and
   documentation tightening.

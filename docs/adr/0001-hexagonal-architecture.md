@@ -85,7 +85,7 @@ violations at PR time.
   an internal audit (F.5, 2026-05-03) catalogued ~14 cross-feature
   imports inside the `internal/app` tree (notably moderation, used
   by 6 services; proposal, depended-on by review/dispute/invoicing).
-  These violations are tracked in `auditqualite.md` for resolution
+  These violations are tracked internally for resolution
   in F.6. The directional rule (handler → app → domain ← port ←
   adapter) holds at every layer above; the cross-feature debt sits
   inside `app/` only.

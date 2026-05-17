@@ -86,12 +86,12 @@ of this policy:
 We have shipped six audit phases between February and April 2026. Each
 was orchestrated through parallel agents and validated against
 `go test`, `vitest`, and `flutter test` before merging. The numbers
-below are from the `auditsecurite.md` and `rapportTest.md` artefacts at
-the project root and from the migration log in `backend/migrations/`.
+below are from the internal security-audit and test artefacts and
+from the migration log in `backend/migrations/`.
 
 ### Closed findings (Phase 1 — security)
 
-- **40+** security findings closed across `auditsecurite.md` (9
+- **40+** security findings closed across the security audit (9
   CRITICAL, 15 HIGH, 10 MEDIUM, 6 LOW).
 - **Brute force protection**: 5 failed logins per email per 15 min
   triggers a 30 min lockout in Redis. Implementation in
