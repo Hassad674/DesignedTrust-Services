@@ -35,7 +35,7 @@ test.beforeAll(async () => {
     throw new Error(
       `Team E2E backend not reachable at ${BACKEND_URL}. ` +
         `Start it first via backend/test/e2e/phase1_e2e.sh or manually ` +
-        `(see PROGRESS.md CP1).`,
+        `(see the internal CP1 runbook).`,
     )
   }
 })

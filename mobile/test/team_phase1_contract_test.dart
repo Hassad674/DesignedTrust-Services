@@ -62,7 +62,7 @@ void main() {
       throw StateError(
         'Team E2E backend not reachable at $backendUrl. '
         'Start it first via backend/test/e2e/phase1_e2e.sh or manually '
-        '(see PROGRESS.md CP1).',
+        '(see the internal CP1 runbook).',
       );
     }
   });
