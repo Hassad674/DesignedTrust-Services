@@ -19,7 +19,7 @@
 --     idx_payment_records_org_created (already present, migration 064)
 --     for the client side, Append.
 --
--- Audit trace: auditperf.md PERF-B-08 / index-audit row #1 / row #2.
+-- Audit trace: performance audit PERF-B-08 (internal) / index-audit row #1 / row #2.
 --
 -- Rollout: indexes are partial + use IF NOT EXISTS so the migration is
 -- idempotent. The provider_organization_id column is nullable + ON

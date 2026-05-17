@@ -9,7 +9,7 @@
  *   3. The Schrems II + DPF audit notes are surfaced — the page must
  *      explicitly state that DPF is supplementary, never the sole
  *      basis.
- *   4. All 21 vendors are listed (mirrors gdpr-audit.md Section 2).
+ *   4. All 21 vendors are listed (mirrors the internal GDPR audit Section 2).
  */
 
 import { describe, expect, it, vi } from "vitest"

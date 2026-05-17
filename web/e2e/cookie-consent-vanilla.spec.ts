@@ -1,6 +1,6 @@
 /**
  * End-to-end regression for the vanilla-cookieconsent CMP integration
- * (Phase A.2 of gdpr-roadmap.md).
+ * (Phase A.2 of the GDPR roadmap).
  *
  * Each test uses a fresh storage state (no consent persisted) and
  * verifies the RGPD pause-before-consent invariant: NO request to

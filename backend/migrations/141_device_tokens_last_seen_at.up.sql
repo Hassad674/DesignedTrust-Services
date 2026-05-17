@@ -3,7 +3,7 @@
 -- Phase B.1 of the GDPR roadmap: add `last_seen_at` to `device_tokens`
 -- so the retention scheduler can prune push tokens that have not been
 -- delivered to in 60 days. FCM marks tokens stale after ~60 days of
--- app inactivity (see audit gdpr-audit.md Section 7) — keeping them in
+-- app inactivity (see the GDPR retention matrix, internal) — keeping them in
 -- the database past that window is dead weight and a minor security
 -- risk.
 --

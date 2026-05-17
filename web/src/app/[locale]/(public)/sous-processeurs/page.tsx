@@ -3,8 +3,8 @@ import { getTranslations } from "next-intl/server"
 import { LegalShell } from "@/shared/components/legal/legal-shell"
 
 // /sous-processeurs — public list of all 21 sub-processors enumerated
-// in gdpr-audit.md Section 2. Required to be linkable from the privacy
-// policy and footer (RGPD art. 28 transparency + DSA art. 14).
+// in the internal GDPR audit (Section 2). Required to be linkable from
+// the privacy policy and footer (RGPD art. 28 transparency + DSA art. 14).
 //
 // legal-max-blindage update — per-vendor transfer mechanism (DPF vs.
 // SCC) surfaced explicitly. Schrems II note clarifies that the DPF is
@@ -26,7 +26,7 @@ export async function generateMetadata({
   }
 }
 
-// Vendor list mirrors gdpr-audit.md Section 2 (21 vendors). The
+// Vendor list mirrors the internal GDPR audit Section 2 (21 vendors). The
 // `nonEU` flag drives the column "transfer mechanism" — vendors are
 // either EU-only (no transfer) or non-EU (mechanism in
 // `rows.<key>.transferMech`).

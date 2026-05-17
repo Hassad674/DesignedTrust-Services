@@ -7,8 +7,8 @@
 --   - parent UPDATEs / DELETEs that propagate to the child also
 --     sequential-scan to find rows to update.
 --
--- The audit (auditperf.md PERF-B-04) flagged the missing indexes
--- below by cross-referencing pg_constraint (FK columns) with
+-- A performance audit (PERF-B-04, internal) flagged the missing
+-- indexes below by cross-referencing pg_constraint (FK columns) with
 -- pg_index (existing indexes). All entries in this migration are
 -- on tables that did NOT already have a composite or single-column
 -- index covering the FK.

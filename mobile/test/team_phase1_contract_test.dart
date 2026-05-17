@@ -9,7 +9,7 @@
 // Prerequisites:
 //   - The team E2E backend must be running on http://localhost:8084
 //     against the isolated marketplace_go_team DB. Start it via
-//     backend/test/e2e/phase1_e2e.sh or manually (see PROGRESS.md CP1).
+//     backend/test/e2e/phase1_e2e.sh or manually (see the internal CP1 runbook).
 //
 // Run:
 //   cd mobile && flutter test test/team_phase1_contract_test.dart

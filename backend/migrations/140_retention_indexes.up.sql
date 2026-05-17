@@ -21,7 +21,8 @@
 -- every migration in a single transaction, which is incompatible with
 -- CREATE INDEX CONCURRENTLY. We therefore use IF NOT EXISTS in the body
 -- and document the production-side CONCURRENTLY pre-step. The messages
--- table is large in production (auditperf.md flags it as a hot table);
+-- table is large in production (flagged as a hot table by the internal
+-- performance audit);
 -- the operator should run the CONCURRENTLY commands first, then the
 -- migration's IF NOT EXISTS turns them into a no-op:
 --

@@ -7,10 +7,9 @@ import "time"
 // layer keeps the privacy-policy guarantees auditable in a single
 // place — no policy lives in adapter or wire code.
 //
-// Each entry's MaxAge maps onto the audit table in
-// `gdpr-audit.md` Section 7 ("Proposed retention matrix for the
-// privacy policy") and the corresponding row in `gdpr-roadmap.md`
-// Phase B.1.
+// Each entry's MaxAge maps onto the GDPR retention matrix
+// ("Proposed retention matrix for the privacy policy") and the
+// corresponding GDPR roadmap Phase B.1 row (internal design notes).
 //
 // The function takes overrides so an operator can tune any single
 // MaxAge without forking the function. A zero override means "use

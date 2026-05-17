@@ -62,7 +62,7 @@ export function readConsent(): ConsentChoice | null {
  *     conditional mounts without a full reload.
  *   - fires-and-forgets a POST /api/v1/consent/log with the chosen
  *     categories so we keep server-side proof of consent (Phase A.3
- *     of gdpr-roadmap.md). Failure is silent: the localStorage flip
+ *     of the GDPR roadmap). Failure is silent: the localStorage flip
  *     is the source of truth in the browser; the server log is the
  *     audit trail that backs CNIL inquiries.
  */

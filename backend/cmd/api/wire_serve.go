@@ -22,7 +22,7 @@ import (
 // router) sits on the left; graceful-shutdown hooks (every
 // CancelFunc + the WS hub + the OTel shutdown closure) sit on the
 // right. The graceful path runs the three sub-budgets defined in
-// docs/plans/P11_brief.md:
+// the internal shutdown design note:
 //
 //  1. 15s — HTTP server drain via srv.Shutdown
 //  2. 10s — WS hub drain via WSHub.GracefulShutdown (1001 frames)

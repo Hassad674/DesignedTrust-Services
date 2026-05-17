@@ -6,7 +6,7 @@
  *      " | Marketplace Service" suffix and the localized intro as
  *      description.
  *   2. The page renders the three automated systems documented in
- *      gdpr-audit.md Section 4 (moderation, ranking, payment) — each
+ *      the internal GDPR audit Section 4 (moderation, ranking, payment) — each
  *      surfaces a title, a description and a consequence paragraph.
  *   3. The page exposes an appeal CTA (mailto: link) so users have a
  *      one-click human-review path.

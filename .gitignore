@@ -104,6 +104,9 @@ web/tsconfig.tsbuildinfo
 /plannuit.md
 /rapportTest.md
 /reportbugcall.md
+/PROGRESS.md
+/run-nuit.sh
+/docs/plans/
 .agent-status/
 .claude/agent-notes/
 .claude/agents/

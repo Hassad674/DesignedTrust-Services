@@ -307,7 +307,7 @@ func (s *Service) sendPushIfOffline(ctx context.Context, n *notif.Notification) 
 		slog.Error("send push notification", "error", err, "user_id", n.UserID)
 		return
 	}
-	// Phase B.1 of gdpr-roadmap.md: keep last_seen_at fresh so the
+	// Phase B.1 of the GDPR roadmap: keep last_seen_at fresh so the
 	// retention scheduler does not prune tokens that are still
 	// actively delivered to. Best-effort — a missed bookkeeping
 	// update is logged and ignored, never propagated to the user.
