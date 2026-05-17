@@ -78,3 +78,34 @@ backend/reindex
 backend/migrate
 backend/seed
 web/tsconfig.tsbuildinfo
+
+# Internal working docs — never commit to the open-source repo.
+# These are audits, plans, progress trackers and agent coordination notes
+# that describe attack surface / unfinished work and must stay private.
+/LEGAL_AUDIT_*.md
+/EXECUTION_PROGRESS.md
+/SKILL_ASSESSMENT.md
+/SHIP_CHECKLIST.md
+/PLAN_PHASE_*.md
+/ROADMAP_FINALE.md
+/EMBEDDED_TEST_REPORT.md
+/MIGRATION_KYC_EMBEDDED.md
+/_plan_*.md
+/BLOCKED-*.md
+/auditperf.md
+/auditqualite.md
+/auditsecurite.md
+/perf-audit.md
+/sec-audit-cache.md
+/regression-audit.md
+/gdpr-audit.md
+/gdpr-roadmap.md
+/bugacorriger.md
+/plannuit.md
+/rapportTest.md
+/reportbugcall.md
+.agent-status/
+.claude/agent-notes/
+.claude/agents/
+.claude/wip/
+.claude/agent-robustness.md
