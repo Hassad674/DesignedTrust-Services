@@ -589,22 +589,14 @@
       "understandHowItWorks": "Comment ça marche",
       "understandManifesto": "Le manifeste apporteurs",
       "understandSecurity": "Sécurité des paiements",
-      "understandCredits": "Système de crédits",
-      "companyLabel": "Entreprise",
-      "companyAbout": "À propos",
-      "companyContact": "Contact",
       "legalLabel": "Légal",
       "legalTerms": "CGU",
       "legalPrivacy": "Confidentialité",
       "legalNotices": "Mentions légales",
       "legalCookies": "Cookies",
       "legalHelp": "Aide",
-      "copyright": "© {year} Atelier · Made in Paris",
-      "social": {
-        "linkedin": "LinkedIn",
-        "x": "X",
-        "instagram": "Instagram"
-      }
+      "madeBy": "DesignedTrust Services {year} — made with {heart} by Hassad Smara",
+      "authorLinkedInAria": "LinkedIn — Hassad Smara"
     }
   },
   "auth": {

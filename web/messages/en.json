@@ -589,22 +589,14 @@
       "understandHowItWorks": "How it works",
       "understandManifesto": "Referrer manifesto",
       "understandSecurity": "Payment security",
-      "understandCredits": "Credit system",
-      "companyLabel": "Company",
-      "companyAbout": "About",
-      "companyContact": "Contact",
       "legalLabel": "Legal",
       "legalTerms": "Terms",
       "legalPrivacy": "Privacy",
       "legalNotices": "Legal notice",
       "legalCookies": "Cookies",
       "legalHelp": "Help",
-      "copyright": "© {year} Atelier · Made in Paris",
-      "social": {
-        "linkedin": "LinkedIn",
-        "x": "X",
-        "instagram": "Instagram"
-      }
+      "madeBy": "DesignedTrust Services {year} — made with {heart} by Hassad Smara",
+      "authorLinkedInAria": "LinkedIn — Hassad Smara"
     }
   },
   "auth": {
