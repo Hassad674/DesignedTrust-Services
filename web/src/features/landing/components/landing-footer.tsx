@@ -119,13 +119,13 @@ function AuthorSignature() {
     <p className="inline-flex flex-wrap items-center gap-x-1">
       {t.rich("madeBy", {
         year,
-        // `{heart}` is a simple ICU placeholder, not a rich tag —
-        // next-intl expects a ReactNode value here, NOT a function.
-        // Passing a function makes React try to render it as a child
-        // ("Functions are not valid as a child of Client Components")
-        // and the whole landing page crashes through the error
-        // boundary. A bare element is the correct form.
-        heart: (
+        // `<heart></heart>` is a rich TAG in the message (not a
+        // `{heart}` placeholder): next-intl requires a RichTagsFunction
+        // here. The empty tag carries no chunks so we ignore them and
+        // return the lucide glyph. (Using `{heart}` + a function
+        // crashed the whole landing page: "Functions are not valid as
+        // a child of Client Components".)
+        heart: () => (
           <Heart
             className="inline size-3.5 fill-accent text-accent align-[-2px]"
             aria-hidden="true"
