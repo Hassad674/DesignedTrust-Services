@@ -3116,6 +3116,10 @@
     }
   },
   "walletUnified": {
+    "quickLinks": {
+      "editBilling": "Modifier mes infos de facturation",
+      "stripePaymentInfo": "Mes infos de paiement Stripe"
+    },
     "title": "Portefeuille",
     "subtitle": "Tes revenus issus des missions et commissions d'apport, dans un seul écran.",
     "totalEarned": "Total des revenus",

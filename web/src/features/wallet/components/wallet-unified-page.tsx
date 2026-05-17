@@ -86,7 +86,22 @@ export function WalletUnifiedPage() {
 
   function handleWithdraw() {
     if (!canWithdraw) return
-    // Billing-profile pre-flight (mirrors WalletPayoutSection).
+    // KYC pre-flight (mirrors the legacy WalletPayoutSection's first
+    // gate). The summary payload exposes `payouts_enabled`, so when we
+    // already know KYC is not done we open the KYC modal up front and
+    // skip the request entirely. A missing flag is treated as "not
+    // ready" — the safe posture: the server 422 kyc_required net
+    // remains the authoritative gate. Restored in
+    // fix/wallet-kyc-billing-regression (the WALLET-UNIFY Run C refonte
+    // had dropped this pre-flight, only keeping the defensive 422 net).
+    if (summary && summary.payouts_enabled !== true) {
+      setKycOnboardingURL(undefined)
+      setKycModalOpen(true)
+      return
+    }
+    // Billing-profile pre-flight (mirrors WalletPayoutSection's second,
+    // independent gate). Order is identical to the legacy component:
+    // KYC first, then billing.
     if (!completeness.isLoading && !completeness.isComplete) {
       setServerMissingFields(null)
       setCompletionModalOpen(true)

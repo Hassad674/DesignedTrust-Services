@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/shared/components/ui/button"
 import { cn } from "@/shared/lib/utils"
 
+import { WalletQuickLinks } from "./wallet-quick-links"
+
 /**
  * WalletUnifiedHeader — purely presentational header for the
  * refonte /wallet page (WALLET-UNIFY Run C). Owns the consolidated
@@ -122,6 +124,11 @@ function HeroCard(props: HeroCardProps) {
           payoutPending={props.payoutPending}
           onWithdraw={props.onWithdraw}
         />
+        {/* Permanent editable shortcuts — always visible, discreet,
+            under the Retirer CTA. Lets the provider edit / re-edit
+            billing + Stripe payment info proactively, independently of
+            the withdraw flow's gating modals. */}
+        <WalletQuickLinks />
       </div>
     </section>
   )

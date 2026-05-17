@@ -40,6 +40,25 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }))
 
+// `@i18n/navigation` — the localised Link used by the permanent
+// quick-links footer (Volet 1) rendered through the real
+// WalletUnifiedHeader. Stub to a plain anchor.
+vi.mock("@i18n/navigation", () => ({
+  Link: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
+  ),
+}))
+
 // Permissions + billing-profile gating mocks.
 const mockHasPermission = vi.fn((_perm: string) => true)
 vi.mock("@/shared/hooks/use-permissions", () => ({
@@ -136,6 +155,10 @@ const summaryFixture = {
   available_cents: 700_00,
   escrowed_cents: 200_00,
   transmitted_cents: 100_00,
+  // KYC ready by default so the withdraw-branch tests below exercise
+  // the mutation path. The dedicated "KYC pre-flight" describe block
+  // overrides this to false.
+  payouts_enabled: true,
   breakdown: { missions: emptyLeg, commissions: emptyLeg },
   recent_transactions: [],
 }
@@ -350,5 +373,138 @@ describe("WalletUnifiedPage (Run C) — withdraw branches", () => {
     await waitFor(() =>
       expect(mockToast).toHaveBeenCalledWith("walletUnified.toast.unknown"),
     )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Volet 2 — the two independent gating state machines, restored to the
+// legacy WalletPayoutSection behaviour (fix/wallet-kyc-billing-regression).
+//
+// Order is identical to the old component:
+//   1. KYC pre-flight on summary.payouts_enabled → KYC modal, no request.
+//   2. Billing pre-flight on completeness → billing modal, no request.
+//   3. All gates clear → withdraw mutation fires.
+// ---------------------------------------------------------------------------
+describe("WalletUnifiedPage — Volet 2: KYC + billing gates", () => {
+  it("KYC pre-flight: payouts_enabled !== true opens the KYC modal and skips the request", () => {
+    mockSummary.mockReturnValue({
+      data: { ...summaryFixture, payouts_enabled: false },
+      isLoading: false,
+      isError: false,
+    })
+
+    render(<WalletUnifiedPage />)
+    fireEvent.click(screen.getByTestId("wallet-unified-withdraw"))
+
+    expect(
+      screen.getByRole("dialog", { name: /kyc-modal/ }),
+    ).toBeInTheDocument()
+    expect(mockWithdrawMutate).not.toHaveBeenCalled()
+    // The billing modal must NOT also be open — KYC gate short-circuits.
+    expect(
+      screen.queryByRole("dialog", { name: /billing-modal/ }),
+    ).not.toBeInTheDocument()
+  })
+
+  it("KYC pre-flight: a missing payouts_enabled flag is treated as not-ready (safe posture)", () => {
+    const { payouts_enabled: _omit, ...noFlag } = summaryFixture
+    mockSummary.mockReturnValue({
+      data: noFlag,
+      isLoading: false,
+      isError: false,
+    })
+
+    render(<WalletUnifiedPage />)
+    fireEvent.click(screen.getByTestId("wallet-unified-withdraw"))
+
+    expect(
+      screen.getByRole("dialog", { name: /kyc-modal/ }),
+    ).toBeInTheDocument()
+    expect(mockWithdrawMutate).not.toHaveBeenCalled()
+  })
+
+  it("billing pre-flight: KYC ok but profile incomplete opens the billing modal and skips the request", () => {
+    mockCompleteness.mockReturnValue({
+      isComplete: false,
+      missingFields: [{ field: "legal_name", reason: "required" }],
+      isLoading: false,
+      isError: false,
+    })
+
+    render(<WalletUnifiedPage />)
+    fireEvent.click(screen.getByTestId("wallet-unified-withdraw"))
+
+    expect(
+      screen.getByRole("dialog", { name: /billing-modal/ }),
+    ).toBeInTheDocument()
+    expect(mockWithdrawMutate).not.toHaveBeenCalled()
+    expect(
+      screen.queryByRole("dialog", { name: /kyc-modal/ }),
+    ).not.toBeInTheDocument()
+  })
+
+  it("all gates clear: the withdraw mutation fires", () => {
+    // summaryFixture has payouts_enabled:true and completeness is
+    // complete by default — the happy path.
+    render(<WalletUnifiedPage />)
+    fireEvent.click(screen.getByTestId("wallet-unified-withdraw"))
+
+    expect(mockWithdrawMutate).toHaveBeenCalledTimes(1)
+    expect(
+      screen.queryByRole("dialog", { name: /kyc-modal/ }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("dialog", { name: /billing-modal/ }),
+    ).not.toBeInTheDocument()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Volet 1 — the two permanent editable shortcuts are ALWAYS visible
+// (not only when a withdrawal is blocked), routing to the billing
+// profile and the Stripe payment info pages.
+// ---------------------------------------------------------------------------
+describe("WalletUnifiedPage — Volet 1: permanent quick links", () => {
+  it("renders both shortcuts with the correct hrefs, no withdrawal needed", () => {
+    render(<WalletUnifiedPage />)
+
+    const billingLink = screen.getByRole("link", {
+      name: /walletUnified\.quickLinks\.editBilling/,
+    })
+    expect(billingLink).toHaveAttribute(
+      "href",
+      "/settings/billing-profile?return_to=/wallet",
+    )
+
+    const stripeLink = screen.getByRole("link", {
+      name: /walletUnified\.quickLinks\.stripePaymentInfo/,
+    })
+    expect(stripeLink).toHaveAttribute("href", "/payment-info")
+  })
+
+  it("keeps the shortcuts visible even when a withdrawal is blocked by the KYC gate", () => {
+    mockSummary.mockReturnValue({
+      data: { ...summaryFixture, payouts_enabled: false },
+      isLoading: false,
+      isError: false,
+    })
+
+    render(<WalletUnifiedPage />)
+    fireEvent.click(screen.getByTestId("wallet-unified-withdraw"))
+
+    // Modal is open AND the permanent links are still there.
+    expect(
+      screen.getByRole("dialog", { name: /kyc-modal/ }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole("link", {
+        name: /walletUnified\.quickLinks\.editBilling/,
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole("link", {
+        name: /walletUnified\.quickLinks\.stripePaymentInfo/,
+      }),
+    ).toBeInTheDocument()
   })
 })

@@ -16,6 +16,25 @@ vi.mock("next-intl", () => ({
     },
 }))
 
+// `@i18n/navigation` is the localised Link wrapper used by the
+// permanent quick-links footer (Volet 1). Stub to a plain anchor so
+// the header stays renderable without the next-intl provider stack.
+vi.mock("@i18n/navigation", () => ({
+  Link: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
+  ),
+}))
+
 function build(
   overrides: Partial<Parameters<typeof WalletUnifiedHeader>[0]> = {},
 ) {
@@ -98,5 +117,38 @@ describe("WalletUnifiedHeader (Run C)", () => {
     // The label flips to the "withdrawing" key while the spinner is
     // visible.
     expect(screen.getByText("walletUnified.withdrawing")).toBeInTheDocument()
+  })
+
+  // Volet 1 — the two permanent editable shortcuts are always rendered
+  // in the header, regardless of withdraw state.
+  it("renders the permanent billing + Stripe payment-info shortcuts", () => {
+    render(<WalletUnifiedHeader {...build()} />)
+
+    const billingLink = screen.getByRole("link", {
+      name: /walletUnified\.quickLinks\.editBilling/,
+    })
+    expect(billingLink).toHaveAttribute(
+      "href",
+      "/settings/billing-profile?return_to=/wallet",
+    )
+
+    const stripeLink = screen.getByRole("link", {
+      name: /walletUnified\.quickLinks\.stripePaymentInfo/,
+    })
+    expect(stripeLink).toHaveAttribute("href", "/payment-info")
+  })
+
+  it("keeps the shortcuts visible when there are no funds to withdraw", () => {
+    render(<WalletUnifiedHeader {...build({ availableCents: 0 })} />)
+    expect(
+      screen.getByRole("link", {
+        name: /walletUnified\.quickLinks\.editBilling/,
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole("link", {
+        name: /walletUnified\.quickLinks\.stripePaymentInfo/,
+      }),
+    ).toBeInTheDocument()
   })
 })

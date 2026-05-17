@@ -165,6 +165,17 @@ export type WalletSummary = {
   available_cents: number
   escrowed_cents: number
   transmitted_cents: number
+  /**
+   * payouts_enabled mirrors the provider org's Stripe Connect KYC
+   * state (payouts_enabled on the live Stripe account). The unified
+   * page uses it for the KYC pre-flight gate — parity with the legacy
+   * WalletPayoutSection (restored in fix/wallet-kyc-billing-regression).
+   * Optional for forward-compat with an older backend that did not
+   * carry the field — a missing value is treated as "KYC not ready"
+   * (safe gate posture: open the modal pre-flight; the server 422
+   * kyc_required net stays the authoritative gate).
+   */
+  payouts_enabled?: boolean
   breakdown: {
     missions: WalletSummaryLeg
     commissions: WalletSummaryLeg

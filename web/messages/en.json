@@ -3116,6 +3116,10 @@
     }
   },
   "walletUnified": {
+    "quickLinks": {
+      "editBilling": "Edit my billing details",
+      "stripePaymentInfo": "My Stripe payment info"
+    },
     "title": "Wallet",
     "subtitle": "Your mission earnings and referral commissions in a single view.",
     "totalEarned": "Total earnings",
