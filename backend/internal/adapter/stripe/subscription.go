@@ -153,9 +153,36 @@ func (s *SubscriptionService) CreateCheckoutSession(ctx context.Context, in port
 		params.IdempotencyKey = stripe.String(in.IdempotencyKey)
 	}
 
-	sess, err := session.New(params)
-	if err != nil {
+	// The frontend can fire this POST twice near-simultaneously
+	// (double-click, React strict-mode double effect, retry). Both
+	// carry the SAME deterministic Idempotency-Key, so Stripe rejects
+	// the second concurrent one with HTTP 409 idempotency_key_in_use
+	// ("another request with this key is still in progress"). That is
+	// NOT a real failure — the first request is creating the session.
+	// Returning the error here surfaced "Le paiement n'a pas pu
+	// démarrer" to the user even though a valid Checkout session was
+	// being created. Retry with backoff: once the in-flight request
+	// completes, Stripe replays the original Checkout session for this
+	// key, so both callers get the same valid session.
+	var sess *stripe.CheckoutSession
+	var err error
+	for attempt := 0; attempt < 6; attempt++ {
+		sess, err = session.New(params)
+		if err == nil {
+			break
+		}
+		var se *stripe.Error
+		if errors.As(err, &se) &&
+			(se.Type == stripe.ErrorTypeIdempotency ||
+				string(se.Code) == "idempotency_key_in_use") {
+			time.Sleep(time.Duration(300*(attempt+1)) * time.Millisecond)
+			continue
+		}
 		return "", fmt.Errorf("create checkout session: %w", err)
+	}
+	if err != nil {
+		return "", fmt.Errorf(
+			"create checkout session: idempotency retries exhausted: %w", err)
 	}
 	return sess.ClientSecret, nil
 }
