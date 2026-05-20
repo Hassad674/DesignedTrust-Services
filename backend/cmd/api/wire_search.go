@@ -72,9 +72,18 @@ func wireSearchIndexer(
 	// list contains `documents:search`. We cycle the key on every
 	// startup because Typesense only exposes the full value on
 	// creation.
+	// Typesense is an AUXILIARY service. If it is unreachable / its
+	// API key was rotated / the Railway plugin was deleted, search
+	// degrades but the rest of the API (auth, payments, messaging,
+	// proposals, …) must stay up. We log loudly and skip wiring the
+	// indexer handlers so the worker pool stays clean — listing
+	// pages will return 503 from the search query path, every other
+	// route keeps serving. Same posture as the `EnsureSchema`
+	// branch a few lines up.
 	if err := tsClient.EnsureSearchAPIKey(context.Background()); err != nil {
-		slog.Error("search: failed to bootstrap search API key", "error", err)
-		os.Exit(1)
+		slog.Warn("search: failed to bootstrap search API key — search disabled, app keeps running",
+			"error", err)
+		return nil
 	}
 	slog.Info("search: search-only parent key bootstrapped")
 
