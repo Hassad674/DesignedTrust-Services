@@ -396,6 +396,50 @@ func TestRecordUpload_AudioWebm_ApprovedImmediately(t *testing.T) {
 		"audio uploads must be auto-approved (no moderation pipeline yet)")
 }
 
+// Video moderation needs the async Rekognition pipeline (S3 transit +
+// SNS + SQS finalizer). When that pipeline is NOT wired — local dev, or
+// any env where VideoModerationConfigured() is false so Transit is nil —
+// nothing will ever move the row out of `pending`, so the upload stays
+// invisible to every surface that gates on `approved`. Regression guard:
+// a video upload with no transit storage must auto-approve, mirroring
+// the audio/PDF default, instead of being silently swallowed.
+func TestRecordUpload_Video_NoTransit_ApprovedImmediately(t *testing.T) {
+	uploaderID := uuid.New()
+	var captured *mediadomain.Media
+	var updateCalls int
+	mediaRepo := &mockMediaRepo{
+		createFn: func(_ context.Context, m *mediadomain.Media) error {
+			captured = m
+			return nil
+		},
+		updateFn: func(_ context.Context, m *mediadomain.Media) error {
+			updateCalls++
+			captured = m
+			return nil
+		},
+	}
+
+	// newTestMediaService wires no Transit → s.transit == nil, the
+	// "pipeline not configured" branch under test.
+	svc := newTestMediaService(mediaRepo, nil, nil, nil, nil, nil)
+
+	svc.RecordUpload(
+		context.Background(),
+		uploaderID,
+		"http://localhost:9000/marketplace/profiles/test/video/clip.mp4",
+		"clip.mp4",
+		"video/mp4",
+		2048,
+		mediadomain.ContextProfileVideo,
+	)
+
+	require.NotNil(t, captured, "media must be persisted")
+	assert.Equal(t, 1, updateCalls, "implicit approval must call Update once")
+	assert.Equal(t, mediadomain.StatusApproved, captured.ModerationStatus,
+		"video uploads must auto-approve when the async pipeline is not wired "+
+			"(otherwise they stay pending forever and never display)")
+}
+
 func TestRecordUpload_ApplicationPDF_ApprovedImmediately(t *testing.T) {
 	uploaderID := uuid.New()
 	var captured *mediadomain.Media

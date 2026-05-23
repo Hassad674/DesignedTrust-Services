@@ -178,8 +178,19 @@ func (s *Service) moderateImage(ctx context.Context, m *mediadomain.Media) {
 
 func (s *Service) moderateVideo(ctx context.Context, m *mediadomain.Media) {
 	if s.transit == nil {
-		slog.Debug("media moderation: video moderation disabled (no transit storage)",
+		// Video moderation needs the async Rekognition pipeline
+		// (S3 transit + SNS + SQS finalizer). When it is not wired
+		// — local dev, or any env where VideoModerationConfigured()
+		// is false — there is NO process that will ever move this row
+		// out of `pending`, so the upload would stay invisible to
+		// every surface that gates on `approved`. Auto-approve here,
+		// exactly as audio/PDF do in RecordUpload's switch, so a
+		// missing moderation backend degrades to "unmoderated but
+		// visible" instead of "silently swallowed". Envs that DO wire
+		// the pipeline never reach this branch.
+		slog.Info("media moderation: video pipeline not configured — implicit approval",
 			"media_id", m.ID)
+		s.applyImplicitApproval(ctx, m)
 		return
 	}
 
