@@ -102,19 +102,29 @@ func (s *Service) recordSession(
 	// goroutine patches them in if the lookup succeeds within the
 	// budget. Any failure mode (timeout, rate-limit, private IP) is
 	// silent at the adapter layer; here we just propagate the patch.
+	//
+	// The goroutine's parent is derived from the request ctx via
+	// context.WithoutCancel — trace/baggage carry over for log
+	// correlation, but request cancellation (client disconnect, the
+	// auth response already being flushed) does NOT abort the audit
+	// enrichment. The hard geoLookupTimeout below remains the binding
+	// deadline. This is the same pattern as media.Service.RecordUpload
+	// and closes gosec G118.
 	if s.geoIP != nil && fp.RemoteIP != "" {
+		bg := context.WithoutCancel(ctx)
 		jti := claims.JTI
 		ip := fp.RemoteIP
-		go s.enrichSessionGeo(jti, ip)
+		go s.enrichSessionGeo(bg, jti, ip)
 	}
 }
 
 // enrichSessionGeo runs the GeoIP lookup off the request goroutine
 // and patches the freshly created user_sessions row in-place. The
-// context is detached from the request (no parent cancellation) but
-// bounded by geoLookupTimeout so misbehaving providers cannot stack
-// up goroutines.
-func (s *Service) enrichSessionGeo(jti string, rawIP string) {
+// parent context is detached from the request via WithoutCancel by
+// the caller (no parent cancellation, trace/baggage preserved) and
+// bounded here by geoLookupTimeout so misbehaving providers cannot
+// stack up goroutines.
+func (s *Service) enrichSessionGeo(parent context.Context, jti string, rawIP string) {
 	defer func() {
 		// Defensive: a panic in a fire-and-forget goroutine would
 		// kill the process if not recovered. The geoip adapter and
@@ -124,7 +134,7 @@ func (s *Service) enrichSessionGeo(jti string, rawIP string) {
 			slog.Warn("auth: session geo enrichment panicked", "jti", jti, "panic", rec)
 		}
 	}()
-	ctx, cancel := context.WithTimeout(context.Background(), geoLookupTimeout)
+	ctx, cancel := context.WithTimeout(parent, geoLookupTimeout)
 	defer cancel()
 
 	loc, err := s.geoIP.Lookup(ctx, rawIP)
