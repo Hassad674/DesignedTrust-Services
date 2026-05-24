@@ -254,6 +254,12 @@ func (c *compressingResponseWriter) commit() error {
 	} else {
 		c.passthrough = true
 		c.ResponseWriter.WriteHeader(c.status)
+		// #nosec G705 -- transparent compression transport: c.buf holds
+		// bytes the downstream handler already produced via Write(p) and
+		// is forwarded verbatim. This middleware never generates or
+		// reflects request input and never sets Content-Type (the
+		// originating handler owns escaping + content type); it cannot
+		// introduce XSS that was not already in the handler's output.
 		if _, err := c.ResponseWriter.Write(c.buf.Bytes()); err != nil {
 			return err
 		}

@@ -198,7 +198,7 @@ func (h *ReceiptHandler) GetPDF(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "private, no-store")
 	w.Header().Set("Content-Disposition", "inline; filename=\"receipt-"+id.String()+".pdf\"")
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(pdf); err != nil { // #nosec G701 -- pdf bytes from chromedp html/template renderer; language allowlisted to literals "fr"/"en" above; response Content-Type is application/pdf, not text/html
+	if _, err := w.Write(pdf); err != nil { // #nosec G701,G705 -- pdf bytes from chromedp html/template renderer; language allowlisted to literals "fr"/"en" above; response Content-Type is application/pdf, not text/html
 		slog.Error("receipt pdf: write response failed", "receipt_id", id, "error", err)
 	}
 }
