@@ -64,6 +64,7 @@ func (h *UploadHandler) CompleteVideo(w http.ResponseWriter, r *http.Request) {
 		res.Error(w, http.StatusInternalServerError, "update_failed", "failed to update profile")
 		return
 	}
+	h.invalidateProfileCache(r.Context(), orgID)
 
 	h.trackUpload(r.Context(), trackUploadInput{
 		UploaderID: userID,
@@ -111,6 +112,7 @@ func (h *UploadHandler) CompleteReferrerVideo(w http.ResponseWriter, r *http.Req
 		res.Error(w, http.StatusInternalServerError, "update_failed", "failed to update profile")
 		return
 	}
+	h.invalidateProfileCache(r.Context(), orgID)
 
 	h.trackUpload(r.Context(), trackUploadInput{
 		UploaderID: userID,

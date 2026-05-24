@@ -74,6 +74,10 @@ type uploadsDeps struct {
 	FreelanceProfileRepo *postgres.FreelanceProfileRepository
 	ReferrerProfileRepo  *postgres.ReferrerProfileRepository
 	MediaSvc             *mediaapp.Service
+	// ProfileCache busts the cached legacy profile read after an
+	// agency photo/video write so the owner self-read + public page
+	// reflect the new URL immediately (no stale-until-TTL window).
+	ProfileCache service.CacheInvalidatorByOrgID
 }
 
 // wireUploads brings up the upload-related HTTP handlers (legacy
@@ -91,7 +95,8 @@ type uploadsDeps struct {
 // returned handlers cares about.
 func wireUploads(deps uploadsDeps) uploadsWiring {
 	uploadHandler := handler.NewUploadHandler(deps.Storage, deps.ProfileRepo, deps.MediaSvc).
-		WithShutdownContext(deps.UploadCtx)
+		WithShutdownContext(deps.UploadCtx).
+		WithProfileCacheInvalidator(deps.ProfileCache)
 	freelanceProfileVideoHandler := handler.NewFreelanceProfileVideoHandler(deps.Storage, deps.FreelanceProfileRepo, deps.MediaSvc)
 	referrerProfileVideoHandler := handler.NewReferrerProfileVideoHandler(deps.Storage, deps.ReferrerProfileRepo, deps.MediaSvc)
 	healthHandler := handler.NewHealthHandler(deps.DB)

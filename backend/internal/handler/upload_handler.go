@@ -96,6 +96,22 @@ type UploadHandler struct {
 	// when mediaSvc is also nil at construction).
 	recorder mediaRecorder
 
+	// profileCacheInvalidator flushes the Redis-backed public profile
+	// cache after a photo/video write so the owner's self-read
+	// (GET /api/v1/profile, which is served by that same cache) and
+	// the public /agencies/{orgId} page reflect the new media URL
+	// immediately instead of waiting out the cache TTL. Without this
+	// the agency photo + presentation video appeared not to persist:
+	// the byte upload + profiles.Update succeeded, but the cached
+	// read kept returning the stale (empty) URL — so the hero,
+	// sidebar and navbar avatar never picked up the upload.
+	//
+	// nil == no invalidation (legacy/test behaviour); the fluent
+	// WithProfileCacheInvalidator setter wires the production decorator
+	// in cmd/api. Mirrors the WithCacheInvalidator hook the profile
+	// app service uses for its own writes.
+	profileCacheInvalidator portservice.CacheInvalidatorByOrgID
+
 	// shutdownCtx is the long-lived application context whose
 	// cancellation signals SIGTERM to all tracked goroutines. Each
 	// tracked goroutine derives its own 60s timeout off of this so
@@ -141,6 +157,35 @@ func (h *UploadHandler) WithShutdownContext(ctx context.Context) *UploadHandler 
 		h.shutdownCtx = ctx
 	}
 	return h
+}
+
+// WithProfileCacheInvalidator wires the Redis-backed public profile
+// cache so a successful photo/video write busts the cached read for
+// the owning org. Fluent + nil-safe: passing nil (tests, or a build
+// without the cache) leaves the legacy no-op behaviour intact.
+func (h *UploadHandler) WithProfileCacheInvalidator(inv portservice.CacheInvalidatorByOrgID) *UploadHandler {
+	h.profileCacheInvalidator = inv
+	return h
+}
+
+// invalidateProfileCache flushes the cached public profile for orgID
+// after a successful media write. It MUST be called only after the
+// profiles.Update succeeded — invalidating before a confirmed write
+// would let a concurrent read re-populate the cache from the stale
+// row, defeating cache-aside (same ordering the profile app service
+// enforces: DB write → cache invalidate).
+//
+// A cache flush failure must never fail the upload: the bytes are
+// stored and the row is updated, so we log at WARN and let the entry
+// expire on its TTL. No-op when the invalidator is not wired.
+func (h *UploadHandler) invalidateProfileCache(ctx context.Context, orgID uuid.UUID) {
+	if h.profileCacheInvalidator == nil {
+		return
+	}
+	if err := h.profileCacheInvalidator.Invalidate(ctx, orgID); err != nil {
+		slog.Warn("upload handler: profile cache invalidation failed",
+			"error", err, "organization_id", orgID)
+	}
 }
 
 // Stop waits up to uploadShutdownDrain for in-flight RecordUpload
