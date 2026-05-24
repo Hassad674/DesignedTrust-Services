@@ -111,21 +111,25 @@ describe("/decisions-automatisees rendering", () => {
           values?: Record<string, (chunks?: unknown) => unknown>,
         ) => {
           const raw = lookup(key)
-          // Replace `{name}` placeholders with the result of values[name]()
-          // and string-typed values, so the test can assert the rendered
-          // tree contains the React nodes from the callbacks.
+          // Resolve BOTH rich-text tag syntax (`<name>chunks</name>`)
+          // and `{name}` placeholders, mirroring next-intl's t.rich. The
+          // production appeal message uses the tag form
+          // ("écris à <email></email>"), so the matching callback must
+          // run for the mailto link to land in the test DOM.
           const parts: unknown[] = []
-          const pattern = /\{(\w+)\}/g
+          const pattern = /<(\w+)>([\s\S]*?)<\/\1>|\{(\w+)\}/g
           let lastIndex = 0
           let match: RegExpExecArray | null
           while ((match = pattern.exec(raw)) !== null) {
             if (match.index > lastIndex) {
               parts.push(raw.slice(lastIndex, match.index))
             }
-            const name = match[1]
-            const value = values?.[name]
+            const tagName = match[1]
+            const placeholderName = match[3]
+            const name = tagName ?? placeholderName
+            const value = name ? values?.[name] : undefined
             if (typeof value === "function") {
-              parts.push(value())
+              parts.push(tagName ? value(match[2]) : value())
             } else if (value !== undefined) {
               parts.push(String(value))
             } else {
