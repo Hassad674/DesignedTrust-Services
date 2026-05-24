@@ -49,25 +49,20 @@ export async function createReview(payload: CreateReviewPayload) {
   })
 }
 
-import { API_BASE_URL } from "@/shared/lib/api-client"
+import { uploadVideoDirect } from "@/shared/lib/upload/direct-video-upload"
 
-const API_URL = API_BASE_URL
-
+// Review video — DIRECT-to-R2 presigned upload (presign + complete) so
+// videos bypass the Vercel proxy ~4.5 MB body cap that 413'd large
+// videos in production. /review-video/complete returns the public URL
+// (carried into the review create payload as video_url) and fires the
+// SAME moderation pipeline as the legacy multipart POST.
 export async function uploadReviewVideo(file: File): Promise<string> {
-  const formData = new FormData()
-  formData.append("file", file)
-
-  const res = await fetch(`${API_URL}/api/v1/upload/review-video`, {
-    method: "POST",
-    credentials: "include",
-    body: formData,
-  })
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: "Upload failed" }))
-    throw new Error(err.message || "Upload failed")
-  }
-
-  const data = await res.json()
-  return data.url
+  const { url } = await uploadVideoDirect<{ url: string }>(
+    {
+      presign: "/api/v1/upload/review-video/presign",
+      complete: "/api/v1/upload/review-video/complete",
+    },
+    file,
+  )
+  return url
 }

@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/shared/lib/api-client"
+import { uploadVideoDirect } from "@/shared/lib/upload/direct-video-upload"
 
 // Per-persona video-upload boundary for the freelance aggregate.
 // Hits the dedicated endpoints under /api/v1/freelance-profile/video
@@ -8,21 +9,21 @@ import { API_BASE_URL } from "@/shared/lib/api-client"
 
 type UploadVideoResponse = { video_url: string }
 
+// Videos upload DIRECTLY to R2 via a presigned PUT (presign +
+// complete), bypassing the Vercel proxy's ~4.5 MB body cap that 413'd
+// large videos in production. The backend's /video/complete endpoint
+// persists video_url and runs the SAME moderation pipeline the legacy
+// multipart POST did. See shared/lib/upload/direct-video-upload.ts.
 export async function uploadFreelanceVideo(
   file: File,
 ): Promise<UploadVideoResponse> {
-  const formData = new FormData()
-  formData.append("file", file)
-  const res = await fetch(`${API_BASE_URL}/api/v1/freelance-profile/video`, {
-    method: "POST",
-    credentials: "include",
-    body: formData,
-  })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: "upload_failed" }))
-    throw new Error(err.message || "upload_failed")
-  }
-  return res.json()
+  return uploadVideoDirect<UploadVideoResponse>(
+    {
+      presign: "/api/v1/freelance-profile/video/presign",
+      complete: "/api/v1/freelance-profile/video/complete",
+    },
+    file,
+  )
 }
 
 export async function deleteFreelanceVideo(): Promise<void> {

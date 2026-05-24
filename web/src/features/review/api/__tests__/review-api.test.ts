@@ -90,44 +90,56 @@ describe("review-api / createReview", () => {
   })
 })
 
-describe("review-api / uploadReviewVideo", () => {
-  it("uploads via POST to /api/v1/upload/review-video and returns the url", async () => {
-    const mockFetch = vi.fn(async () => ({
-      ok: true,
-      json: async () => ({ url: "https://cdn/v.mp4" }),
-    }))
+// uploadReviewVideo now uses the DIRECT-to-R2 presigned flow (presign +
+// complete via apiClient, PUT to R2 via fetch) so videos bypass the
+// Vercel proxy body cap that 413'd large videos in production.
+describe("review-api / uploadReviewVideo (direct-to-R2 presigned)", () => {
+  it("presigns, PUTs to R2, completes, and returns the url", async () => {
+    mockApiClient
+      .mockResolvedValueOnce({
+        upload_url: "https://pub-x.r2.dev/put/v?sig=1",
+        file_key: "reviews/u/video/v.mp4",
+        public_url: "https://cdn/v.mp4",
+      })
+      .mockResolvedValueOnce({ url: "https://cdn/v.mp4" })
+    const mockFetch = vi.fn(async () => ({ ok: true, status: 200 }))
     vi.stubGlobal("fetch", mockFetch)
 
     const file = new File(["x"], "v.mp4", { type: "video/mp4" })
     const url = await uploadReviewVideo(file)
+
     expect(url).toBe("https://cdn/v.mp4")
-    expect(mockFetch).toHaveBeenCalled()
-
+    expect(mockApiClient.mock.calls[0][0]).toBe("/api/v1/upload/review-video/presign")
+    expect(mockApiClient.mock.calls[1][0]).toBe("/api/v1/upload/review-video/complete")
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://pub-x.r2.dev/put/v?sig=1",
+      expect.objectContaining({ method: "PUT" }),
+    )
     vi.unstubAllGlobals()
   })
 
-  it("throws when upload fails (non-2xx)", async () => {
-    const mockFetch = vi.fn(async () => ({
-      ok: false,
-      json: async () => ({ message: "too big" }),
-    }))
+  it("throws when the R2 PUT fails (non-2xx)", async () => {
+    mockApiClient.mockResolvedValueOnce({
+      upload_url: "https://pub-x.r2.dev/put/v",
+      file_key: "reviews/u/video/v.mp4",
+      public_url: "https://cdn/v.mp4",
+    })
+    const mockFetch = vi.fn(async () => ({ ok: false, status: 413 }))
     vi.stubGlobal("fetch", mockFetch)
 
     const file = new File(["x"], "v.mp4", { type: "video/mp4" })
-    await expect(uploadReviewVideo(file)).rejects.toThrow("too big")
+    await expect(uploadReviewVideo(file)).rejects.toThrow(/upload failed: 413/)
     vi.unstubAllGlobals()
   })
 
-  it("uses generic error when JSON parse fails", async () => {
-    const mockFetch = vi.fn(async () => ({
-      ok: false,
-      json: async () => {
-        throw new Error("not json")
-      },
-    }))
+  it("propagates a presign error before any PUT", async () => {
+    mockApiClient.mockRejectedValueOnce(new Error("presign denied"))
+    const mockFetch = vi.fn()
     vi.stubGlobal("fetch", mockFetch)
+
     const file = new File(["x"], "v.mp4", { type: "video/mp4" })
-    await expect(uploadReviewVideo(file)).rejects.toThrow("Upload failed")
+    await expect(uploadReviewVideo(file)).rejects.toThrow("presign denied")
+    expect(mockFetch).not.toHaveBeenCalled()
     vi.unstubAllGlobals()
   })
 })
