@@ -78,6 +78,11 @@ type uploadsDeps struct {
 	// agency photo/video write so the owner self-read + public page
 	// reflect the new URL immediately (no stale-until-TTL window).
 	ProfileCache service.CacheInvalidatorByOrgID
+	// OrganizationRepo drives the agency photo redirection (migration
+	// 155): UploadPhoto stamps the URL onto the organizations row for
+	// agency orgs. The concrete repo satisfies both the org-type reader
+	// and the org-shared writer the handler needs.
+	OrganizationRepo *postgres.OrganizationRepository
 }
 
 // wireUploads brings up the upload-related HTTP handlers (legacy
@@ -96,7 +101,8 @@ type uploadsDeps struct {
 func wireUploads(deps uploadsDeps) uploadsWiring {
 	uploadHandler := handler.NewUploadHandler(deps.Storage, deps.ProfileRepo, deps.MediaSvc).
 		WithShutdownContext(deps.UploadCtx).
-		WithProfileCacheInvalidator(deps.ProfileCache)
+		WithProfileCacheInvalidator(deps.ProfileCache).
+		WithAgencyPhotoRouter(deps.OrganizationRepo, deps.OrganizationRepo)
 	freelanceProfileVideoHandler := handler.NewFreelanceProfileVideoHandler(deps.Storage, deps.FreelanceProfileRepo, deps.MediaSvc)
 	referrerProfileVideoHandler := handler.NewReferrerProfileVideoHandler(deps.Storage, deps.ReferrerProfileRepo, deps.MediaSvc)
 	healthHandler := handler.NewHealthHandler(deps.DB)

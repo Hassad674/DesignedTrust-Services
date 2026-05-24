@@ -2,13 +2,17 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"path"
 
+	"github.com/google/uuid"
+
 	mediadomain "marketplace-backend/internal/domain/media"
+	"marketplace-backend/internal/domain/organization"
 	"marketplace-backend/internal/handler/middleware"
 	res "marketplace-backend/pkg/response"
 )
@@ -99,6 +103,30 @@ func (h *UploadHandler) UploadPhoto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Agency shared-identity redirection (migration 155): stamp the URL
+	// onto the organizations row so it lands where the agency read path
+	// now sources the photo. Non-agency orgs fall through to the legacy
+	// profiles write below (which preserves the distinct get/update
+	// error codes the contract documents).
+	if h.isAgencyPhotoTarget(r.Context(), orgID) {
+		if err := h.sharedPhotoWriter.UpdateSharedPhotoURL(r.Context(), orgID, url); err != nil {
+			slog.Error("update agency shared photo failed", "error", err, "user_id", userID)
+			res.Error(w, http.StatusInternalServerError, "update_failed", "failed to update profile")
+			return
+		}
+		h.invalidateProfileCache(r.Context(), orgID)
+		h.trackUpload(r.Context(), trackUploadInput{
+			UploaderID: userID,
+			FileURL:    url,
+			FileName:   path.Base(result.key),
+			FileType:   result.mimeType,
+			FileSize:   int64(len(result.buf)),
+			MediaCtx:   mediadomain.ContextProfilePhoto,
+		})
+		res.JSON(w, http.StatusOK, map[string]string{"url": url})
+		return
+	}
+
 	profile, err := h.profiles.GetByOrganizationID(r.Context(), orgID)
 	if err != nil {
 		slog.Error("get profile failed", "error", err, "user_id", userID)
@@ -124,6 +152,23 @@ func (h *UploadHandler) UploadPhoto(w http.ResponseWriter, r *http.Request) {
 	})
 
 	res.JSON(w, http.StatusOK, map[string]string{"url": url})
+}
+
+// isAgencyPhotoTarget reports whether UploadPhoto should redirect to
+// the organizations row: the router must be wired AND the org must be
+// of type agency. A lookup error degrades to the legacy profiles
+// write (false) rather than failing the upload — the bytes are
+// already stored, and the legacy column is the read fallback for that
+// org type within the same request.
+func (h *UploadHandler) isAgencyPhotoTarget(ctx context.Context, orgID uuid.UUID) bool {
+	if h.orgTypeReader == nil || h.sharedPhotoWriter == nil {
+		return false
+	}
+	org, err := h.orgTypeReader.FindByID(ctx, orgID)
+	if err != nil || org == nil {
+		return false
+	}
+	return org.Type == organization.OrgTypeAgency
 }
 
 func (h *UploadHandler) UploadVideo(w http.ResponseWriter, r *http.Request) {

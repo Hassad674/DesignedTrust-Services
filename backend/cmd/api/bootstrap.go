@@ -110,7 +110,15 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 
 	// Profile + Tier-1 geocoder.
 	profileGeocoder := nominatim.NewGeocoder("marketplace-backend/1.0 (contact@marketplace.local)")
-	profileSvc := profileapp.NewService(infra.ProfileRepo).WithGeocoder(profileGeocoder)
+	profileSvc := profileapp.NewService(infra.ProfileRepo).
+		WithGeocoder(profileGeocoder).
+		// Agency shared-identity write redirection (migration 155): for
+		// AGENCY orgs, route /profile/location and /profile/languages
+		// writes to the organizations row so they land where the agency
+		// read path now sources them. The org repo satisfies both the
+		// org-type reader and the org-shared writer ports. Non-agency
+		// orgs keep writing to the legacy profiles columns.
+		WithAgencySharedRouter(infra.OrganizationRepo, infra.OrganizationRepo)
 
 	messagingSvc := wireMessaging(messagingDeps{
 		MessageRepo:      infra.MessageRepo,
@@ -400,6 +408,8 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 		FreelanceProfileSvc: personas.FreelanceProfileSvc,
 		ExpertiseSvc:        expertiseSvc,
 		SkillSvc:            skillSvc,
+		// Feeds the agency shared-identity read overlay (migration 155).
+		OrganizationRepo: infra.OrganizationRepo,
 	})
 	publicProfileCache := caches.PublicProfileCache
 	publicFreelanceProfileCache := caches.PublicFreelanceProfileCache
@@ -454,6 +464,9 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 		OrganizationRepo: infra.OrganizationRepo,
 		ProfileGeocoder:  profileGeocoder,
 		SearchPublisher:  searchPublisher,
+		// Bust the public agency profile cache on shared-profile writes
+		// (migration 155 flipped the agency read to the org row).
+		AgencyProfileCache: publicProfileCache,
 	})
 
 	clientProfile := wireClientProfile(clientProfileDeps{
@@ -499,6 +512,10 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 		// own writes (wire_caches.go) — so an agency photo/video upload
 		// busts the identical cached read the owner + public page use.
 		ProfileCache: publicProfileCache,
+		// Drives the agency photo redirection onto the organizations row
+		// (migration 155) so the legacy /upload/photo endpoint lands
+		// where the agency read path now sources the photo.
+		OrganizationRepo: infra.OrganizationRepo,
 	})
 	uploadHandler := uploadsWire.UploadHandler
 	freelanceProfileVideoHandler := uploadsWire.FreelanceProfileVideoHandler

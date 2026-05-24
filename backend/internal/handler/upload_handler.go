@@ -33,6 +33,7 @@ import (
 
 	mediaapp "marketplace-backend/internal/app/media"
 	mediadomain "marketplace-backend/internal/domain/media"
+	"marketplace-backend/internal/domain/organization"
 	"marketplace-backend/internal/port/repository"
 	portservice "marketplace-backend/internal/port/service"
 )
@@ -112,6 +113,18 @@ type UploadHandler struct {
 	// app service uses for its own writes.
 	profileCacheInvalidator portservice.CacheInvalidatorByOrgID
 
+	// orgTypeReader + sharedPhotoWriter implement the agency photo
+	// redirection (migration 155). When both are wired (via
+	// WithAgencyPhotoRouter) UploadPhoto stamps the uploaded URL onto
+	// the organizations row for AGENCY orgs — the same source the
+	// agency read path now consumes — so the legacy POST
+	// /api/v1/upload/photo endpoint stays consistent for every caller
+	// (web after the swap stops calling it; mobile still does). Both
+	// nil → pure legacy behaviour (the photo is stamped onto the
+	// profiles row). See uploadPhotoAgencyRouter in upload_handler_more.go.
+	orgTypeReader     uploadOrgTypeReader
+	sharedPhotoWriter repository.OrganizationSharedProfileWriter
+
 	// shutdownCtx is the long-lived application context whose
 	// cancellation signals SIGTERM to all tracked goroutines. Each
 	// tracked goroutine derives its own 60s timeout off of this so
@@ -165,6 +178,29 @@ func (h *UploadHandler) WithShutdownContext(ctx context.Context) *UploadHandler 
 // without the cache) leaves the legacy no-op behaviour intact.
 func (h *UploadHandler) WithProfileCacheInvalidator(inv portservice.CacheInvalidatorByOrgID) *UploadHandler {
 	h.profileCacheInvalidator = inv
+	return h
+}
+
+// uploadOrgTypeReader is the narrow read contract the photo
+// redirection needs to learn an org's type. The postgres
+// OrganizationRepository satisfies it directly. Defined locally so the
+// upload handler depends on the smallest possible surface (interface
+// segregation). A nil reader disables the redirection (legacy path).
+type uploadOrgTypeReader interface {
+	FindByID(ctx context.Context, id uuid.UUID) (*organization.Organization, error)
+}
+
+// WithAgencyPhotoRouter wires the optional agency photo redirection
+// (migration 155). When both the org-type reader and the org-shared
+// writer are non-nil, UploadPhoto stamps the uploaded URL onto the
+// organizations row for agency orgs instead of the legacy profiles
+// row. Passing nil for either argument leaves the legacy behaviour
+// intact. Returns the same handler for fluent wiring.
+func (h *UploadHandler) WithAgencyPhotoRouter(orgs uploadOrgTypeReader, writer repository.OrganizationSharedProfileWriter) *UploadHandler {
+	if orgs != nil && writer != nil {
+		h.orgTypeReader = orgs
+		h.sharedPhotoWriter = writer
+	}
 	return h
 }
 

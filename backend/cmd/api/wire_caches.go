@@ -1,6 +1,7 @@
 package main
 
 import (
+	"marketplace-backend/internal/adapter/postgres"
 	redisadapter "marketplace-backend/internal/adapter/redis"
 	freelanceprofileapp "marketplace-backend/internal/app/freelanceprofile"
 	profileapp "marketplace-backend/internal/app/profile"
@@ -38,6 +39,13 @@ type cachesDeps struct {
 	FreelanceProfileSvc *freelanceprofileapp.Service
 	ExpertiseSvc        *profileapp.ExpertiseService
 	SkillSvc            *skillapp.Service
+	// OrganizationRepo feeds the agency shared-identity read overlay
+	// (migration 155): the public agency profile cache wraps a
+	// decorator that overlays photo / location / languages from the
+	// organizations row for agency orgs. The concrete repo satisfies
+	// both the org-type reader and the org-shared reader the decorator
+	// needs.
+	OrganizationRepo *postgres.OrganizationRepository
 }
 
 // wireCaches brings up the Phase 4-M Redis cache-aside layer.
@@ -69,8 +77,17 @@ type cachesDeps struct {
 // caches see the search-publisher-bound services produced by those
 // helpers, then re-bind the affected handlers downstream.
 func wireCaches(deps cachesDeps) cachesWiring {
+	// Agency shared-identity read overlay (migration 155): wrap the
+	// profile service with the decorator that overlays photo / location
+	// / languages from the organizations row for agency orgs, THEN put
+	// the Redis cache in front of the decorator so the merged result is
+	// what gets cached. The org-shared write path busts the same
+	// profile:agency:{org} key, keeping the cached merge fresh.
+	agencyOverlayReader := profileapp.NewAgencySharedProfileReader(
+		deps.ProfileSvc, deps.OrganizationRepo, deps.OrganizationRepo,
+	)
 	publicProfileCache := redisadapter.NewCachedPublicProfileReader(
-		deps.Redis, deps.ProfileSvc,
+		deps.Redis, agencyOverlayReader,
 		redisadapter.DefaultPublicProfileCacheTTL,
 		redisadapter.DefaultPublicProfileNegativeTTL,
 	)
