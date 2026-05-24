@@ -9,10 +9,11 @@ import {
 } from "@/features/provider/hooks/use-profile"
 import { useProfileRating } from "@/shared/hooks/profile/use-profile-rating"
 import {
-  useUploadPhoto,
   useUploadVideo,
   useDeleteVideo,
 } from "@/features/provider/hooks/use-upload"
+import { useUploadOrganizationPhoto } from "@/features/organization-shared/hooks/use-update-organization-photo"
+import { useOrganizationShared } from "@/features/organization-shared/hooks/use-organization-shared"
 import { ProfileAboutCard } from "@/shared/components/profile/profile-about-card"
 import { ProfileVideoCard } from "@/shared/components/profile/profile-video-card"
 import { ProjectHistorySection } from "@/shared/components/profile/project-history-section"
@@ -24,8 +25,8 @@ import { ExpertiseEditor } from "@/shared/components/expertise/expertise-editor"
 import { useUpdateExpertiseDomains } from "@/features/provider/hooks/use-update-expertise"
 import { AvailabilitySection } from "@/features/provider/components/availability-section"
 import { PricingSection } from "@/features/provider/components/pricing-section"
-import { LocationSection } from "@/features/provider/components/location-section"
-import { LanguagesSection } from "@/features/provider/components/languages-section"
+import { SharedLocationSection } from "@/features/organization-shared/components/shared-location-section"
+import { SharedLanguagesSection } from "@/features/organization-shared/components/shared-languages-section"
 import { SkillsSection } from "@/features/skill/components/skills-section"
 import { ProfileCompletionBar } from "@/features/profile-completion/components/profile-completion-bar"
 
@@ -42,9 +43,13 @@ export function AgencyProfilePage() {
   const { data: user } = useUser()
   const { data: org } = useOrganization()
   const { data: profile, isLoading, error } = useProfile()
+  // Load the org-shared block (photo/location/languages) so the shared
+  // sections + header hydrate from the same source the org-shared
+  // editor writes — identical to the freelance edit page.
+  useOrganizationShared()
   const { data: rating } = useProfileRating(org?.id)
   const updateProfile = useUpdateProfile()
-  const photoUpload = useUploadPhoto()
+  const photoUpload = useUploadOrganizationPhoto()
   const videoUpload = useUploadVideo()
   const videoDelete = useDeleteVideo()
   const expertiseUpdate = useUpdateExpertiseDomains()
@@ -153,9 +158,12 @@ export function AgencyProfilePage() {
         readOnly={!canEditProfile}
       />
 
-      <LocationSection orgType="agency" readOnly={!canEditProfile} />
-
-      <LanguagesSection orgType="agency" readOnly={!canEditProfile} />
+      {canEditProfile ? (
+        <>
+          <SharedLocationSection />
+          <SharedLanguagesSection />
+        </>
+      ) : null}
 
       <SkillsSection orgType="agency" readOnly={!canEditProfile} />
 
