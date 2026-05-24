@@ -170,37 +170,39 @@ func TestTrackProfileViews_NilRecorderIsPassthrough(t *testing.T) {
 
 func TestTrackProfileViews_DerivesCameFromReferer(t *testing.T) {
 	t.Parallel()
-	rec := newFakeRecorder()
-	r := chi.NewRouter()
-	r.With(handler.TrackProfileViews(rec, domainstats.PersonaAgency, "orgId")).
-		Get("/profiles/{orgId}", (&stubProfileHandler{}).ServeHTTP)
-
-	srv := httptest.NewServer(r)
-	defer srv.Close()
-	orgID := uuid.New()
 
 	cases := []struct {
-		name     string
-		referer  string
-		wantFrom domainstats.CameFrom
+		name        string
+		refererPath string // appended to the server URL; "" means no Referer header
+		external    string // absolute URL for cross-host cases; takes precedence
+		wantFrom    domainstats.CameFrom
 	}{
-		{"empty referer → direct", "", domainstats.CameFromDirect},
-		{"same-host search → search", srv.URL + "/search?q=go", domainstats.CameFromSearch},
-		{"same-host /freelancers → list", srv.URL + "/freelancers", domainstats.CameFromList},
-		{"different host → referral", "https://twitter.com/share", domainstats.CameFromReferral},
+		{name: "empty referer → direct", wantFrom: domainstats.CameFromDirect},
+		{name: "same-host search → search", refererPath: "/search?q=go", wantFrom: domainstats.CameFromSearch},
+		{name: "same-host /freelancers → list", refererPath: "/freelancers", wantFrom: domainstats.CameFromList},
+		{name: "different host → referral", external: "https://twitter.com/share", wantFrom: domainstats.CameFromReferral},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			rec.mu.Lock()
-			rec.calls = nil
-			rec.called = make(chan struct{}, 4)
-			rec.once = sync.Once{}
-			rec.mu.Unlock()
+			t.Parallel()
+			// Each subtest owns its recorder + server so the
+			// fire-and-forget goroutine never races a sibling's state.
+			rec := newFakeRecorder()
+			r := chi.NewRouter()
+			r.With(handler.TrackProfileViews(rec, domainstats.PersonaAgency, "orgId")).
+				Get("/profiles/{orgId}", (&stubProfileHandler{}).ServeHTTP)
+			srv := httptest.NewServer(r)
+			defer srv.Close()
 
+			orgID := uuid.New()
 			req, _ := http.NewRequest(http.MethodGet, srv.URL+"/profiles/"+orgID.String(), nil)
-			if tc.referer != "" {
-				req.Header.Set("Referer", tc.referer)
+			switch {
+			case tc.external != "":
+				req.Header.Set("Referer", tc.external)
+			case tc.refererPath != "":
+				req.Header.Set("Referer", srv.URL+tc.refererPath)
 			}
+
 			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
 				t.Fatalf("get: %v", err)
