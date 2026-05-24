@@ -372,6 +372,18 @@ describe("profile edit shell parity", () => {
     }
   })
 
+  // Part B — the freelance edit page now carries the SAME org-scoped
+  // Portfolio section the agency edit page uses (composed in the app/
+  // page, not via a cross-feature import). Pin its presence so the
+  // freelance owner keeps the portfolio editor.
+  it("freelance edit page renders the Portfolio section", () => {
+    const { container } = renderWithProviders(<FreelanceOwnProfilePage />)
+    const portfolio = Array.from(
+      container.querySelectorAll<HTMLHeadingElement>("h2"),
+    ).find((h) => /portfolio/i.test(h.textContent ?? ""))
+    expect(portfolio).toBeDefined()
+  })
+
   // BATCH-PROFIL-FIX item — the previous Portfolio editor painted its
   // empty state with a corail wash + bright red CTA that visually
   // collided with the rest of the agency edit shell. Lock in the

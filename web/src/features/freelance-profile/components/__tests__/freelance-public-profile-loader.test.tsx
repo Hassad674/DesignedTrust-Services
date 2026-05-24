@@ -75,14 +75,17 @@ function buildProfile(overrides: Partial<FreelanceProfile> = {}): FreelanceProfi
   }
 }
 
-function renderLoader() {
+function renderLoader(portfolioSlot?: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   })
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
       <QueryClientProvider client={client}>
-        <FreelancePublicProfileLoader orgId="org-1" />
+        <FreelancePublicProfileLoader
+          orgId="org-1"
+          portfolioSlot={portfolioSlot}
+        />
       </QueryClientProvider>
     </NextIntlClientProvider>,
   )
@@ -176,5 +179,29 @@ describe("FreelancePublicProfileLoader — video section visibility", () => {
     expect(video?.getAttribute("src")).toBe(
       "https://media.example.test/intro.mp4",
     )
+  })
+})
+
+describe("FreelancePublicProfileLoader — portfolio slot", () => {
+  it("renders the injected portfolio slot when the profile loads", () => {
+    profileHookState.data = buildProfile({ title: "Senior Go engineer" })
+    profileHookState.error = null
+    renderLoader(<div data-testid="portfolio-slot">portfolio here</div>)
+    // The freelance public profile now carries a portfolio block,
+    // composed by the app/ page and handed in as a slot (keeps the
+    // feature isolated from the provider portfolio component).
+    expect(screen.getByTestId("portfolio-slot")).toBeInTheDocument()
+  })
+
+  it("does NOT render the portfolio slot on the not-found branch", () => {
+    profileHookState.data = undefined
+    profileHookState.error = new Error("not found")
+    renderLoader(<div data-testid="portfolio-slot">portfolio here</div>)
+    // The error branch returns early — the portfolio (and the rest of
+    // the profile) must never leak onto a not-found page.
+    expect(screen.queryByTestId("portfolio-slot")).not.toBeInTheDocument()
+    // Reset so later suites that share the module-level hook state see
+    // a clean slate.
+    profileHookState.error = null
   })
 })

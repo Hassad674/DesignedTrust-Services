@@ -26,6 +26,12 @@ import { SharedLanguagesSection } from "@/features/organization-shared/component
 import { SkillsSection } from "@/features/skill/components/skills-section"
 import { FreelanceSocialLinksSection } from "@/features/freelance-profile/components/freelance-social-links-section"
 import { ProjectHistorySection } from "@/shared/components/profile/project-history-section"
+// Portfolio is an org-scoped surface (org_profile.edit gated, role-agnostic
+// backend) shared with the agency edit page. This file is an app/ page, so
+// composing the provider feature's PortfolioSection here is allowed by the
+// feature-isolation rule (composition happens in app/). The referrer/apporteur
+// persona deliberately does NOT receive portfolio — only the freelance persona.
+import { PortfolioSection } from "@/features/provider/components/portfolio-grid"
 import { ProfileCompletionBar } from "@/features/profile-completion/components/profile-completion-bar"
 
 // Editable /profile view for provider_personal users. Renders the
@@ -133,6 +139,11 @@ export function FreelanceOwnProfilePage() {
           <FreelanceSocialLinksSection />
         </div>
       ) : null}
+
+      {/* Portfolio — same org-scoped section the agency edit page uses.
+       * Sits AFTER the shared editors and BEFORE project history to
+       * mirror the agency ordering (…social → portfolio → history). */}
+      <PortfolioSection />
 
       <ProjectHistorySection orgId={org?.id} />
     </div>
