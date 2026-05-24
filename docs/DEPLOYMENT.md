@@ -450,7 +450,8 @@ KYC + payouts onboarding go through Embedded Components on the
 frontend. The backend mints a per-user account session via
 `POST /api/v1/embedded/account-sessions`. See
 `backend/internal/handler/embedded_handler.go` and the playbook
-`STRIPE_MANUAL_PLAYBOOK.md` at the repo root for the full flow.
+[`docs/stripe-manual-playbook.md`](stripe-manual-playbook.md) for the
+full flow.
 
 ### Test mode vs live mode
 

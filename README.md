@@ -4,7 +4,7 @@
 [![E2E](https://github.com/Hassad674/serviceMarketplaceGo/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/Hassad674/serviceMarketplaceGo/actions/workflows/e2e.yml)
 [![Security](https://github.com/Hassad674/serviceMarketplaceGo/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/Hassad674/serviceMarketplaceGo/actions/workflows/security.yml)
 [![Coverage](https://codecov.io/gh/Hassad674/serviceMarketplaceGo/branch/main/graph/badge.svg)](https://codecov.io/gh/Hassad674/serviceMarketplaceGo)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Hassad674/serviceMarketplaceGo)](https://goreportcard.com/report/github.com/Hassad674/serviceMarketplaceGo)
 
 An open-source, full-featured B2B marketplace connecting agencies,
@@ -22,10 +22,9 @@ rotation with replay-detection family revocation, magic-byte upload
 validation, SSRF guard with 13-CIDR deny list and DNS-rebinding
 mitigation, GDPR Articles 15-17 wired end-to-end, OpenTelemetry
 traces with W3C context propagation. Coverage and test counts are
-listed below. Independent adversarial audit verdict (post F.5):
-**top 5% solo OSS, top 10-15% vs funded SaaS**. Battle-test pending
-— production traffic, chaos engineering, and SLO documents are
-post-launch goals, not current claims.
+listed below. Battle-testing is a post-launch goal — production
+traffic at scale, chaos engineering, and formal SLO documents are
+not yet claimed.
 
 ---
 
@@ -144,49 +143,8 @@ CI quality gates (in `.github/workflows/ci.yml`):
 - **All-green gate**: a final job blocks merges unless every job
   above passed.
 
-`gosec` baseline: from 35+ findings in Phase 1 to **3 documented
-false positives**, all annotated inline.
-
----
-
-## Roadmap teasers
-
-The project is pre-1.0 and built in named, internally-audited
-phases. What is shipped:
-
-- **Phase 0 — quick wins** (2026-04-22): housekeeping and
-  documentation tightening.
-- **Phase 1 — security critical** (2026-04-23 → 2026-04-26):
-  brute-force protection, refresh token rotation with Redis
-  blacklist, CSP + HSTS + Permissions-Policy, append-only audit
-  log, file upload sanitization. **40+ findings closed.**
-- **Phase 1.5 — RLS** (2026-04-27): PostgreSQL Row-Level Security
-  on 9 tenant-scoped tables with `FORCE ROW LEVEL SECURITY`.
-- **Phase 2 — business bug fixes** (2026-04-25 → 2026-04-28): state
-  machine guards on dispute / refund / payout, webhook idempotency
-  via durable Postgres source of truth, WebSocket race fixes, FCM
-  tap routing, single-flight refresh on mobile.
-- **Phase 3 — refactor** (2026-04-26 → 2026-04-29): god-component
-  splits (878-line wallet page, 797-line message-area, 758-line
-  search-filter-sidebar, 656-line billing-profile-form), feature
-  isolation cleanup, shared UI primitives, react-hook-form + zod
-  migration.
-- **Phase 4 — performance** (2026-04-28 → 2026-04-29): RSC public
-  listings + JSON-LD, lazy LiveKit, dynamic admin chunks, dynamic
-  sitemap and robots, mobile cold-start cleanup.
-- **Phase 5 — tests + DB hardening** (2026-04-29 → 2026-04-30):
-  RLS rollout, expanded coverage on admin / KYC / referral, RBAC
-  matrix smoke, RLS cross-tenant denial integration tests.
-- **Phase 6 — open-source polish** (2026-04-30, this PR):
-  documentation, license, code-of-conduct, dependabot, PR + issue
-  templates, semgrep + eslint-plugin-security in CI.
-
-What is next:
-
-- Phase 7: OpenTelemetry + Prometheus exporter, structured tracing
-  end-to-end.
-- Public stable v1 tag with a documented deprecation policy.
-- Stripe Embedded payouts UI for end-to-end provider self-service.
+`gosec` runs on every PR; the only remaining findings are **3
+documented false positives**, each annotated inline.
 
 ---
 
@@ -240,6 +198,8 @@ follow [SECURITY.md](SECURITY.md).
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE) for the full text.
+MIT License — free to use, modify, and distribute, including
+commercially; just keep the copyright notice. See [LICENSE](LICENSE)
+for the full text.
 
-Copyright 2026 Hassad Smara.
+Copyright (c) 2026 Hassad Smara.
