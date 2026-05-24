@@ -16,7 +16,9 @@ contract.
 
 **Honest scope statement.** This codebase ships senior-grade
 engineering primitives for an open-source B2B marketplace —
-PostgreSQL Row-Level Security on every tenant-scoped table,
+PostgreSQL Row-Level Security as a defense-in-depth backup on the most
+sensitive tenant-scoped tables (application-level org-scoping is the
+primary defense on all of them),
 append-only audit log enforced at the role-grant layer, refresh-token
 rotation with replay-detection family revocation, magic-byte upload
 validation, SSRF guard with 13-CIDR deny list and DNS-rebinding
@@ -205,7 +207,14 @@ follow [SECURITY.md](SECURITY.md).
 ## License
 
 MIT License — free to use, modify, and distribute, including
-commercially; just keep the copyright notice. See [LICENSE](LICENSE)
-for the full text.
+commercially. The one requirement is to **keep the copyright notice**
+below in copies of the source. See [LICENSE](LICENSE) for the full
+text.
 
 Copyright (c) 2026 Hassad Smara.
+
+**Attribution.** If you build on this project — a fork, a product, a
+hosted service, a tutorial — a visible credit and a link back is
+genuinely appreciated (details in [AUTHORS.md](AUTHORS.md)):
+
+> Built on [DesignedTrust](https://github.com/Hassad674/serviceMarketplaceGo) by Hassad Smara.
