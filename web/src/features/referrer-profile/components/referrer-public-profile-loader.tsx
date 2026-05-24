@@ -58,7 +58,7 @@ export function ReferrerPublicProfileLoader({
   const displayName = fullName || profile.title || t("displayNameFallback")
   // The header rating uses the apporteur reputation, not the freelance
   // rating. Undefined until the reputation query settles so the
-  // ProfileIdentityHeader hides the rating block during loading.
+  // profile header hides the rating block during loading.
   const headerRating = firstPage
     ? { average: firstPage.rating_avg, count: firstPage.review_count }
     : undefined

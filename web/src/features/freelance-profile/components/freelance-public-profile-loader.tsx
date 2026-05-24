@@ -12,6 +12,12 @@ import { Button } from "@/shared/components/ui/button"
 
 interface FreelancePublicProfileLoaderProps {
   orgId: string
+  // Optional org-scoped portfolio block, injected by the app/ page so
+  // the feature stays isolated (it receives a ready-made node, never
+  // imports the provider feature's portfolio component itself). Rendered
+  // BETWEEN social links and project history to mirror the agency public
+  // profile ordering. Absent for personas without portfolio.
+  portfolioSlot?: React.ReactNode
 }
 
 // FreelancePublicProfileLoader is the client-side composition of the
@@ -22,6 +28,7 @@ interface FreelancePublicProfileLoaderProps {
 // (public viewer side).
 export function FreelancePublicProfileLoader({
   orgId,
+  portfolioSlot,
 }: FreelancePublicProfileLoaderProps) {
   const t = useTranslations("profile.freelance")
   const router = useRouter()
@@ -73,6 +80,7 @@ export function FreelancePublicProfileLoader({
         }
       />
       <PublicFreelanceSocialLinks orgId={orgId} />
+      {portfolioSlot}
       <ProjectHistorySection
         orgId={orgId}
         readOnly

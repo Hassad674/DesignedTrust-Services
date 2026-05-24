@@ -495,6 +495,10 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 		FreelanceProfileRepo: freelanceProfileRepo,
 		ReferrerProfileRepo:  referrerProfileRepo,
 		MediaSvc:             mediaSvc,
+		// Same Redis decorator the profile service invalidates on its
+		// own writes (wire_caches.go) — so an agency photo/video upload
+		// busts the identical cached read the owner + public page use.
+		ProfileCache: publicProfileCache,
 	})
 	uploadHandler := uploadsWire.UploadHandler
 	freelanceProfileVideoHandler := uploadsWire.FreelanceProfileVideoHandler

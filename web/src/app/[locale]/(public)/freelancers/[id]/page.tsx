@@ -6,6 +6,10 @@ import { SendMessageButton } from "@/features/messaging/components/send-message-
 import {
   FreelancePublicProfileLoader,
 } from "@/features/freelance-profile/components/freelance-public-profile-loader"
+// Org-scoped portfolio read — same component the public agency page uses.
+// Composed here in the app/ page (allowed by feature isolation) and handed
+// to the freelance loader as a slot so the feature never imports provider.
+import { PublicPortfolioSection } from "@/features/provider/components/portfolio-grid"
 import {
   fetchFreelanceProfileForMetadata,
 } from "@/features/freelance-profile/api/freelance-profile-server"
@@ -128,7 +132,10 @@ export default async function FreelancerProfilePage({ params }: Props) {
         </Link>
         <SendMessageButton targetOrgId={id} persona="freelance" />
       </div>
-      <FreelancePublicProfileLoader orgId={id} />
+      <FreelancePublicProfileLoader
+        orgId={id}
+        portfolioSlot={<PublicPortfolioSection orgId={id} />}
+      />
       {profile ? (
         <JsonLd
           profileId={id}

@@ -112,6 +112,7 @@ func (h *UploadHandler) UploadPhoto(w http.ResponseWriter, r *http.Request) {
 		res.Error(w, http.StatusInternalServerError, "update_failed", "failed to update profile")
 		return
 	}
+	h.invalidateProfileCache(r.Context(), orgID)
 
 	h.trackUpload(r.Context(), trackUploadInput{
 		UploaderID: userID,
@@ -166,6 +167,7 @@ func (h *UploadHandler) UploadVideo(w http.ResponseWriter, r *http.Request) {
 		res.Error(w, http.StatusInternalServerError, "update_failed", "failed to update profile")
 		return
 	}
+	h.invalidateProfileCache(r.Context(), orgID)
 
 	h.trackUpload(r.Context(), trackUploadInput{
 		UploaderID: userID,
@@ -220,6 +222,7 @@ func (h *UploadHandler) UploadReferrerVideo(w http.ResponseWriter, r *http.Reque
 		res.Error(w, http.StatusInternalServerError, "update_failed", "failed to update profile")
 		return
 	}
+	h.invalidateProfileCache(r.Context(), orgID)
 
 	h.trackUpload(r.Context(), trackUploadInput{
 		UploaderID: userID,
@@ -295,6 +298,7 @@ func (h *UploadHandler) DeleteVideo(w http.ResponseWriter, r *http.Request) {
 		res.Error(w, http.StatusInternalServerError, "update_failed", "failed to update profile")
 		return
 	}
+	h.invalidateProfileCache(r.Context(), orgID)
 
 	res.JSON(w, http.StatusOK, map[string]string{"message": "video removed"})
 }
@@ -324,6 +328,7 @@ func (h *UploadHandler) DeleteReferrerVideo(w http.ResponseWriter, r *http.Reque
 		res.Error(w, http.StatusInternalServerError, "update_failed", "failed to update profile")
 		return
 	}
+	h.invalidateProfileCache(r.Context(), orgID)
 
 	res.JSON(w, http.StatusOK, map[string]string{"message": "referrer video removed"})
 }
