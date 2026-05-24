@@ -34,8 +34,24 @@ func mountUploadRoutes(r chi.Router, deps RouterDeps, auth func(http.Handler) ht
 			r.Delete("/referrer-video", deps.Upload.DeleteReferrerVideo)
 			r.Post("/portfolio-image", deps.Upload.UploadPortfolioImage)
 			r.Post("/portfolio-video", deps.Upload.UploadPortfolioVideo)
+			// DIRECT-to-R2 presigned video flow (bypasses the Vercel
+			// proxy 4.5 MB body cap). presign issues a short-lived PUT
+			// URL; complete persists the URL + fires the SAME moderation
+			// pipeline as the multipart endpoints above. Same
+			// permission gate as the multipart counterparts.
+			r.Post("/video/presign", deps.Upload.PresignVideo)
+			r.Post("/video/complete", deps.Upload.CompleteVideo)
+			r.Post("/referrer-video/presign", deps.Upload.PresignReferrerVideo)
+			r.Post("/referrer-video/complete", deps.Upload.CompleteReferrerVideo)
+			r.Post("/portfolio-video/presign", deps.Upload.PresignPortfolioVideo)
+			r.Post("/portfolio-video/complete", deps.Upload.CompletePortfolioVideo)
 		})
 		// Review video upload requires review permission
-		r.With(middleware.RequirePermission(organization.PermReviewsRespond)).Post("/review-video", deps.Upload.UploadReviewVideo)
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.RequirePermission(organization.PermReviewsRespond))
+			r.Post("/review-video", deps.Upload.UploadReviewVideo)
+			r.Post("/review-video/presign", deps.Upload.PresignReviewVideo)
+			r.Post("/review-video/complete", deps.Upload.CompleteReviewVideo)
+		})
 	})
 }

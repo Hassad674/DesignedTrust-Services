@@ -31,8 +31,12 @@ func TestMountHelpers_RouteCounts(t *testing.T) {
 		wantRoutes int
 	}{
 		{"auth", func(r chi.Router) { mountAuthRoutes(r, deps, auth) }, 32},
-		{"profile", func(r chi.Router) { mountProfileRoutes(r, deps, auth) }, 45},
-		{"upload", func(r chi.Router) { mountUploadRoutes(r, deps, auth) }, 8},
+		// profile: +4 for the freelance + referrer presigned video
+		// flow (presign + complete on each persona).
+		{"profile", func(r chi.Router) { mountProfileRoutes(r, deps, auth) }, 49},
+		// upload: +8 for the presigned video flow (presign + complete
+		// on intro, referrer, portfolio and review video surfaces).
+		{"upload", func(r chi.Router) { mountUploadRoutes(r, deps, auth) }, 16},
 		{"search", func(r chi.Router) { mountSearchRoutes(r, deps, auth) }, 3},
 		{"messaging+call", func(r chi.Router) { mountMessagingRoutes(r, deps, auth) }, 14},
 		{"proposal", func(r chi.Router) { mountProposalRoutes(r, deps, auth) }, 16},
