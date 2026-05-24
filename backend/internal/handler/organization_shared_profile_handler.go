@@ -39,6 +39,17 @@ type OrganizationSharedProfileHandler struct {
 	writer        repository.OrganizationSharedProfileWriter
 	geocoder      service.Geocoder
 	searchPublish MultiPersonaSearchPublisher
+
+	// agencyProfileCache busts the Redis-backed public AGENCY profile
+	// cache (profile:agency:{org}) after a successful shared-profile
+	// mutation. Required since migration 155 flipped the agency read
+	// path to source photo / location / languages from the
+	// organizations row: without this hook a write here would leave
+	// the cached agency read (owner self-read GET /api/v1/profile AND
+	// public GET /api/v1/profiles/{orgId}) stale for up to the cache
+	// TTL. Nil-safe: when unwired (tests, cache disabled) the entry
+	// simply ages out on its TTL — still correct, just slower.
+	agencyProfileCache service.CacheInvalidatorByOrgID
 }
 
 // NewOrganizationSharedProfileHandler constructs the handler with
@@ -63,6 +74,34 @@ func (h *OrganizationSharedProfileHandler) WithGeocoder(g service.Geocoder) *Org
 func (h *OrganizationSharedProfileHandler) WithSearchIndexPublisher(p MultiPersonaSearchPublisher) *OrganizationSharedProfileHandler {
 	h.searchPublish = p
 	return h
+}
+
+// WithAgencyProfileCacheInvalidator wires the Redis-backed public
+// agency profile cache so a successful shared-profile mutation busts
+// the cached agency read (migration 155 sources the agency photo /
+// location / languages from the organizations row this handler
+// writes). Fluent + nil-safe: passing nil leaves the legacy no-op
+// behaviour intact.
+func (h *OrganizationSharedProfileHandler) WithAgencyProfileCacheInvalidator(inv service.CacheInvalidatorByOrgID) *OrganizationSharedProfileHandler {
+	h.agencyProfileCache = inv
+	return h
+}
+
+// invalidateAgencyProfileCache busts the cached public agency profile
+// for orgID after a successful shared-profile write. Best-effort: a
+// flush failure logs at WARN and never fails the request (the bytes /
+// row are already committed; the entry ages out on its TTL). No-op
+// when unwired. Safe to call for non-agency orgs too — the key simply
+// does not exist and Del is a no-op, so the handler stays org-type
+// agnostic.
+func (h *OrganizationSharedProfileHandler) invalidateAgencyProfileCache(ctx context.Context, orgID uuid.UUID) {
+	if h.agencyProfileCache == nil {
+		return
+	}
+	if err := h.agencyProfileCache.Invalidate(ctx, orgID); err != nil {
+		slog.Warn("organization shared profile: agency cache invalidation failed",
+			"org_id", orgID, "error", err)
+	}
 }
 
 // publishMultiPersona is the best-effort wrapper used after every
@@ -132,6 +171,7 @@ func (h *OrganizationSharedProfileHandler) UpdateLocation(w http.ResponseWriter,
 		handleSharedProfileError(w, err)
 		return
 	}
+	h.invalidateAgencyProfileCache(r.Context(), orgID)
 	h.publishMultiPersona(r.Context(), orgID, "shared.update_location")
 	h.writeCurrentShared(w, r, orgID)
 }
@@ -156,6 +196,7 @@ func (h *OrganizationSharedProfileHandler) UpdateLanguages(w http.ResponseWriter
 		handleSharedProfileError(w, err)
 		return
 	}
+	h.invalidateAgencyProfileCache(r.Context(), orgID)
 	h.publishMultiPersona(r.Context(), orgID, "shared.update_languages")
 	h.writeCurrentShared(w, r, orgID)
 }
@@ -180,6 +221,7 @@ func (h *OrganizationSharedProfileHandler) UpdatePhoto(w http.ResponseWriter, r 
 		handleSharedProfileError(w, err)
 		return
 	}
+	h.invalidateAgencyProfileCache(r.Context(), orgID)
 	h.publishMultiPersona(r.Context(), orgID, "shared.update_photo")
 	h.writeCurrentShared(w, r, orgID)
 }

@@ -70,6 +70,10 @@ type orgSharedDeps struct {
 	OrganizationRepo *postgres.OrganizationRepository
 	ProfileGeocoder  *nominatim.Geocoder
 	SearchPublisher  *searchindex.Publisher
+	// AgencyProfileCache busts the public agency profile cache after a
+	// shared-profile write (migration 155 sources the agency photo /
+	// location / languages from the org row this handler writes).
+	AgencyProfileCache service.CacheInvalidatorByOrgID
 }
 
 // wireOrganizationShared brings up the organization shared-profile
@@ -83,7 +87,8 @@ func wireOrganizationShared(deps orgSharedDeps) *handler.OrganizationSharedProfi
 	// profile flow so behaviour stays byte-identical.
 	h := handler.
 		NewOrganizationSharedProfileHandler(deps.OrganizationRepo).
-		WithGeocoder(deps.ProfileGeocoder)
+		WithGeocoder(deps.ProfileGeocoder).
+		WithAgencyProfileCacheInvalidator(deps.AgencyProfileCache)
 	if deps.SearchPublisher != nil {
 		h = h.WithSearchIndexPublisher(deps.SearchPublisher)
 	}

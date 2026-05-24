@@ -81,6 +81,18 @@ type Service struct {
 	// reverse opens a split-brain window where a concurrent reader
 	// re-populates the cache with the pre-write row.
 	cacheInvalidator service.CacheInvalidatorByOrgID
+
+	// orgTypeReader + sharedWriter implement the agency shared-identity
+	// write redirection (migration 155). When both are wired (via
+	// WithAgencySharedRouter) UpdateLocation / UpdateLanguages route
+	// AGENCY writes to the organizations row — the same source the
+	// agency read path now consumes — so every caller of the legacy
+	// /profile/location|languages endpoints (web after the swap stops
+	// calling them; mobile profile_tier1 still does) stays consistent.
+	// Both nil → pure legacy behaviour (writes hit the profiles
+	// columns). See shared_profile_router.go.
+	orgTypeReader OrgTypeReader
+	sharedWriter  repository.OrganizationSharedProfileWriter
 }
 
 // NewService wires the profile service with its mandatory
@@ -365,6 +377,14 @@ func (s *Service) UpdateLocation(ctx context.Context, orgID uuid.UUID, input Upd
 		TravelRadiusKm: input.TravelRadiusKm,
 	}
 
+	// Agency shared-identity redirection (migration 155): write the
+	// location block to the organizations row so it lands where the
+	// agency read path now sources it. Non-agency orgs fall through to
+	// the legacy profiles write below.
+	if s.isAgencyOrg(ctx, orgID) {
+		return s.writeAgencyLocation(ctx, orgID, locationInput)
+	}
+
 	if s.txRunner != nil && s.searchIndex != nil {
 		if err := s.txRunner.RunInTx(ctx, func(tx *sql.Tx) error {
 			if err := s.profiles.UpdateLocationTx(ctx, tx, orgID, locationInput); err != nil {
@@ -432,6 +452,13 @@ func (s *Service) tryGeocode(ctx context.Context, orgID uuid.UUID, city, country
 func (s *Service) UpdateLanguages(ctx context.Context, orgID uuid.UUID, professional, conversational []string) error {
 	pro := profile.NormalizeLanguageCodes(professional)
 	conv := profile.NormalizeLanguageCodes(conversational)
+
+	// Agency shared-identity redirection (migration 155): write the
+	// language arrays to the organizations row. Non-agency orgs fall
+	// through to the legacy profiles write below.
+	if s.isAgencyOrg(ctx, orgID) {
+		return s.writeAgencyLanguages(ctx, orgID, pro, conv)
+	}
 
 	if s.txRunner != nil && s.searchIndex != nil {
 		if err := s.txRunner.RunInTx(ctx, func(tx *sql.Tx) error {
