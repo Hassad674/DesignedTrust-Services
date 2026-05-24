@@ -53,32 +53,47 @@ function makeT(namespace: string) {
   const rich = (
     key: string,
     values?: Record<string, (chunks?: unknown) => ReactNode>,
-  ): ReactNode => {
-    const raw = lookup(namespace, key)
-    const parts: ReactNode[] = []
-    const pattern = /\{(\w+)\}/g
-    let lastIndex = 0
-    let match: RegExpExecArray | null
-    while ((match = pattern.exec(raw)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(raw.slice(lastIndex, match.index))
-      }
-      const name = match[1]
-      const value = values?.[name]
-      if (typeof value === "function") {
-        parts.push(value())
-      } else {
-        parts.push(match[0])
-      }
-      lastIndex = pattern.lastIndex
-    }
-    if (lastIndex < raw.length) {
-      parts.push(raw.slice(lastIndex))
-    }
-    return parts as unknown as ReactNode
-  }
+  ): ReactNode => renderRich(lookup(namespace, key), values)
   ;(t as unknown as { rich: typeof rich }).rich = rich
   return t
+}
+
+// renderRich emulates next-intl's `t.rich` for the test environment.
+// It resolves BOTH placeholder syntax (`{name}`) AND rich-text tag
+// syntax (`<name>chunks</name>`) — the production legal messages use
+// the tag form (e.g. "écris à <email></email>") so the mock must call
+// the matching callback to render the `<a>` node, otherwise the link
+// never appears in the test DOM.
+function renderRich(
+  raw: string,
+  values?: Record<string, (chunks?: unknown) => ReactNode>,
+): ReactNode {
+  const parts: ReactNode[] = []
+  // Matches either a paired tag <name>...</name> (group 1 = name,
+  // group 2 = inner chunks) or a {name} placeholder (group 3 = name).
+  const pattern = /<(\w+)>([\s\S]*?)<\/\1>|\{(\w+)\}/g
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+  while ((match = pattern.exec(raw)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(raw.slice(lastIndex, match.index))
+    }
+    const tagName = match[1]
+    const placeholderName = match[3]
+    const name = tagName ?? placeholderName
+    const value = name ? values?.[name] : undefined
+    if (typeof value === "function") {
+      // Tag form passes the inner chunks; placeholder form passes none.
+      parts.push(tagName ? value(match[2]) : value())
+    } else {
+      parts.push(match[0])
+    }
+    lastIndex = pattern.lastIndex
+  }
+  if (lastIndex < raw.length) {
+    parts.push(raw.slice(lastIndex))
+  }
+  return parts as unknown as ReactNode
 }
 
 vi.mock("next-intl/server", () => ({
