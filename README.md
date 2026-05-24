@@ -83,12 +83,15 @@ Selected highlights:
   `handler -> app -> domain <- port <- adapter` enforced by review
   and by `go vet`. Adapters never import each other; wiring lives
   in exactly one file (`backend/cmd/api/main.go`).
-- **Feature isolation invariant**: deleting a feature folder
+- **Feature isolation**: deleting a feature folder
   (`internal/app/<x>/`, `web/src/features/<x>/`,
-  `mobile/lib/features/<x>/`, `admin/src/features/<x>/`) must cause
-  zero compile errors elsewhere. Cross-feature data is exchanged
-  through injected interfaces, never imports. Enforced by an e2e
-  contract test.
+  `mobile/lib/features/<x>/`, `admin/src/features/<x>/`) should cause
+  zero compile errors elsewhere. On the backend this is strict —
+  cross-feature data flows through injected interfaces, never direct
+  imports, enforced by the dependency rule. On the web, composition
+  happens in `app/` pages; a small set of shared cross-cutting
+  helpers (e.g. `profile-completion`, `stats`) are the documented
+  exception, and a guard test pins the historically-coupled paths.
 - **Org-scoped business state**: every business row owns by
   `organization_id`, not `user_id`. `user_id` is reserved for
   authorship (audit log, `created_by`). A user joining or leaving a
@@ -119,17 +122,20 @@ Selected highlights:
 The repo is tested at every layer; the strategy is documented in
 full at [**docs/testing.md**](docs/testing.md).
 
-| Layer                    | Files | Cases   | Tool                                |
-|--------------------------|-------|---------|-------------------------------------|
-| Backend unit             | 333   | 2,634   | `go test` + testify                 |
-| Web unit                 | 132   | 1,292   | vitest + @testing-library           |
-| Web E2E                  | 43    | 341     | Playwright (chromium)               |
-| Admin unit               | 4     | 30      | vitest                              |
-| Mobile unit + widget     | 105   | 806     | `flutter test`                      |
-| Backend integration      | (tagged `integration`) | — | testcontainers + real Postgres + real Typesense |
-| Smoke (CLI + curl)       | `scripts/smoke/`        | — | Bash + jq |
-| Perf (k6)                | `scripts/perf/`         | — | k6 |
-| Security                 | every PR + weekly       | — | gosec + govulncheck + trivy + npm audit + semgrep |
+| Layer                    | Test files (approx.) | Tool                                |
+|--------------------------|----------------------|-------------------------------------|
+| Backend unit             | 540+ (4,500+ funcs)  | `go test` + testify                 |
+| Web unit                 | 315+                 | vitest + @testing-library           |
+| Web E2E                  | 80+                  | Playwright (chromium)               |
+| Mobile unit + widget     | 250                  | `flutter test`                      |
+| Admin unit               | 15                   | vitest                              |
+| Backend integration      | tagged `integration` | testcontainers + real Postgres + real Typesense |
+| Smoke (CLI + curl)       | `scripts/smoke/`     | Bash + jq |
+| Perf (k6)                | `scripts/perf/`      | k6 |
+| Security                 | every PR + weekly    | gosec + govulncheck + trivy + npm audit + semgrep |
+
+> Counts are approximate and grow over time — run `make test` /
+> `npx vitest run` / `flutter test` for the live numbers.
 
 CI quality gates (in `.github/workflows/ci.yml`):
 

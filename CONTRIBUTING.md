@@ -175,9 +175,13 @@ Before opening a PR, mentally test: "If I delete this feature's
 entire folder and its lines in `main.go`, does everything else still
 compile?" If the answer is no, refactor until it does.
 
-The repo includes a contract test that asserts isolation
-(`web/e2e/refactor-isolation.spec.ts`). Adding a cross-feature import
-will fail CI.
+On the backend this rule is strict (the hexagonal dependency rule
+forbids cross-feature imports). On the web, composition happens in
+`app/` pages and a small set of shared cross-cutting helpers (e.g.
+`profile-completion`, `stats`) are the documented exception;
+`web/e2e/refactor-isolation.spec.ts` guards the historically-coupled
+paths. When you need to share logic between features, extract the
+shared surface to `src/shared/` rather than importing across features.
 
 ---
 
@@ -257,11 +261,13 @@ budget envelope — is documented in [`docs/testing.md`](docs/testing.md).
 
 ## 5. Code quality rules
 
-These are non-negotiable. They keep the codebase reviewable.
+These are the targets we hold the line on — they keep the codebase
+reviewable. A handful of legacy files still exceed the file-length
+target and are tracked for splitting; new code should respect them.
 
-| Metric                     | Limit | Action when exceeded |
-|----------------------------|-------|----------------------|
-| Lines per file             | 600   | Split by sub-domain or responsibility |
+| Metric                     | Target | Action when exceeded |
+|----------------------------|--------|----------------------|
+| Lines per file             | ~600 (soft) | Split by sub-domain or responsibility |
 | Lines per function         | 50    | Extract helper functions |
 | Parameters per function    | 4     | Group into a struct or options object |
 | Nesting depth              | 3     | Use early returns or extract |

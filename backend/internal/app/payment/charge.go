@@ -221,8 +221,8 @@ func (c *ChargeService) createPaymentIntentFromExisting(ctx context.Context, inp
 // retry. Idempotency (record already in non-pending state) is
 // preserved.
 //
-// TODO(SEC-13): Once audit logging is wired by Agent A, emit
-// `payment_confirm_attempt_unverified` here when ErrPaymentNotConfirmed
+// TODO(SEC-13): Once audit logging is wired here, emit
+// `payment_confirm_attempt_unverified` when ErrPaymentNotConfirmed
 // fires — that is the signal of a possible fraud attempt.
 func (c *ChargeService) MarkPaymentSucceeded(ctx context.Context, proposalID uuid.UUID) error {
 	// Webhook / scheduler path — system tag so the lookup runs
