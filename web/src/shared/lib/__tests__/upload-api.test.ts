@@ -7,10 +7,18 @@ import {
   uploadVideo,
 } from "../upload-api"
 
-// Mock global fetch — the upload helpers call window.fetch directly
-// (intentionally bypassing the typed apiClient because the backend
-// expects multipart/form-data, not JSON).
+// The photo + delete helpers call window.fetch directly (photo is
+// multipart; delete is a JSON-less DELETE). The VIDEO helpers now use
+// the DIRECT-to-R2 presigned flow (presign + complete via apiClient,
+// PUT to R2 via fetch) so the prod 413 (Vercel proxy body cap) no
+// longer truncates large videos — apiClient is mocked for those.
 type FetchArgs = [RequestInfo | URL, RequestInit | undefined]
+
+const mockApiClient = vi.fn()
+vi.mock("@/shared/lib/api-client", () => ({
+  apiClient: (...a: unknown[]) => mockApiClient(...a),
+  API_BASE_URL: "",
+}))
 
 describe("shared/lib/upload-api", () => {
   let fetchMock: ReturnType<typeof vi.fn>
@@ -18,6 +26,7 @@ describe("shared/lib/upload-api", () => {
   beforeEach(() => {
     fetchMock = vi.fn()
     vi.stubGlobal("fetch", fetchMock)
+    mockApiClient.mockReset()
   })
 
   afterEach(() => {
@@ -88,35 +97,47 @@ describe("shared/lib/upload-api", () => {
     })
   })
 
-  describe("uploadVideo", () => {
-    it("targets the video endpoint and forwards the file payload", async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ url: "https://cdn/intro.mp4" }),
-      })
+  describe("uploadVideo (direct-to-R2 presigned)", () => {
+    it("presigns /upload/video, PUTs to R2, then completes", async () => {
+      mockApiClient
+        .mockResolvedValueOnce({
+          upload_url: "https://pub-x.r2.dev/put/i?sig=1",
+          file_key: "profiles/org/video/i.mp4",
+          public_url: "https://cdn/intro.mp4",
+        })
+        .mockResolvedValueOnce({ url: "https://cdn/intro.mp4" })
+      fetchMock.mockResolvedValueOnce({ ok: true, status: 200 })
 
       const file = new File(["v"], "intro.mp4", { type: "video/mp4" })
       const result = await uploadVideo(file)
 
       expect(result.url).toBe("https://cdn/intro.mp4")
-      const [url] = fetchMock.mock.calls[0] as FetchArgs
-      expect(String(url)).toContain("/api/v1/upload/video")
+      expect(mockApiClient.mock.calls[0][0]).toBe("/api/v1/upload/video/presign")
+      expect(mockApiClient.mock.calls[1][0]).toBe("/api/v1/upload/video/complete")
+      // bytes PUT directly to the R2 origin, not the proxy
+      const [putUrl, putInit] = fetchMock.mock.calls[0] as FetchArgs
+      expect(String(putUrl)).toBe("https://pub-x.r2.dev/put/i?sig=1")
+      expect(putInit?.method).toBe("PUT")
     })
   })
 
-  describe("uploadReferrerVideo", () => {
-    it("targets the referrer-specific video endpoint", async () => {
-      fetchMock.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ url: "https://cdn/ref.mp4" }),
-      })
+  describe("uploadReferrerVideo (direct-to-R2 presigned)", () => {
+    it("targets the referrer-specific presign + complete endpoints", async () => {
+      mockApiClient
+        .mockResolvedValueOnce({
+          upload_url: "https://pub-x.r2.dev/put/r?sig=1",
+          file_key: "profiles/org/referrer_video/r.mp4",
+          public_url: "https://cdn/ref.mp4",
+        })
+        .mockResolvedValueOnce({ url: "https://cdn/ref.mp4" })
+      fetchMock.mockResolvedValueOnce({ ok: true, status: 200 })
 
       const file = new File(["v"], "ref.mp4", { type: "video/mp4" })
       const result = await uploadReferrerVideo(file)
 
       expect(result.url).toBe("https://cdn/ref.mp4")
-      const [url] = fetchMock.mock.calls[0] as FetchArgs
-      expect(String(url)).toContain("/api/v1/upload/referrer-video")
+      expect(mockApiClient.mock.calls[0][0]).toBe("/api/v1/upload/referrer-video/presign")
+      expect(mockApiClient.mock.calls[1][0]).toBe("/api/v1/upload/referrer-video/complete")
     })
   })
 

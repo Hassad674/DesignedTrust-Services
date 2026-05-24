@@ -1,4 +1,5 @@
 import { apiClient, API_BASE_URL } from "@/shared/lib/api-client"
+import { uploadVideoDirect } from "@/shared/lib/upload/direct-video-upload"
 
 import type { Get, Post, Put, Void } from "@/shared/lib/api-paths"
 export type PortfolioMedia = {
@@ -116,21 +117,19 @@ export async function uploadPortfolioImage(
   return res.json()
 }
 
+// Portfolio video — DIRECT-to-R2 presigned upload (presign + complete)
+// so videos bypass the Vercel proxy ~4.5 MB body cap. /complete returns
+// the public URL and fires the SAME moderation pipeline as the legacy
+// multipart POST. The caller persists the returned URL onto its
+// portfolio item. See shared/lib/upload/direct-video-upload.ts.
 export async function uploadPortfolioVideo(
   file: File,
 ): Promise<{ url: string }> {
-  const formData = new FormData()
-  formData.append("file", file)
-
-  const res = await fetch(`${API_BASE_URL}/api/v1/upload/portfolio-video`, {
-    method: "POST",
-    credentials: "include",
-    body: formData,
-  })
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: "Upload failed" }))
-    throw new Error(err.message || "Upload failed")
-  }
-  return res.json()
+  return uploadVideoDirect<{ url: string }>(
+    {
+      presign: "/api/v1/upload/portfolio-video/presign",
+      complete: "/api/v1/upload/portfolio-video/complete",
+    },
+    file,
+  )
 }

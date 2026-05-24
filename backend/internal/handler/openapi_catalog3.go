@@ -282,6 +282,27 @@ func catalogueUpload(c map[string]routeSpec) {
 		Tags: []string{"upload"}, Summary: "Delete referrer intro video upload",
 		AuthRequired: true, SuccessKind: successNoContent, SuccessStatus: "204",
 	}
+	// DIRECT-to-R2 presigned video flow. presign returns a short-lived
+	// PUT URL the browser uploads to directly (bypassing the Vercel
+	// proxy body cap); complete persists the URL + triggers moderation.
+	for _, ep := range []struct {
+		method, route, summary string
+	}{
+		{"POST", "/api/v1/upload/video/presign", "Get a presigned URL for a direct intro-video upload"},
+		{"POST", "/api/v1/upload/video/complete", "Confirm a direct intro-video upload"},
+		{"POST", "/api/v1/upload/referrer-video/presign", "Get a presigned URL for a direct referrer-video upload"},
+		{"POST", "/api/v1/upload/referrer-video/complete", "Confirm a direct referrer-video upload"},
+		{"POST", "/api/v1/upload/portfolio-video/presign", "Get a presigned URL for a direct portfolio-video upload"},
+		{"POST", "/api/v1/upload/portfolio-video/complete", "Confirm a direct portfolio-video upload"},
+		{"POST", "/api/v1/upload/review-video/presign", "Get a presigned URL for a direct review-video upload"},
+		{"POST", "/api/v1/upload/review-video/complete", "Confirm a direct review-video upload"},
+	} {
+		c[ep.method+" "+ep.route] = routeSpec{
+			Tags: []string{"upload"}, Summary: ep.summary,
+			AuthRequired: true, RequestBody: rawJSONRequestBody(),
+			SuccessKind: successRawJSON, SuccessStatus: "200",
+		}
+	}
 }
 
 func catalogueCall(c map[string]routeSpec) {

@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/shared/lib/api-client"
+import { uploadVideoDirect } from "@/shared/lib/upload/direct-video-upload"
 
 // Per-persona video-upload boundary for the referrer aggregate.
 // Hits the dedicated endpoints under /api/v1/referrer-profile/video
@@ -9,24 +10,19 @@ import { API_BASE_URL } from "@/shared/lib/api-client"
 
 type UploadVideoResponse = { video_url: string }
 
+// Direct-to-R2 presigned upload (presign + complete) so videos bypass
+// the Vercel proxy body cap. /video/complete persists video_url and
+// fires the SAME moderation pipeline as the legacy multipart POST.
 export async function uploadReferrerVideo(
   file: File,
 ): Promise<UploadVideoResponse> {
-  const formData = new FormData()
-  formData.append("file", file)
-  const res = await fetch(
-    `${API_BASE_URL}/api/v1/referrer-profile/video`,
+  return uploadVideoDirect<UploadVideoResponse>(
     {
-      method: "POST",
-      credentials: "include",
-      body: formData,
+      presign: "/api/v1/referrer-profile/video/presign",
+      complete: "/api/v1/referrer-profile/video/complete",
     },
+    file,
   )
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: "upload_failed" }))
-    throw new Error(err.message || "upload_failed")
-  }
-  return res.json()
 }
 
 export async function deleteReferrerVideo(): Promise<void> {

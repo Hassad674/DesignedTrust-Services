@@ -105,6 +105,12 @@ func mountSplitProfilePersonas(r chi.Router, deps RouterDeps, auth func(http.Han
 			if deps.FreelanceProfileVideo != nil {
 				r.With(middleware.RequirePermission(organization.PermOrgProfileEdit)).Post("/video", deps.FreelanceProfileVideo.Upload)
 				r.With(middleware.RequirePermission(organization.PermOrgProfileEdit)).Delete("/video", deps.FreelanceProfileVideo.Delete)
+				// DIRECT-to-R2 presigned video flow (bypasses Vercel's
+				// 4.5 MB proxy body cap). presign issues a PUT URL;
+				// complete persists video_url + fires the SAME
+				// moderation pipeline as the multipart POST above.
+				r.With(middleware.RequirePermission(organization.PermOrgProfileEdit)).Post("/video/presign", deps.FreelanceProfileVideo.PresignVideo)
+				r.With(middleware.RequirePermission(organization.PermOrgProfileEdit)).Post("/video/complete", deps.FreelanceProfileVideo.CompleteVideo)
 			}
 			if deps.FreelancePricing != nil {
 				r.Get("/pricing", deps.FreelancePricing.GetMy)
@@ -124,6 +130,11 @@ func mountSplitProfilePersonas(r chi.Router, deps RouterDeps, auth func(http.Han
 			if deps.ReferrerProfileVideo != nil {
 				r.With(middleware.RequirePermission(organization.PermOrgProfileEdit)).Post("/video", deps.ReferrerProfileVideo.Upload)
 				r.With(middleware.RequirePermission(organization.PermOrgProfileEdit)).Delete("/video", deps.ReferrerProfileVideo.Delete)
+				// DIRECT-to-R2 presigned video flow — see freelance
+				// counterpart. Persists referrer_profiles.video_url +
+				// fires the SAME moderation pipeline.
+				r.With(middleware.RequirePermission(organization.PermOrgProfileEdit)).Post("/video/presign", deps.ReferrerProfileVideo.PresignVideo)
+				r.With(middleware.RequirePermission(organization.PermOrgProfileEdit)).Post("/video/complete", deps.ReferrerProfileVideo.CompleteVideo)
 			}
 			if deps.ReferrerPricing != nil {
 				r.Get("/pricing", deps.ReferrerPricing.GetMy)

@@ -362,6 +362,16 @@ func cataloguePersonaProfiles(c map[string]routeSpec) {
 		Tags: []string{"freelance-profile"}, Summary: "Delete freelance intro video",
 		AuthRequired: true, SuccessKind: successNoContent, SuccessStatus: "204",
 	}
+	c["POST /api/v1/freelance-profile/video/presign"] = routeSpec{
+		Tags: []string{"freelance-profile"}, Summary: "Get a presigned URL for a direct freelance-video upload",
+		AuthRequired: true, RequestBody: rawJSONRequestBody(),
+		SuccessKind: successRawJSON, SuccessStatus: "200",
+	}
+	c["POST /api/v1/freelance-profile/video/complete"] = routeSpec{
+		Tags: []string{"freelance-profile"}, Summary: "Confirm a direct freelance-video upload",
+		AuthRequired: true, RequestBody: rawJSONRequestBody(),
+		SuccessKind: successRawJSON, SuccessStatus: "200",
+	}
 	c["GET /api/v1/freelance-profiles/{orgID}"] = routeSpec{
 		Tags: []string{"freelance-profile"}, Summary: "Public freelance profile by org id",
 		SuccessKind: successJSONRef, SuccessRef: "FreelanceProfileResponse", SuccessStatus: "200",
@@ -426,6 +436,16 @@ func cataloguePersonaProfiles(c map[string]routeSpec) {
 	c["DELETE /api/v1/referrer-profile/video"] = routeSpec{
 		Tags: []string{"referrer-profile"}, Summary: "Delete referrer intro video",
 		AuthRequired: true, SuccessKind: successNoContent, SuccessStatus: "204",
+	}
+	c["POST /api/v1/referrer-profile/video/presign"] = routeSpec{
+		Tags: []string{"referrer-profile"}, Summary: "Get a presigned URL for a direct referrer-video upload",
+		AuthRequired: true, RequestBody: rawJSONRequestBody(),
+		SuccessKind: successRawJSON, SuccessStatus: "200",
+	}
+	c["POST /api/v1/referrer-profile/video/complete"] = routeSpec{
+		Tags: []string{"referrer-profile"}, Summary: "Confirm a direct referrer-video upload",
+		AuthRequired: true, RequestBody: rawJSONRequestBody(),
+		SuccessKind: successRawJSON, SuccessStatus: "200",
 	}
 	c["GET /api/v1/referrer-profiles/{orgID}"] = routeSpec{
 		Tags: []string{"referrer-profile"}, Summary: "Public referrer profile by org id",
