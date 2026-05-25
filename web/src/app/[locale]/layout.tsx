@@ -6,6 +6,7 @@ import { getMessages, getTranslations } from "next-intl/server"
 import { notFound } from "next/navigation"
 import { routing } from "@i18n/routing"
 import { Toaster } from "sonner"
+import { ReportButton } from "@/features/feedback/components/report-button"
 import { Providers } from "./providers"
 
 // Soleil v2 typography stack:
@@ -81,6 +82,10 @@ export default async function LocaleLayout({
       <body className="font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
+          {/* Always-visible "Signaler" shortcut on every page (public +
+           * app + auth). Anchored bottom-LEFT so it never collides with
+           * the messaging ChatWidget (bottom-right, desktop-only). */}
+          <ReportButton />
           <Toaster position="top-right" richColors closeButton duration={3000} />
         </NextIntlClientProvider>
       </body>
