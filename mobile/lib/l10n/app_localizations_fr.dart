@@ -4599,4 +4599,82 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get referralProjectionEmpty =>
       'Pas encore de jalons commissionnables.';
+
+  @override
+  String get feedbackButtonLabel => 'Signaler';
+
+  @override
+  String get feedbackButtonTooltip =>
+      'Signaler un bug ou un problème de sécurité';
+
+  @override
+  String get feedbackSheetTitle => 'Signaler un problème';
+
+  @override
+  String get feedbackSheetSubtitle =>
+      'Aide-nous à nous améliorer en signalant un bug ou un problème de sécurité.';
+
+  @override
+  String get feedbackTypeBug => 'Bug';
+
+  @override
+  String get feedbackTypeSecurity => 'Sécurité';
+
+  @override
+  String get feedbackTitleLabel => 'Titre';
+
+  @override
+  String get feedbackTitleHint => 'Résume brièvement le problème';
+
+  @override
+  String get feedbackDescriptionLabel => 'Description';
+
+  @override
+  String get feedbackDescriptionHint =>
+      'Que s\'est-il passé ? À quoi t\'attendais-tu ?';
+
+  @override
+  String get feedbackEmailLabel => 'Email (optionnel)';
+
+  @override
+  String get feedbackEmailHint => 'Pour qu\'on puisse te recontacter';
+
+  @override
+  String get feedbackAttachmentsLabel => 'Pièces jointes';
+
+  @override
+  String get feedbackAddImage => 'Ajouter une image';
+
+  @override
+  String get feedbackAddVideo => 'Ajouter une vidéo';
+
+  @override
+  String get feedbackAttachmentsLoginHint =>
+      'Connecte-toi pour joindre une capture ou une vidéo.';
+
+  @override
+  String get feedbackUploading => 'Envoi en cours…';
+
+  @override
+  String get feedbackRemoveAttachment => 'Retirer';
+
+  @override
+  String get feedbackTitleRequired => 'Ajoute un titre.';
+
+  @override
+  String get feedbackDescriptionRequired => 'Ajoute une description.';
+
+  @override
+  String get feedbackSubmit => 'Envoyer';
+
+  @override
+  String get feedbackSuccess => 'Merci ! Ton signalement a bien été envoyé.';
+
+  @override
+  String get feedbackError =>
+      'Impossible d\'envoyer ton signalement. Réessaie.';
+
+  @override
+  String get feedbackUploadError =>
+      'Impossible d\'envoyer le fichier. Réessaie.';
 }

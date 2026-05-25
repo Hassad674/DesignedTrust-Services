@@ -4564,4 +4564,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get referralProjectionEmpty => 'No commissionable milestones yet.';
+
+  @override
+  String get feedbackButtonLabel => 'Report';
+
+  @override
+  String get feedbackButtonTooltip => 'Report a bug or a security issue';
+
+  @override
+  String get feedbackSheetTitle => 'Report a problem';
+
+  @override
+  String get feedbackSheetSubtitle =>
+      'Help us improve by reporting a bug or a security issue.';
+
+  @override
+  String get feedbackTypeBug => 'Bug';
+
+  @override
+  String get feedbackTypeSecurity => 'Security';
+
+  @override
+  String get feedbackTitleLabel => 'Title';
+
+  @override
+  String get feedbackTitleHint => 'Briefly summarize the problem';
+
+  @override
+  String get feedbackDescriptionLabel => 'Description';
+
+  @override
+  String get feedbackDescriptionHint => 'What happened? What did you expect?';
+
+  @override
+  String get feedbackEmailLabel => 'Email (optional)';
+
+  @override
+  String get feedbackEmailHint => 'So we can get back to you';
+
+  @override
+  String get feedbackAttachmentsLabel => 'Attachments';
+
+  @override
+  String get feedbackAddImage => 'Add an image';
+
+  @override
+  String get feedbackAddVideo => 'Add a video';
+
+  @override
+  String get feedbackAttachmentsLoginHint =>
+      'Sign in to attach a screenshot or a video.';
+
+  @override
+  String get feedbackUploading => 'Uploading…';
+
+  @override
+  String get feedbackRemoveAttachment => 'Remove';
+
+  @override
+  String get feedbackTitleRequired => 'Please add a title.';
+
+  @override
+  String get feedbackDescriptionRequired => 'Please add a description.';
+
+  @override
+  String get feedbackSubmit => 'Send';
+
+  @override
+  String get feedbackSuccess => 'Thanks! Your report has been sent.';
+
+  @override
+  String get feedbackError => 'Could not send your report. Please try again.';
+
+  @override
+  String get feedbackUploadError =>
+      'Could not upload the file. Please try again.';
 }

@@ -63,7 +63,7 @@ import 'app_localizations_fr.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('fr'),
+    Locale('fr')
   ];
 
   /// No description provided for @appTitle.
@@ -8353,6 +8353,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No commissionable milestones yet.'**
   String get referralProjectionEmpty;
+
+  /// No description provided for @feedbackButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get feedbackButtonLabel;
+
+  /// No description provided for @feedbackButtonTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a bug or a security issue'**
+  String get feedbackButtonTooltip;
+
+  /// No description provided for @feedbackSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem'**
+  String get feedbackSheetTitle;
+
+  /// No description provided for @feedbackSheetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve by reporting a bug or a security issue.'**
+  String get feedbackSheetSubtitle;
+
+  /// No description provided for @feedbackTypeBug.
+  ///
+  /// In en, this message translates to:
+  /// **'Bug'**
+  String get feedbackTypeBug;
+
+  /// No description provided for @feedbackTypeSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get feedbackTypeSecurity;
+
+  /// No description provided for @feedbackTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get feedbackTitleLabel;
+
+  /// No description provided for @feedbackTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Briefly summarize the problem'**
+  String get feedbackTitleHint;
+
+  /// No description provided for @feedbackDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get feedbackDescriptionLabel;
+
+  /// No description provided for @feedbackDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened? What did you expect?'**
+  String get feedbackDescriptionHint;
+
+  /// No description provided for @feedbackEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email (optional)'**
+  String get feedbackEmailLabel;
+
+  /// No description provided for @feedbackEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'So we can get back to you'**
+  String get feedbackEmailHint;
+
+  /// No description provided for @feedbackAttachmentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get feedbackAttachmentsLabel;
+
+  /// No description provided for @feedbackAddImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an image'**
+  String get feedbackAddImage;
+
+  /// No description provided for @feedbackAddVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a video'**
+  String get feedbackAddVideo;
+
+  /// No description provided for @feedbackAttachmentsLoginHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to attach a screenshot or a video.'**
+  String get feedbackAttachmentsLoginHint;
+
+  /// No description provided for @feedbackUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading…'**
+  String get feedbackUploading;
+
+  /// No description provided for @feedbackRemoveAttachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get feedbackRemoveAttachment;
+
+  /// No description provided for @feedbackTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add a title.'**
+  String get feedbackTitleRequired;
+
+  /// No description provided for @feedbackDescriptionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add a description.'**
+  String get feedbackDescriptionRequired;
+
+  /// No description provided for @feedbackSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get feedbackSubmit;
+
+  /// No description provided for @feedbackSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks! Your report has been sent.'**
+  String get feedbackSuccess;
+
+  /// No description provided for @feedbackError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send your report. Please try again.'**
+  String get feedbackError;
+
+  /// No description provided for @feedbackUploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload the file. Please try again.'**
+  String get feedbackUploadError;
 }
 
 class _AppLocalizationsDelegate
@@ -8382,9 +8526,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }
