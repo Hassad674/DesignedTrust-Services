@@ -64,6 +64,12 @@ vi.mock("@/features/disputes/components/dispute-detail-page", () => ({
 vi.mock("@/features/invoices/components/invoices-page", () => ({
   InvoicesPage: () => <div data-testid="invoices-page" />,
 }))
+vi.mock("@/features/feedback/components/feedback-page", () => ({
+  FeedbackPage: () => <div data-testid="feedback-page" />,
+}))
+vi.mock("@/features/feedback/components/feedback-detail-page", () => ({
+  FeedbackDetailPage: () => <div data-testid="feedback-detail-page" />,
+}))
 
 // AdminLayout wraps with sidebar + outlet — stub it so the test only
 // exercises the route resolution.
@@ -155,6 +161,16 @@ describe("AppRouter — ADMIN-PERF-01 lazy routes", () => {
   it("renders ConversationsPage on /conversations", async () => {
     renderRouter("/conversations")
     expect(await screen.findByTestId("conversations-page")).toBeInTheDocument()
+  })
+
+  it("renders FeedbackPage on /feedback", async () => {
+    renderRouter("/feedback")
+    expect(await screen.findByTestId("feedback-page")).toBeInTheDocument()
+  })
+
+  it("renders FeedbackDetailPage on /feedback/:id", async () => {
+    renderRouter("/feedback/abc")
+    expect(await screen.findByTestId("feedback-detail-page")).toBeInTheDocument()
   })
 
   it("renders the route skeleton fallback while a chunk is suspended", async () => {
