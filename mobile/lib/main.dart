@@ -15,6 +15,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'core/router/app_router.dart';
 import 'features/call/presentation/widgets/call_event_listener.dart';
+import 'features/feedback/presentation/widgets/feedback_overlay.dart';
 
 /// Whether Firebase has finished initializing. Exposed so the FCM
 /// service (and any future Firebase-dependent feature, including
@@ -191,7 +192,17 @@ class MarketplaceApp extends ConsumerWidget {
       ],
       routerConfig: router,
       builder: (context, child) {
-        return CallEventListener(child: child ?? const SizedBox.shrink());
+        // Step aside for the full-screen call surface so the "Signaler"
+        // pill never overlaps the LiveKit call controls. `main.dart` is
+        // the composition root, so reading the call-visibility flag here
+        // keeps the feedback feature itself free of any call import.
+        final callVisible = ref.watch(callScreenVisibleProvider);
+        return CallEventListener(
+          child: FeedbackOverlay(
+            hidden: callVisible,
+            child: child ?? const SizedBox.shrink(),
+          ),
+        );
       },
     );
   }
