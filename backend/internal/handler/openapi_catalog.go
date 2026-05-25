@@ -24,6 +24,7 @@ func buildCatalogue() map[string]routeSpec {
 	catalogueJob(c)
 	catalogueReview(c)
 	catalogueReport(c)
+	catalogueFeedback(c)
 	catalogueSocialLink(c)
 	cataloguePortfolio(c)
 	catalogueNotification(c)

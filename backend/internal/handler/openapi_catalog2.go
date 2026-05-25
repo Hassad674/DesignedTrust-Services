@@ -267,6 +267,41 @@ func catalogueReport(c map[string]routeSpec) {
 	}
 }
 
+// catalogueFeedback describes the platform feedback (bug / security
+// report) feature: the public submit + presign surface and the admin
+// triage surface. Submit is anonymous-allowed (AuthRequired false);
+// presign and every /admin/feedback route require auth.
+func catalogueFeedback(c map[string]routeSpec) {
+	c["POST /api/v1/feedback/"] = routeSpec{
+		Tags: []string{"feedback"}, Summary: "Submit a bug or security report (anonymous allowed)",
+		RequestBody: jsonRequestBody("SubmitFeedbackRequest"),
+		SuccessKind: successJSONRef, SuccessRef: "SubmitFeedbackResponse", SuccessStatus: "201",
+	}
+	c["POST /api/v1/feedback/attachments/presign"] = routeSpec{
+		Tags: []string{"feedback"}, Summary: "Presign a feedback media upload (auth required)",
+		AuthRequired: true, RequestBody: jsonRequestBody("PresignFeedbackAttachmentRequest"),
+		SuccessKind: successJSONRef, SuccessRef: "PresignFeedbackAttachmentResponse", SuccessStatus: "200",
+	}
+	c["GET /api/v1/admin/feedback"] = routeSpec{
+		Tags: []string{"admin", "feedback"}, Summary: "List feedback reports (admin)",
+		AuthRequired: true, SuccessKind: successJSONList, SuccessRef: "AdminFeedbackReportResponse", SuccessStatus: "200",
+	}
+	c["GET /api/v1/admin/feedback/{id}"] = routeSpec{
+		Tags: []string{"admin", "feedback"}, Summary: "Get a feedback report with attachments + notes (admin)",
+		AuthRequired: true, SuccessKind: successJSONRef, SuccessRef: "AdminFeedbackReportDetailResponse", SuccessStatus: "200",
+	}
+	c["PATCH /api/v1/admin/feedback/{id}"] = routeSpec{
+		Tags: []string{"admin", "feedback"}, Summary: "Update a feedback report status/severity (admin)",
+		AuthRequired: true, RequestBody: jsonRequestBody("UpdateFeedbackReportRequest"),
+		SuccessKind: successJSONRef, SuccessRef: "AdminFeedbackReportResponse", SuccessStatus: "200",
+	}
+	c["POST /api/v1/admin/feedback/{id}/notes"] = routeSpec{
+		Tags: []string{"admin", "feedback"}, Summary: "Add an internal note to a feedback report (admin)",
+		AuthRequired: true, RequestBody: jsonRequestBody("AddFeedbackNoteRequest"),
+		SuccessKind: successJSONRef, SuccessRef: "FeedbackNoteResponse", SuccessStatus: "201",
+	}
+}
+
 func catalogueSocialLink(c map[string]routeSpec) {
 	c["GET /api/v1/profile/social-links/"] = routeSpec{
 		Tags: []string{"social-link"}, Summary: "List my social links",

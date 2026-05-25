@@ -297,6 +297,17 @@ func (r *schemaRegistry) registerAllCuratedTypes() {
 	r.registerType(reflect.TypeOf(dtoresp.ReviewResponse{}))
 	r.registerType(reflect.TypeOf(dtoresp.ReportResponse{}))
 
+	// Feedback (platform bug / security reports)
+	r.registerType(reflect.TypeOf(dtoreq.SubmitFeedbackRequest{}))
+	r.registerType(reflect.TypeOf(dtoreq.PresignFeedbackAttachmentRequest{}))
+	r.registerType(reflect.TypeOf(dtoreq.UpdateFeedbackReportRequest{}))
+	r.registerType(reflect.TypeOf(dtoreq.AddFeedbackNoteRequest{}))
+	r.registerType(reflect.TypeOf(dtoresp.SubmitFeedbackResponse{}))
+	r.registerType(reflect.TypeOf(dtoresp.PresignFeedbackAttachmentResponse{}))
+	r.registerType(reflect.TypeOf(dtoresp.AdminFeedbackReportResponse{}))
+	r.registerType(reflect.TypeOf(dtoresp.AdminFeedbackReportDetailResponse{}))
+	r.registerType(reflect.TypeOf(dtoresp.FeedbackNoteResponse{}))
+
 	// Referral
 	r.registerType(reflect.TypeOf(dtoresp.ReferralResponse{}))
 	r.registerType(reflect.TypeOf(dtoreq.CreateReferralRequest{}))

@@ -43,13 +43,18 @@ func TestMountHelpers_RouteCounts(t *testing.T) {
 		{"jobs", func(r chi.Router) { mountJobRoutes(r, deps, auth) }, 16},
 		{"review", func(r chi.Router) { mountReviewRoutes(r, deps, auth) }, 4},
 		{"report", func(r chi.Router) { mountReportRoutes(r, deps, auth) }, 2},
+		// feedback: public submit + presign (2). optionalAuth is the
+		// same passthrough as auth here.
+		{"feedback", func(r chi.Router) { mountFeedbackRoutes(r, deps, auth, auth) }, 2},
 		{"social", func(r chi.Router) { mountSocialLinkRoutes(r, deps, auth) }, 12},
 		{"portfolio", func(r chi.Router) { mountPortfolioRoutes(r, deps, auth) }, 6},
 		{"notification", func(r chi.Router) { mountNotificationRoutes(r, deps, auth) }, 9},
 		{"billing", func(r chi.Router) { mountBillingRoutes(r, deps, auth) }, 29},
 		{"referral", func(r chi.Router) { mountReferralRoutes(r, deps, auth) }, 9},
 		{"dispute", func(r chi.Router) { mountDisputeRoutes(r, deps, auth) }, 7},
-		{"admin", func(r chi.Router) { mountAdminRoutes(r, deps, auth) }, 61},
+		// admin: +4 for the feedback triage surface (list, get, patch,
+		// add-note).
+		{"admin", func(r chi.Router) { mountAdminRoutes(r, deps, auth) }, 65},
 	}
 
 	for _, tc := range cases {

@@ -52,7 +52,22 @@ func mountAdminRoutes(r chi.Router, deps RouterDeps, auth func(http.Handler) htt
 		mountAdminTeamRoutes(r, deps)
 		mountAdminSearchRoutes(r, deps)
 		mountAdminInvoicingRoutes(r, deps)
+		mountAdminFeedbackRoutes(r, deps)
 	})
+}
+
+// mountAdminFeedbackRoutes wires the admin triage surface for platform
+// feedback (bug/security reports). Optional — nil handler = feature
+// disabled, mounting is a no-op (project modularity rule). Inherits the
+// outer RequireAdmin gate; the handler re-checks defensively.
+func mountAdminFeedbackRoutes(r chi.Router, deps RouterDeps) {
+	if deps.AdminFeedback == nil {
+		return
+	}
+	r.Get("/feedback", deps.AdminFeedback.List)
+	r.Get("/feedback/{id}", deps.AdminFeedback.Get)
+	r.Patch("/feedback/{id}", deps.AdminFeedback.Update)
+	r.Post("/feedback/{id}/notes", deps.AdminFeedback.AddNote)
 }
 
 func mountAdminUsersRoutes(r chi.Router, deps RouterDeps) {

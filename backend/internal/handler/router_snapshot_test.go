@@ -124,6 +124,8 @@ func snapshotDeps() RouterDeps {
 		Notification:          &NotificationHandler{},
 		Stripe:                &StripeHandler{},
 		Report:                &ReportHandler{},
+		Feedback:              &FeedbackHandler{},
+		AdminFeedback:         &AdminFeedbackHandler{},
 		Wallet:                &WalletHandler{},
 		Billing:               &BillingHandler{},
 		Subscription:          &SubscriptionHandler{},
