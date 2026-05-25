@@ -47,6 +47,8 @@ type routerHandlers struct {
 	Embedded              *handler.EmbeddedHandler
 	Notification          *handler.NotificationHandler
 	Stripe                *handler.StripeHandler
+	Feedback              *handler.FeedbackHandler
+	AdminFeedback         *handler.AdminFeedbackHandler
 	Wallet                *handler.WalletHandler
 	Billing               *handler.BillingHandler
 	Subscription          *handler.SubscriptionHandler
@@ -118,6 +120,8 @@ type finalHandlers struct {
 	Embedded              *handler.EmbeddedHandler
 	Notification          *handler.NotificationHandler
 	Stripe                *handler.StripeHandler
+	Feedback              *handler.FeedbackHandler
+	AdminFeedback         *handler.AdminFeedbackHandler
 	Wallet                *handler.WalletHandler
 	Billing               *handler.BillingHandler
 	Subscription          *handler.SubscriptionHandler
@@ -181,6 +185,8 @@ func buildRouterHandlers(h finalHandlers) routerHandlers {
 		Embedded:              h.Embedded,
 		Notification:          h.Notification,
 		Stripe:                h.Stripe,
+		Feedback:              h.Feedback,
+		AdminFeedback:         h.AdminFeedback,
 		Wallet:                h.Wallet,
 		Billing:               h.Billing,
 		Subscription:          h.Subscription,
@@ -244,6 +250,8 @@ func assembleRouter(b bootstrappedRouter) chi.Router {
 		Embedded:              b.Handlers.Embedded,
 		Notification:          b.Handlers.Notification,
 		Stripe:                b.Handlers.Stripe,
+		Feedback:              b.Handlers.Feedback,
+		AdminFeedback:         b.Handlers.AdminFeedback,
 		Wallet:                b.Handlers.Wallet,
 		Billing:               b.Handlers.Billing,
 		Subscription:          b.Handlers.Subscription,

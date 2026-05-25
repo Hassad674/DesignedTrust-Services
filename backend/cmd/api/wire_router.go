@@ -109,6 +109,8 @@ type routerDepsBundle struct {
 	Embedded              *handler.EmbeddedHandler
 	Notification          *handler.NotificationHandler
 	Stripe                *handler.StripeHandler
+	Feedback              *handler.FeedbackHandler
+	AdminFeedback         *handler.AdminFeedbackHandler
 	Wallet                *handler.WalletHandler
 	Billing               *handler.BillingHandler
 	Subscription          *handler.SubscriptionHandler
@@ -188,6 +190,8 @@ func wireRouter(b routerDepsBundle) chi.Router {
 		Embedded:             b.Embedded,
 		Notification:         b.Notification,
 		Stripe:               b.Stripe,
+		Feedback:             b.Feedback,
+		AdminFeedback:        b.AdminFeedback,
 		Wallet:               b.Wallet,
 		Billing:              b.Billing,
 		Subscription:         b.Subscription,

@@ -298,6 +298,17 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 	reportRepo := reportWire.Repo
 	reportSvc := reportWire.Svc
 
+	// Platform feedback feature (bug / security reports). Fully isolated
+	// — reuses the shared storage port (presigned R2), the audit repo
+	// (best-effort admin-mutation trail), and the GDPR salt (submitter
+	// IP hashing). Removable with zero impact elsewhere.
+	feedbackWire := wireFeedback(feedbackDeps{
+		DB:                infra.DB,
+		Storage:           infra.StorageSvc,
+		Audit:             infra.AuditRepo,
+		AnonymizationSalt: cfg.GDPRAnonymizationSalt,
+	})
+
 	mediaWorkerCtx, mediaWorkerCancel := context.WithCancel(ctx) // #nosec G118 -- cancel func appended to app.closeFns, invoked at graceful shutdown
 	app.closeFns = append(app.closeFns, mediaWorkerCancel)
 	mediaRepo := postgres.NewMediaRepository(infra.DB)
@@ -739,6 +750,7 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 				OrganizationRepo: infra.OrganizationRepo, FrontendURL: cfg.FrontendURL,
 			}),
 			Notification:    notification.Handler,
+			Feedback:        feedbackWire.Handler, AdminFeedback: feedbackWire.AdminHandler,
 			Stripe:          stripeHandler, Wallet: walletHandler, Billing: billingHandler,
 			Subscription:    subscriptionHandler,
 			BillingProfile:  billingProfileHandler, Invoice: invoiceHandler,

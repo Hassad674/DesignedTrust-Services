@@ -55,6 +55,11 @@ type RouterDeps struct {
 	Notification        *NotificationHandler
 	Stripe              *StripeHandler
 	Report              *ReportHandler
+	// Feedback handlers for the platform bug/security report feature.
+	// Both optional — nil disables the corresponding route group, per
+	// the project modularity rule (the whole feature is removable).
+	Feedback      *FeedbackHandler      // public submit + presign
+	AdminFeedback *AdminFeedbackHandler // admin triage surface
 	Wallet              *WalletHandler
 	Billing             *BillingHandler
 	Subscription        *SubscriptionHandler
@@ -166,14 +171,19 @@ func NewRouter(deps RouterDeps) chi.Router {
 	if deps.SessionVersionChecker != nil {
 		sessionVersions = deps.SessionVersionChecker
 	}
-	auth := middleware.AuthFromDeps(middleware.AuthDeps{
+	authDeps := middleware.AuthDeps{
 		TokenService:     deps.TokenService,
 		SessionService:   deps.SessionService,
 		SessionVersions:  sessionVersions,
 		UserState:        deps.UserStateChecker,
 		OrgOverrides:     deps.OrgOverridesResolver,
 		FailClosedInProd: failClosedInProd,
-	})
+	}
+	auth := middleware.AuthFromDeps(authDeps)
+	// optionalAuth recognises a logged-in caller without rejecting an
+	// anonymous one — used by the public feedback submit (anonymous text
+	// allowed, logged-in callers may attach media).
+	optionalAuth := middleware.OptionalAuthFromDeps(authDeps)
 	r := chi.NewRouter()
 
 	mountGlobalMiddleware(r, deps)
@@ -191,6 +201,7 @@ func NewRouter(deps RouterDeps) chi.Router {
 		mountJobRoutes(r, deps, auth)
 		mountReviewRoutes(r, deps, auth)
 		mountReportRoutes(r, deps, auth)
+		mountFeedbackRoutes(r, deps, auth, optionalAuth)
 		mountSocialLinkRoutes(r, deps, auth)
 		mountPortfolioRoutes(r, deps, auth)
 		mountNotificationRoutes(r, deps, auth)

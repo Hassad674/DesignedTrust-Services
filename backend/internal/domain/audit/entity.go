@@ -113,6 +113,14 @@ const (
 	// can reconstruct what was actually moved without joining the
 	// payment_records / referral_commissions tables.
 	ActionWalletWithdrawExecuted Action = "wallet.withdraw_executed"
+
+	// Platform feedback (bug / security report) admin triage. Emitted by
+	// the feedback feature when an admin changes a report's
+	// status/severity or appends an internal note. The feedback feature
+	// is independently removable; these labels stay in the canonical
+	// catalogue (harmless unused constants if the feature is deleted).
+	ActionFeedbackReportUpdated Action = "feedback.report_updated"
+	ActionFeedbackNoteAdded     Action = "feedback.note_added"
 )
 
 // ResourceType is the kind of resource the audit entry refers to.
@@ -131,6 +139,7 @@ const (
 	ResourceTypeReferralCommission  ResourceType = "referral_commission"
 	ResourceTypeReferralAttribution ResourceType = "referral_attribution"
 	ResourceTypeWallet              ResourceType = "wallet"
+	ResourceTypeFeedbackReport      ResourceType = "feedback_report"
 )
 
 // Entry is a single audit log row. Construct via NewEntry — the struct
