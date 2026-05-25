@@ -89,6 +89,16 @@ const InvoicesPage = lazy(() =>
     default: m.InvoicesPage,
   })),
 )
+const FeedbackPage = lazy(() =>
+  import("@/features/feedback/components/feedback-page").then((m) => ({
+    default: m.FeedbackPage,
+  })),
+)
+const FeedbackDetailPage = lazy(() =>
+  import("@/features/feedback/components/feedback-detail-page").then((m) => ({
+    default: m.FeedbackDetailPage,
+  })),
+)
 
 export function AppRouter() {
   return (
@@ -116,6 +126,8 @@ export function AppRouter() {
             <Route path="/disputes" element={<DisputesPage />} />
             <Route path="/disputes/:id" element={<DisputeDetailPage />} />
             <Route path="/invoices" element={<InvoicesPage />} />
+            <Route path="/feedback" element={<FeedbackPage />} />
+            <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
           </Route>
         </Routes>
       </Suspense>
