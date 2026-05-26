@@ -5,7 +5,7 @@
  * Each page exposes generateMetadata that:
  *   1. Pulls title + subtitle from the corresponding legal.docs.<key>
  *      namespace.
- *   2. Suffixes the title with " | Marketplace Service".
+ *   2. Suffixes the title with " | DesignedTrust Services".
  *   3. Sets the appropriate `robots` policy:
  *      - Internal / draft documents (Art. 30 register, AIPD, DPA
  *        template) are kept noindex.
@@ -93,7 +93,7 @@ describe("/legal/* doc pages metadata (D4 + legal-max-blindage)", () => {
         }) => Promise<Record<string, unknown>>
       )({ params: Promise.resolve({ locale: "fr" }) })
 
-      expect(meta.title).toBe(`[${namespace}.title] | Marketplace Service`)
+      expect(meta.title).toBe(`[${namespace}.title] | DesignedTrust Services`)
       expect(meta.description).toBe(`[${namespace}.subtitle]`)
       if (indexable) {
         expect(meta.robots).toBeUndefined()

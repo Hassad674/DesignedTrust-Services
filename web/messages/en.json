@@ -419,7 +419,7 @@
     }
   },
   "metadata": {
-    "title": "Marketplace Service",
+    "title": "DesignedTrust Services",
     "description": "The B2B platform connecting agencies, freelancers and enterprises"
   },
   "landing": {
@@ -1397,7 +1397,7 @@
     },
     "freelance": {
       "publicTitleSuffix": "Freelancer",
-      "publicDescription": "{name}, freelancer{title, select, empty {} other { — {title}}}. Profile on Marketplace Service.",
+      "publicDescription": "{name}, freelancer{title, select, empty {} other { — {title}}}. Profile on DesignedTrust Services.",
       "loadError": "Could not load this freelancer profile. Please try again.",
       "notFoundTitle": "Freelancer profile not found",
       "notFoundDescription": "This profile no longer exists or was removed by its owner.",
@@ -1407,7 +1407,7 @@
     },
     "agency": {
       "publicTitleSuffix": "Agency",
-      "publicDescription": "{name}, agency{title, select, empty {} other { — {title}}}. Profile on Marketplace Service.",
+      "publicDescription": "{name}, agency{title, select, empty {} other { — {title}}}. Profile on DesignedTrust Services.",
       "loadError": "Could not load this agency profile. Please try again.",
       "notFoundTitle": "Agency profile not found",
       "notFoundDescription": "This profile no longer exists or was removed by its owner.",
@@ -1418,7 +1418,7 @@
     "referrer": {
       "publicTitleSuffix": "Business referrer",
       "priceFromLabel": "Commission",
-      "publicDescription": "{name}, business referrer{title, select, empty {} other { — {title}}}. Profile on Marketplace Service.",
+      "publicDescription": "{name}, business referrer{title, select, empty {} other { — {title}}}. Profile on DesignedTrust Services.",
       "loadError": "Could not load this referrer profile. Please try again.",
       "notFoundTitle": "Referrer profile not found",
       "notFoundDescription": "This profile no longer exists or was removed by its owner.",
@@ -1855,20 +1855,20 @@
   },
   "publicListing": {
     "agencies": {
-      "title": "Agency directory — {count} agencies | Marketplace Service",
-      "description": "Browse {count} verified agencies on Marketplace Service. Find the right partner for your B2B project."
+      "title": "Agency directory — {count} agencies | DesignedTrust Services",
+      "description": "Browse {count} verified agencies on DesignedTrust Services. Find the right partner for your B2B project."
     },
     "freelancers": {
-      "title": "Freelance directory — {count} professionals | Marketplace Service",
-      "description": "Connect with {count} verified freelancers on Marketplace Service. Find the perfect independent professional for your B2B project."
+      "title": "Freelance directory — {count} professionals | DesignedTrust Services",
+      "description": "Connect with {count} verified freelancers on DesignedTrust Services. Find the perfect independent professional for your B2B project."
     },
     "referrers": {
-      "title": "Business referrer directory — {count} apporteurs | Marketplace Service",
+      "title": "Business referrer directory — {count} apporteurs | DesignedTrust Services",
       "description": "Browse {count} business referrers ready to connect you with the right agency or freelancer."
     }
   },
   "seo": {
-    "siteName": "Marketplace Service",
+    "siteName": "DesignedTrust Services",
     "footerLabel": "marketplace-service.com",
     "anonymousReviewer": "Verified client",
     "breadcrumbAriaLabel": "Breadcrumb",
@@ -2084,7 +2084,7 @@
     "proposalFlow_pay_subtitle": "Funds are held in escrow and released once the mission is validated.",
     "proposalFlow_pay_summary": "Summary",
     "proposalFlow_pay_secureNotice": "Secured payment · escrow guaranteed by the platform",
-    "proposalFlow_pay_shellBrand": "Marketplace Service",
+    "proposalFlow_pay_shellBrand": "DesignedTrust Services",
     "proposalFlow_pay_shellBackLink": "Back to dashboard",
     "proposalFlow_detail_eyebrowPending": "DESIGNEDTRUST · PENDING PROPOSAL",
     "proposalFlow_detail_eyebrowAccepted": "DESIGNEDTRUST · ACCEPTED PROPOSAL",
@@ -2637,7 +2637,7 @@
       "close": "Close",
       "intro": {
         "title": "What these choices do",
-        "description": "Marketplace Service uses two families of cookies: those that are required to log in and pay, and those that help us understand usage to improve the service. This panel lets you choose."
+        "description": "DesignedTrust Services uses two families of cookies: those that are required to log in and pay, and those that help us understand usage to improve the service. This panel lets you choose."
       },
       "necessary": {
         "title": "Strictly necessary",
@@ -2673,7 +2673,7 @@
       "automatedDecisions": "Automated decisions",
       "documents": "Full documents",
       "dpoContact": "GDPR contact",
-      "copyright": "© {year} Marketplace Service. All rights reserved."
+      "copyright": "© {year} DesignedTrust Services. All rights reserved."
     },
     "common": {
       "placeholder": "This document is the version in force. For any question, write to hassadsmara@designedtrust.com.",
@@ -2683,7 +2683,7 @@
     },
     "privacy": {
       "title": "Privacy policy",
-      "intro": "This policy describes how Marketplace Service collects, uses, and protects your personal data in compliance with the GDPR.",
+      "intro": "This policy describes how DesignedTrust Services collects, uses, and protects your personal data in compliance with the GDPR.",
       "rightsTitle": "Your rights",
       "rightsDescription": "You have rights of access, rectification, erasure, portability, restriction, objection, and consent withdrawal. To exercise them, write to our GDPR contact or appeal to the CNIL ({cnilUrl}).",
       "subprocessorsTitle": "Sub-processors",
@@ -2704,14 +2704,14 @@
       "rows": {
         "session": {
           "name": "session_id",
-          "provider": "Marketplace Service (internal)",
+          "provider": "DesignedTrust Services (internal)",
           "type": "Strictly necessary",
           "purpose": "Maintain your authenticated session",
           "duration": "14 days"
         },
         "consent": {
           "name": "marketplace.analytics.consent",
-          "provider": "Marketplace Service (localStorage)",
+          "provider": "DesignedTrust Services (localStorage)",
           "type": "Strictly necessary",
           "purpose": "Remember your consent choice",
           "duration": "Until browser is cleared"
@@ -2739,7 +2739,7 @@
         },
         "locale": {
           "name": "NEXT_LOCALE",
-          "provider": "Marketplace Service",
+          "provider": "DesignedTrust Services",
           "type": "Functional",
           "purpose": "Remember your preferred language",
           "duration": "Session"
@@ -2953,7 +2953,7 @@
         "title": "Data Processing Agreement (DPA) template",
         "subtitle": "Generic template compliant with GDPR art. 28. To be completed with sub-processor-specific information before signature.",
         "scopeHeading": "Scope",
-        "scopeBody": "The DPA defines the conditions under which a sub-processor processes personal data on behalf of Marketplace Service as controller. It prevails over the main agreement on any data protection matter.",
+        "scopeBody": "The DPA defines the conditions under which a sub-processor processes personal data on behalf of DesignedTrust Services as controller. It prevails over the main agreement on any data protection matter.",
         "articlesHeading": "Articles covered",
         "articlesItems": "Article 1 — Scope|Article 2 — Description of processing|Article 3 — Sub-processor obligations|Article 4 — Data breach notification (48h)|Article 5 — Sub-sub-processing (J-30 authorisation)|Article 6 — Data subject rights|Article 7 — Security measures (GDPR art. 32)|Article 8 — Retention duration|Article 9 — Non-EU transfers (SCC 2021/914)|Article 10 — Annual or motivated audit|Article 11 — Contract end (return or destruction)|Article 12 — Responsibilities and indemnification|Article 13 — Applicable law (France) and jurisdiction|Article 14 — Entry into force",
         "transferHeading": "Non-EU transfers",

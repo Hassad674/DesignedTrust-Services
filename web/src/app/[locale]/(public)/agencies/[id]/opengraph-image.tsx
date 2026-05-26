@@ -15,7 +15,7 @@ import {
 } from "@/shared/lib/seo/og-profile"
 import { OG_DIMENSIONS } from "@/shared/lib/seo/og-tokens"
 
-export const alt = "Marketplace Service — profil agence"
+export const alt = "DesignedTrust Services — profil agence"
 export const size = OG_DIMENSIONS
 export const contentType = "image/png"
 

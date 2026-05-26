@@ -27,7 +27,7 @@ export function PublicNavbar() {
           href="/"
           className="text-lg font-bold tracking-tight text-gray-900 dark:text-white"
         >
-          Marketplace Service
+          DesignedTrust Services
         </Link>
         <div className="flex items-center gap-6">
           <Link

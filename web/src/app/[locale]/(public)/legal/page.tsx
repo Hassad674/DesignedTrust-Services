@@ -24,7 +24,7 @@ export async function generateMetadata({
   // is publicly indexable. The earlier `noindex` was a CNIL/Stripe red
   // flag.
   return {
-    title: `${t("docs.indexTitle")} | Marketplace Service`,
+    title: `${t("docs.indexTitle")} | DesignedTrust Services`,
     description: t("docs.indexIntro"),
     alternates: { canonical: "/legal" },
   }

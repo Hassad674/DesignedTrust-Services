@@ -419,7 +419,7 @@
     }
   },
   "metadata": {
-    "title": "Marketplace Service",
+    "title": "DesignedTrust Services",
     "description": "La plateforme B2B qui connecte agences, freelances et entreprises"
   },
   "landing": {
@@ -1397,7 +1397,7 @@
     },
     "freelance": {
       "publicTitleSuffix": "Freelance",
-      "publicDescription": "{name}, freelance{title, select, empty {} other { — {title}}}. Profil sur Marketplace Service.",
+      "publicDescription": "{name}, freelance{title, select, empty {} other { — {title}}}. Profil sur DesignedTrust Services.",
       "loadError": "Impossible de charger ce profil freelance. Réessaie dans un instant.",
       "notFoundTitle": "Profil freelance introuvable",
       "notFoundDescription": "Ce profil n'existe plus ou son propriétaire l'a supprimé.",
@@ -1407,7 +1407,7 @@
     },
     "agency": {
       "publicTitleSuffix": "Agence",
-      "publicDescription": "{name}, agence{title, select, empty {} other { — {title}}}. Profil sur Marketplace Service.",
+      "publicDescription": "{name}, agence{title, select, empty {} other { — {title}}}. Profil sur DesignedTrust Services.",
       "loadError": "Impossible de charger ce profil agence. Réessaie dans un instant.",
       "notFoundTitle": "Profil agence introuvable",
       "notFoundDescription": "Ce profil n'existe plus ou son propriétaire l'a supprimé.",
@@ -1418,7 +1418,7 @@
     "referrer": {
       "publicTitleSuffix": "Apporteur d'affaires",
       "priceFromLabel": "Commission",
-      "publicDescription": "{name}, apporteur d'affaires{title, select, empty {} other { — {title}}}. Profil sur Marketplace Service.",
+      "publicDescription": "{name}, apporteur d'affaires{title, select, empty {} other { — {title}}}. Profil sur DesignedTrust Services.",
       "loadError": "Impossible de charger ce profil d'apporteur d'affaires. Réessaie dans un instant.",
       "notFoundTitle": "Profil d'apporteur introuvable",
       "notFoundDescription": "Ce profil n'existe plus ou son propriétaire l'a supprimé.",
@@ -1855,20 +1855,20 @@
   },
   "publicListing": {
     "agencies": {
-      "title": "Annuaire des agences — {count} agences | Marketplace Service",
-      "description": "Parcourez {count} agences vérifiées sur Marketplace Service. Trouvez le partenaire idéal pour votre projet B2B."
+      "title": "Annuaire des agences — {count} agences | DesignedTrust Services",
+      "description": "Parcourez {count} agences vérifiées sur DesignedTrust Services. Trouvez le partenaire idéal pour votre projet B2B."
     },
     "freelancers": {
-      "title": "Annuaire des freelances — {count} professionnels | Marketplace Service",
-      "description": "Connectez-vous avec {count} freelances vérifiés sur Marketplace Service. Trouvez le professionnel indépendant idéal pour votre projet B2B."
+      "title": "Annuaire des freelances — {count} professionnels | DesignedTrust Services",
+      "description": "Connectez-vous avec {count} freelances vérifiés sur DesignedTrust Services. Trouvez le professionnel indépendant idéal pour votre projet B2B."
     },
     "referrers": {
-      "title": "Annuaire des apporteurs d'affaires — {count} apporteurs | Marketplace Service",
+      "title": "Annuaire des apporteurs d'affaires — {count} apporteurs | DesignedTrust Services",
       "description": "Parcourez {count} apporteurs d'affaires prêts à vous mettre en relation avec la bonne agence ou freelance."
     }
   },
   "seo": {
-    "siteName": "Marketplace Service",
+    "siteName": "DesignedTrust Services",
     "footerLabel": "marketplace-service.com",
     "anonymousReviewer": "Client vérifié",
     "breadcrumbAriaLabel": "Fil d'Ariane",
@@ -2084,7 +2084,7 @@
     "proposalFlow_pay_subtitle": "Le montant est sécurisé en escrow. Il est libéré une fois la mission validée.",
     "proposalFlow_pay_summary": "Récapitulatif",
     "proposalFlow_pay_secureNotice": "Paiement sécurisé · escrow garanti par la plateforme",
-    "proposalFlow_pay_shellBrand": "Marketplace Service",
+    "proposalFlow_pay_shellBrand": "DesignedTrust Services",
     "proposalFlow_pay_shellBackLink": "Retour au tableau de bord",
     "proposalFlow_detail_eyebrowPending": "DESIGNEDTRUST · PROPOSITION EN ATTENTE",
     "proposalFlow_detail_eyebrowAccepted": "DESIGNEDTRUST · PROPOSITION ACCEPTÉE",
@@ -2637,7 +2637,7 @@
       "close": "Fermer",
       "intro": {
         "title": "À quoi servent ces choix",
-        "description": "Marketplace Service utilise deux familles de cookies : ceux qui sont indispensables pour que tu puisses te connecter et payer, et ceux qui nous aident à comprendre l'usage du service pour l'améliorer. Ce panneau te laisse choisir."
+        "description": "DesignedTrust Services utilise deux familles de cookies : ceux qui sont indispensables pour que tu puisses te connecter et payer, et ceux qui nous aident à comprendre l'usage du service pour l'améliorer. Ce panneau te laisse choisir."
       },
       "necessary": {
         "title": "Strictement nécessaires",
@@ -2673,7 +2673,7 @@
       "automatedDecisions": "Décisions automatisées",
       "documents": "Documents complets",
       "dpoContact": "Contact RGPD",
-      "copyright": "© {year} Marketplace Service. Tous droits réservés."
+      "copyright": "© {year} DesignedTrust Services. Tous droits réservés."
     },
     "common": {
       "placeholder": "Le présent document constitue la version en vigueur. Pour toute question, écris à hassadsmara@designedtrust.com.",
@@ -2683,7 +2683,7 @@
     },
     "privacy": {
       "title": "Politique de confidentialité",
-      "intro": "Cette politique décrit comment Marketplace Service collecte, utilise et protège tes données personnelles dans le respect du RGPD.",
+      "intro": "Cette politique décrit comment DesignedTrust Services collecte, utilise et protège tes données personnelles dans le respect du RGPD.",
       "rightsTitle": "Tes droits",
       "rightsDescription": "Tu disposes des droits d'accès, de rectification, d'effacement, de portabilité, de limitation, d'opposition et de retrait du consentement. Pour les exercer, écris à notre point de contact RGPD ou recours à la CNIL ({cnilUrl}).",
       "subprocessorsTitle": "Sous-processeurs",
@@ -2704,14 +2704,14 @@
       "rows": {
         "session": {
           "name": "session_id",
-          "provider": "Marketplace Service (interne)",
+          "provider": "DesignedTrust Services (interne)",
           "type": "Strictement nécessaire",
           "purpose": "Maintenir ta session authentifiée",
           "duration": "14 jours"
         },
         "consent": {
           "name": "marketplace.analytics.consent",
-          "provider": "Marketplace Service (localStorage)",
+          "provider": "DesignedTrust Services (localStorage)",
           "type": "Strictement nécessaire",
           "purpose": "Mémoriser ton choix de consentement",
           "duration": "Jusqu'à effacement du navigateur"
@@ -2739,7 +2739,7 @@
         },
         "locale": {
           "name": "NEXT_LOCALE",
-          "provider": "Marketplace Service",
+          "provider": "DesignedTrust Services",
           "type": "Fonctionnel",
           "purpose": "Mémoriser ta langue préférée",
           "duration": "Session"
@@ -2953,7 +2953,7 @@
         "title": "Modèle de contrat de sous-traitance (DPA)",
         "subtitle": "Modèle générique conforme à l'article 28 du RGPD. À compléter avec les informations spécifiques au sous-traitant signataire avant signature.",
         "scopeHeading": "Objet",
-        "scopeBody": "Le DPA définit les conditions dans lesquelles un sous-traitant traite des données à caractère personnel pour le compte de Marketplace Service en qualité de responsable de traitement. Il prévaut sur le contrat principal pour toute question de protection des données.",
+        "scopeBody": "Le DPA définit les conditions dans lesquelles un sous-traitant traite des données à caractère personnel pour le compte de DesignedTrust Services en qualité de responsable de traitement. Il prévaut sur le contrat principal pour toute question de protection des données.",
         "articlesHeading": "Articles couverts",
         "articlesItems": "Article 1 — Objet|Article 2 — Description du traitement|Article 3 — Obligations du Sous-traitant|Article 4 — Notification des violations de données (48h)|Article 5 — Sous-sous-traitance (autorisation J-30)|Article 6 — Droits des personnes concernées|Article 7 — Mesures de sécurité (art. 32 RGPD)|Article 8 — Durée de conservation|Article 9 — Transferts hors UE (CCT 2021/914)|Article 10 — Audit annuel ou sur demande motivée|Article 11 — Fin du contrat (restitution ou destruction)|Article 12 — Responsabilités et indemnisation|Article 13 — Droit applicable (France) et juridiction|Article 14 — Entrée en vigueur",
         "transferHeading": "Transferts hors UE",

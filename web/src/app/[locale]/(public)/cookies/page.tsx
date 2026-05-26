@@ -15,7 +15,7 @@ export async function generateMetadata({
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: "legal.cookies" })
   return {
-    title: `${t("title")} | Marketplace Service`,
+    title: `${t("title")} | DesignedTrust Services`,
     description: t("intro"),
     robots: { index: false, follow: false },
   }

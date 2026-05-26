@@ -17,12 +17,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!job) {
     return {
-      title: "Opportunity | Marketplace Service",
+      title: "Opportunity | DesignedTrust Services",
       alternates: { canonical: `/opportunities/${id}` },
     }
   }
 
-  const title = `${job.title} | Marketplace Service`
+  const title = `${job.title} | DesignedTrust Services`
   const description = (job.description || "").slice(0, 160)
 
   return {
@@ -78,7 +78,7 @@ function JobPostingJsonLd({ job, jobId }: JobPostingJsonLdProps) {
     employmentType,
     hiringOrganization: {
       "@type": "Organization",
-      name: "Marketplace Service",
+      name: "DesignedTrust Services",
     },
     jobLocation: {
       "@type": "Place",

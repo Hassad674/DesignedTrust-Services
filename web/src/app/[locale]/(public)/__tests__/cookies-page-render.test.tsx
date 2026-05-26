@@ -108,7 +108,7 @@ describe("/cookies page table", () => {
       params: Promise.resolve({ locale: "fr" }),
     })
 
-    expect(meta.title).toContain("| Marketplace Service")
+    expect(meta.title).toContain("| DesignedTrust Services")
     expect(typeof meta.description).toBe("string")
     expect(meta.robots).toEqual({ index: false, follow: false })
 

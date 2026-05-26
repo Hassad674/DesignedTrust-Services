@@ -9,7 +9,7 @@
  *
  * Layout (1200x630, Soleil v2):
  *   ┌────────────────────────────────────────────────┐
- *   │ Marketplace Service                            │
+ *   │ DesignedTrust Services                            │
  *   │                                                │
  *   │ ┌──────┐  Display name (2 lines max)           │
  *   │ │ pic  │  Title — City                         │

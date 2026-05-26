@@ -21,7 +21,7 @@ export async function generateMetadata({
     namespace: "legal.automatedDecisions",
   })
   return {
-    title: `${t("title")} | Marketplace Service`,
+    title: `${t("title")} | DesignedTrust Services`,
     description: t("intro"),
   }
 }

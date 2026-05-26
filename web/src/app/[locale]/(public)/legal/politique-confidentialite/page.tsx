@@ -27,7 +27,7 @@ export async function generateMetadata({
   // URL) and MUST be crawlable. RGPD art. 12 requires accessibility
   // in a clear, intelligible, easily-accessible format.
   return {
-    title: `${t("title")} | Marketplace Service`,
+    title: `${t("title")} | DesignedTrust Services`,
     description: t("subtitle"),
     alternates: { canonical: "/legal/politique-confidentialite" },
   }

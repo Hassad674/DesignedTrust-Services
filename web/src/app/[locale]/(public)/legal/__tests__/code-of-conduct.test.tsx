@@ -174,7 +174,7 @@ describe("/legal/code-de-conduite — metadata", () => {
       params: Promise<{ locale: string }>
     }) => Promise<Record<string, unknown>>
     const meta = await generate({ params: Promise.resolve({ locale: "fr" }) })
-    expect(meta.title).toMatch(/Marketplace Service$/)
+    expect(meta.title).toMatch(/DesignedTrust Services$/)
     expect(meta.description).toBeTruthy()
     // No `robots` override — the page MUST be crawlable.
     expect(meta.robots).toBeUndefined()

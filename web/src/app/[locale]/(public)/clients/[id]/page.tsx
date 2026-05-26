@@ -20,7 +20,7 @@ export async function generateMetadata({
   const profile = await fetchPublicClientProfileForMetadata(id)
 
   const companyName = profile?.company_name || t("pageTitle")
-  const title = `${t("pageTitlePublic", { companyName })} | Marketplace Service`
+  const title = `${t("pageTitlePublic", { companyName })} | DesignedTrust Services`
   const description = profile?.client_description
     ? profile.client_description.slice(0, 160)
     : t("pageTitle")

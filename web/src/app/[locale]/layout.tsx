@@ -43,7 +43,7 @@ export async function generateMetadata({
     description: t("description"),
     openGraph: {
       type: "website",
-      siteName: "Marketplace Service",
+      siteName: "DesignedTrust Services",
       title: t("title"),
       description: t("description"),
       locale: locale === "fr" ? "fr_FR" : "en_US",

@@ -50,13 +50,13 @@ describe("opportunities/[id] generateMetadata — PERF-W-06", () => {
     })
 
     const md = await callMetadata("job-1")
-    expect(md.title as string).toBe("Build a marketplace | Marketplace Service")
+    expect(md.title as string).toBe("Build a marketplace | DesignedTrust Services")
     expect(md.description as string).toContain("backend Go developer")
     expect((md.alternates as { canonical: string }).canonical).toBe(
       "/opportunities/job-1",
     )
     expect((md.openGraph as { title: string }).title).toBe(
-      "Build a marketplace | Marketplace Service",
+      "Build a marketplace | DesignedTrust Services",
     )
     expect((md.twitter as { card: string }).card).toBe("summary")
   })

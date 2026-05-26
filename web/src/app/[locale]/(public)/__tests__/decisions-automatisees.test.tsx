@@ -3,7 +3,7 @@
  *
  * Verifies:
  *   1. generateMetadata sets the localized title with the
- *      " | Marketplace Service" suffix and the localized intro as
+ *      " | DesignedTrust Services" suffix and the localized intro as
  *      description.
  *   2. The page renders the three automated systems documented in
  *      the internal GDPR audit Section 4 (moderation, ranking, payment) — each
@@ -61,7 +61,7 @@ describe("/decisions-automatisees metadata", () => {
       params: Promise.resolve({ locale: "fr" }),
     })
 
-    expect(meta.title).toContain("| Marketplace Service")
+    expect(meta.title).toContain("| DesignedTrust Services")
     expect(meta.title).toMatch(/Décisions automatisées/i)
     expect(typeof meta.description).toBe("string")
     expect((meta.description as string).length).toBeGreaterThan(20)

@@ -4,7 +4,7 @@
  *
  * The remaining placeholder pages (/cookies, /legal, /cgu, /cgv,
  * /sous-processeurs) all expose generateMetadata that:
- *   1. interpolates a localized title with " | Marketplace Service" suffix
+ *   1. interpolates a localized title with " | DesignedTrust Services" suffix
  *   2. sets robots noindex/nofollow (internal placeholder shells —
  *      indexable canonical surfaces live under /legal/*)
  *   3. surfaces the localized intro string as the description
@@ -85,7 +85,7 @@ describe("legal placeholder pages metadata", () => {
         params: Promise.resolve({ locale: "fr" }),
       })
 
-      expect(meta.title).toBe(`[${c.namespace}.${titleKey}] | Marketplace Service`)
+      expect(meta.title).toBe(`[${c.namespace}.${titleKey}] | DesignedTrust Services`)
       expect(meta.description).toBe(`[${c.namespace}.${introKey}]`)
       if (c.indexable) {
         // Stripe + DSA art. 14: the legal index MUST be crawlable.

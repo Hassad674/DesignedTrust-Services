@@ -20,7 +20,7 @@ export async function generateMetadata({
   // list must be publicly indexable so Stripe + auditors + visitors
   // can verify the third parties handling personal data.
   return {
-    title: `${t("title")} | Marketplace Service`,
+    title: `${t("title")} | DesignedTrust Services`,
     description: t("intro"),
     alternates: { canonical: "/sous-processeurs" },
   }

@@ -25,7 +25,7 @@ export async function generateMetadata({
     namespace: "legal.docs.codeOfConduct",
   })
   return {
-    title: `${t("title")} | Marketplace Service`,
+    title: `${t("title")} | DesignedTrust Services`,
     description: t("subtitle"),
     alternates: { canonical: "/legal/code-de-conduite" },
   }

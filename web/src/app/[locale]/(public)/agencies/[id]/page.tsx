@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const displayName = profile?.title || t("publicTitleSuffix")
   const titleSuffix = t("publicTitleSuffix")
-  const title = `${displayName} — ${titleSuffix} | Marketplace Service`
+  const title = `${displayName} — ${titleSuffix} | DesignedTrust Services`
   const description =
     profile?.about?.slice(0, 160) ||
     t("publicDescription", {
