@@ -278,6 +278,9 @@ func (s stubUserRepo) GetSessionVersion(context.Context, uuid.UUID) (int, error)
 func (s stubUserRepo) UpdateEmailNotificationsEnabled(context.Context, uuid.UUID, bool) error {
 	return nil
 }
+func (s stubUserRepo) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
 func (s stubUserRepo) TouchLastActive(context.Context, uuid.UUID) error { return nil }
 
 var _ repository.UserRepository = stubUserRepo{}

@@ -69,6 +69,11 @@ type RequestChallengeInput struct {
 	EmailTo       string
 	ClientIP      string
 	UserAgentHash string
+
+	// Purpose scopes the challenge to a flow (login-2FA vs signup
+	// email-verification). Empty defaults to PurposeLogin2FA so existing
+	// 2FA callers stay byte-identical without passing the field.
+	Purpose twofactor.Purpose
 }
 
 // RequestChallenge generates a fresh 6-digit code, persists the
@@ -88,6 +93,11 @@ func (s *Service) RequestChallenge(ctx context.Context, in RequestChallengeInput
 		return nil, twofactor.ErrUserIDRequired
 	}
 
+	purpose := in.Purpose
+	if purpose == "" {
+		purpose = twofactor.PurposeLogin2FA
+	}
+
 	code, err := twofactor.GenerateCode()
 	if err != nil {
 		return nil, fmt.Errorf("twofactor: generate code: %w", err)
@@ -103,6 +113,7 @@ func (s *Service) RequestChallenge(ctx context.Context, in RequestChallengeInput
 		CodeHash:      hashed,
 		ClientIP:      in.ClientIP,
 		UserAgentHash: in.UserAgentHash,
+		Purpose:       purpose,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("twofactor: build challenge: %w", err)
@@ -113,7 +124,7 @@ func (s *Service) RequestChallenge(ctx context.Context, in RequestChallengeInput
 	}
 
 	if in.EmailTo != "" {
-		if sendErr := s.sendChallengeEmail(ctx, in.EmailTo, code); sendErr != nil {
+		if sendErr := s.sendChallengeEmail(ctx, in.EmailTo, code, purpose); sendErr != nil {
 			// Email delivery failure is surfaced to the caller. The
 			// challenge row stays in the DB — it will expire naturally
 			// in 10 minutes and the user can request a fresh code via
@@ -146,6 +157,12 @@ func (s *Service) RequestChallenge(ctx context.Context, in RequestChallengeInput
 type VerifyChallengeInput struct {
 	UserID uuid.UUID
 	Code   string
+
+	// Purpose scopes the verify to a flow. Empty defaults to
+	// PurposeLogin2FA so existing 2FA callers stay byte-identical. A
+	// code minted for one purpose can never satisfy a verify of the
+	// other purpose because FindLatestPendingForUser filters by it.
+	Purpose twofactor.Purpose
 }
 
 // VerifyChallenge looks up the latest pending challenge, bcrypt-checks
@@ -168,7 +185,12 @@ func (s *Service) VerifyChallenge(ctx context.Context, in VerifyChallengeInput) 
 		return nil, twofactor.ErrCodeMismatch
 	}
 
-	challenge, err := s.challenges.FindLatestPendingForUser(ctx, in.UserID)
+	purpose := in.Purpose
+	if purpose == "" {
+		purpose = twofactor.PurposeLogin2FA
+	}
+
+	challenge, err := s.challenges.FindLatestPendingForUser(ctx, in.UserID, purpose)
 	if err != nil {
 		if errors.Is(err, repository.ErrTwoFactorChallengeNotFound) {
 			s.logAudit(ctx, audit.NewEntryInput{
@@ -257,7 +279,31 @@ func (s *Service) VerifyChallenge(ctx context.Context, in VerifyChallengeInput) 
 // dedicated template file because the body is two short paragraphs —
 // a string literal here is more readable than yet another template
 // indirection.
-func (s *Service) sendChallengeEmail(ctx context.Context, to, code string) error {
+//
+// The login-2FA copy is kept byte-identical to the pre-signup-OTP wording
+// so existing 2FA assertions and the user's muscle memory don't change.
+// The email-verification flow gets its own subject + body explaining the
+// signup-confirmation context.
+func (s *Service) sendChallengeEmail(ctx context.Context, to, code string, purpose twofactor.Purpose) error {
+	subject, html := challengeEmailCopy(code, purpose)
+	return s.email.SendNotification(ctx, to, subject, html)
+}
+
+// challengeEmailCopy returns the (subject, html) pair for a challenge
+// email given its purpose. Extracted so the per-purpose copy is testable
+// in isolation and sendChallengeEmail stays a thin transport call.
+func challengeEmailCopy(code string, purpose twofactor.Purpose) (string, string) {
+	if purpose == twofactor.PurposeEmailVerification {
+		subject := "Confirme ton adresse email — Marketplace Service"
+		html := fmt.Sprintf(
+			`<p>Bonjour,</p>`+
+				`<p>Bienvenue ! Voici ton code de confirmation : <strong style="font-size:18px;letter-spacing:2px">%s</strong></p>`+
+				`<p>Saisis-le dans l'application pour activer ton compte. Ce code est valable 10 minutes. Si tu n'es pas à l'origine de cette inscription, tu peux ignorer cet email.</p>`,
+			code,
+		)
+		return subject, html
+	}
+	// PurposeLogin2FA (and any unexpected value) — unchanged login-2FA copy.
 	subject := "Code de vérification — Marketplace Service"
 	html := fmt.Sprintf(
 		`<p>Bonjour,</p>`+
@@ -265,7 +311,7 @@ func (s *Service) sendChallengeEmail(ctx context.Context, to, code string) error
 			`<p>Ce code est valable 10 minutes. Si tu n'es pas à l'origine de cette demande, tu peux ignorer cet email — personne d'autre n'a accès à ton compte sans ce code.</p>`,
 		code,
 	)
-	return s.email.SendNotification(ctx, to, subject, html)
+	return subject, html
 }
 
 // logAudit is a fire-and-forget audit emission helper. Failures are

@@ -94,6 +94,9 @@ func (m *mockUserRepo) GetSessionVersion(_ context.Context, _ uuid.UUID) (int, e
 func (m *mockUserRepo) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid.UUID, _ bool) error {
 	return nil
 }
+func (m *mockUserRepo) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
 
 func (m *mockUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error { return nil }
 

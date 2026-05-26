@@ -73,6 +73,9 @@ func (m *subHandlerUserRepo) GetSessionVersion(_ context.Context, _ uuid.UUID) (
 func (m *subHandlerUserRepo) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid.UUID, _ bool) error {
 	return nil
 }
+func (m *subHandlerUserRepo) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
 func (m *subHandlerUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error { return nil }
 
 type subHandlerSubRepo struct {

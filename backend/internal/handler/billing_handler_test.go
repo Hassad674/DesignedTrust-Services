@@ -75,7 +75,8 @@ func (s *stubUserRepo) GetSessionVersion(_ context.Context, _ uuid.UUID) (int, e
 func (s *stubUserRepo) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid.UUID, _ bool) error {
 	return nil
 }
-func (s *stubUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error { return nil }
+func (s *stubUserRepo) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error { return nil }
+func (s *stubUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error          { return nil }
 
 func withUserID(ctx context.Context, id uuid.UUID) context.Context {
 	return context.WithValue(ctx, middleware.ContextKeyUserID, id)

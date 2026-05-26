@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+
+	"marketplace-backend/internal/domain/twofactor"
 )
 
 // TwoFactorGate is the narrow surface the auth service uses to gate
@@ -25,13 +27,26 @@ type TwoFactorGate interface {
 	// bcrypt hash, and emails the plaintext to the user. Returns a
 	// stable challenge id so the caller can echo it to the client for
 	// logging / future "resend" flows.
+	//
+	// The challenge purpose is taken from in.Purpose; an empty purpose
+	// defaults to login_2fa so the existing 2FA login path stays
+	// byte-identical. The signup email-verification flow passes
+	// twofactor.PurposeEmailVerification.
 	RequestChallenge(ctx context.Context, in TwoFactorChallengeRequest) (challengeID uuid.UUID, err error)
 
-	// VerifyChallenge checks the latest pending challenge against the
-	// supplied code. Returns nil on success, twofactor.ErrChallengeNotFound
-	// /ErrChallengeExpired/ErrAttemptsExhausted/ErrCodeMismatch on the
-	// failure modes the handler maps to user-facing errors.
+	// VerifyChallenge checks the latest pending login_2fa challenge
+	// against the supplied code. Kept purpose-free for the 2FA login
+	// path so existing callers are unchanged. Returns nil on success,
+	// twofactor.ErrChallengeNotFound/ErrChallengeExpired/
+	// ErrAttemptsExhausted/ErrCodeMismatch on the failure modes the
+	// handler maps to user-facing errors.
 	VerifyChallenge(ctx context.Context, userID uuid.UUID, code string) error
+
+	// VerifyChallengeWithPurpose is the purpose-scoped verify used by the
+	// signup email-verification flow. Same error contract as
+	// VerifyChallenge but the lookup is scoped to the given purpose so an
+	// email_verification code can never resolve a login_2fa challenge.
+	VerifyChallengeWithPurpose(ctx context.Context, userID uuid.UUID, code string, purpose twofactor.Purpose) error
 }
 
 // TwoFactorChallengeRequest is the auth-side view of the challenge
@@ -42,4 +57,8 @@ type TwoFactorChallengeRequest struct {
 	EmailTo       string
 	ClientIP      string
 	UserAgentHash string
+
+	// Purpose scopes the challenge. Empty defaults to login_2fa so the
+	// existing 2FA login callers stay byte-identical without setting it.
+	Purpose twofactor.Purpose
 }

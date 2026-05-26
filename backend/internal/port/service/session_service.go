@@ -31,6 +31,13 @@ type CreateSessionInput struct {
 	// users.session_version at login so the cookie session stays in
 	// sync with the JWT issued for mobile clients.
 	SessionVersion int
+
+	// EmailVerified mirrors the JWT `ev` claim so the web (cookie)
+	// auth path carries the same signup-OTP gate state the bearer path
+	// gets from the token. Copied from users.email_verified at session
+	// creation; refreshed whenever a new session is minted (login,
+	// verify-email re-issue, web-session bridge).
+	EmailVerified bool
 }
 
 // Session is the decoded content of a persisted session record.
@@ -55,6 +62,15 @@ type Session struct {
 	// middleware compares this against the current value in the DB
 	// and rejects stale sessions the same way it handles stale JWTs.
 	SessionVersion int
+
+	// EmailVerified at the time the session was created. The auth
+	// middleware stamps it into request context (ContextKeyEmailVerified)
+	// so the RequireEmailVerified gate decides web-client access the same
+	// way it decides bearer-client access. A session minted before this
+	// field shipped decodes to false; the redis adapter defaults a missing
+	// stored field to true (verified) so legacy cookies are not gated mid-
+	// deploy — see the adapter for the parity rationale.
+	EmailVerified bool
 }
 
 type SessionService interface {

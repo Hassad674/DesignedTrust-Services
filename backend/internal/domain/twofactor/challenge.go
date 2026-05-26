@@ -54,6 +54,14 @@ type Challenge struct {
 	CreatedAt     time.Time
 	ClientIP      *net.IP
 	UserAgentHash string
+
+	// Purpose discriminates the login-2FA gate from the signup
+	// email-verification proof so a code minted for one flow can never
+	// satisfy the other. Defaults to PurposeLogin2FA in New() when the
+	// caller leaves it empty, mirroring the DB column default and
+	// preserving pre-signup-OTP behaviour for any caller that has not
+	// migrated to passing a purpose.
+	Purpose Purpose
 }
 
 // NewChallengeInput groups the constructor arguments. Using a struct
@@ -63,10 +71,11 @@ type Challenge struct {
 type NewChallengeInput struct {
 	UserID        uuid.UUID
 	CodeHash      string
-	AttemptsLeft  int    // 0 falls back to DefaultAttempts
+	AttemptsLeft  int           // 0 falls back to DefaultAttempts
 	TTL           time.Duration // 0 falls back to DefaultTTL
-	ClientIP      string // raw IP, parsed and stored as net.IP; "" → nil
-	UserAgentHash string // SHA-256 first 16 hex chars, opaque to this package
+	ClientIP      string        // raw IP, parsed and stored as net.IP; "" → nil
+	UserAgentHash string        // SHA-256 first 16 hex chars, opaque to this package
+	Purpose       Purpose       // "" falls back to PurposeLogin2FA (DB-default parity)
 }
 
 // New validates the input and returns a fresh Challenge ready to be
@@ -80,6 +89,17 @@ func New(in NewChallengeInput) (*Challenge, error) {
 	}
 	if in.CodeHash == "" {
 		return nil, ErrCodeHashRequired
+	}
+
+	purpose := in.Purpose
+	if purpose == "" {
+		// Empty purpose defaults to the historical login-2FA semantics,
+		// matching the DB column default so a caller that has not adopted
+		// the purpose field keeps behaving exactly as before.
+		purpose = PurposeLogin2FA
+	}
+	if !purpose.IsValid() {
+		return nil, ErrInvalidPurpose
 	}
 
 	attempts := in.AttemptsLeft
@@ -110,6 +130,7 @@ func New(in NewChallengeInput) (*Challenge, error) {
 		CreatedAt:     now,
 		ClientIP:      ip,
 		UserAgentHash: in.UserAgentHash,
+		Purpose:       purpose,
 	}, nil
 }
 

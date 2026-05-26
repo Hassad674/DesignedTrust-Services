@@ -581,6 +581,7 @@ func (h *AuthHandler) WebSession(w http.ResponseWriter, r *http.Request) {
 		Role:           u.Role.String(),
 		IsAdmin:        u.IsAdmin,
 		SessionVersion: u.SessionVersion,
+		EmailVerified:  u.EmailVerified,
 	}
 	if h.orgService != nil {
 		resolved, resolveErr := h.orgService.ResolveContext(r.Context(), userID)

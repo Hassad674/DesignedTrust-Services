@@ -55,6 +55,14 @@ type customClaims struct {
 	// against users.session_version and rejects on mismatch.
 	SessionVersion int `json:"sv,omitempty"`
 
+	// EmailVerified is the signup-OTP gate anchor on access tokens. It is
+	// a pointer so the decoder can distinguish "claim present, value
+	// false" (a genuinely unverified fresh account) from "claim absent"
+	// (a legacy token minted before signup-OTP shipped — treated as
+	// verified by the middleware so the deploy never locks out in-flight
+	// sessions). omitempty drops it from refresh tokens entirely.
+	EmailVerified *bool `json:"ev,omitempty"`
+
 	// B.8 — refresh-token family lineage (refresh tokens only;
 	// omitempty keeps access tokens unchanged).
 	//
@@ -70,6 +78,7 @@ type customClaims struct {
 }
 
 func (s *JWTService) GenerateAccessToken(input service.AccessTokenInput) (string, error) {
+	emailVerified := input.EmailVerified
 	claims := customClaims{
 		UserID:         input.UserID.String(),
 		Role:           input.Role,
@@ -78,6 +87,11 @@ func (s *JWTService) GenerateAccessToken(input service.AccessTokenInput) (string
 		OrgRole:        input.OrgRole,
 		Permissions:    input.Permissions,
 		SessionVersion: input.SessionVersion,
+		// Always emit the claim on access tokens (even when false) so the
+		// middleware can tell a genuinely-unverified account from a legacy
+		// token. Taking the address of a local copy keeps the pointer
+		// stable for the lifetime of this call.
+		EmailVerified: &emailVerified,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.accessExpiry)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -177,6 +191,11 @@ func (s *JWTService) validateToken(tokenString string, expectedType string) (*se
 		SessionVersion: claims.SessionVersion,
 		FamilyRootJTI:  claims.FamilyRootJTI,
 		ChainDepth:     claims.ChainDepth,
+		// Absent `ev` claim (legacy access tokens minted before
+		// signup-OTP shipped) decodes to verified=true so the deploy
+		// never gates an in-flight session. Present claim is honored
+		// verbatim — a fresh unverified account carries ev=false.
+		EmailVerified: claims.EmailVerified == nil || *claims.EmailVerified,
 	}
 	if claims.FamilyRootIAT > 0 {
 		result.FamilyRootIAT = time.Unix(claims.FamilyRootIAT, 0).UTC()

@@ -541,6 +541,9 @@ func TestInvitationService_CancelInvitation_Success(t *testing.T) {
 func (m *mockUserRepoForInvites) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid.UUID, _ bool) error {
 	return nil
 }
+func (m *mockUserRepoForInvites) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
 func (m *mockUserRepoForInvites) TouchLastActive(_ context.Context, _ uuid.UUID) error {
 	return nil
 }

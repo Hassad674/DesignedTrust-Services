@@ -17,13 +17,16 @@ import (
 // passed in by the parent — that way every authenticated branch reuses
 // the exact same closure (token + session + overrides resolver) and we
 // avoid re-binding the dependencies in each helper.
-func mountAuthRoutes(r chi.Router, deps RouterDeps, auth func(http.Handler) http.Handler) {
-	mountCoreAuth(r, deps, auth)
-	mountInvitationRoutes(r, deps, auth)
-	mountTeamRoutes(r, deps, auth)
+func mountAuthRoutes(r chi.Router, deps RouterDeps, auth, authVerified func(http.Handler) http.Handler) {
+	mountCoreAuth(r, deps, auth, authVerified)
+	// Invitations + team routes are gated behind email verification: an
+	// unverified account has no business sending invitations or managing
+	// a team. They are NOT in the brief's allowlist.
+	mountInvitationRoutes(r, deps, authVerified)
+	mountTeamRoutes(r, deps, authVerified)
 }
 
-func mountCoreAuth(r chi.Router, deps RouterDeps, auth func(http.Handler) http.Handler) {
+func mountCoreAuth(r chi.Router, deps RouterDeps, auth, authVerified func(http.Handler) http.Handler) {
 	idem := idempotencyMiddleware(deps)
 
 	r.Route("/auth", func(r chi.Router) {
@@ -55,14 +58,32 @@ func mountCoreAuth(r chi.Router, deps RouterDeps, auth func(http.Handler) http.H
 			PasswordResetRateLimitPolicy(deps.Config), middleware.EmailKey())
 		r.Post("/reset-password", deps.Auth.ResetPassword)
 
-		// Protected
+		// Protected — signup-OTP ALLOWLIST. These routes use the bare
+		// `auth` (NOT authVerified) so an unverified user can still read
+		// their state and finish verifying:
+		//   GET  /me                  — read email_verified + user state
+		//   POST /logout              — sign out
+		//   POST /verify-email        — submit the OTP, get verified
+		//   POST /resend-verification — request a fresh OTP (rate-limited)
 		r.Group(func(r chi.Router) {
 			r.Use(auth)
 			r.Use(middleware.NoCache)
 			r.Get("/me", deps.Auth.Me)
+			r.Post("/logout", deps.Auth.Logout)
+			r.Post("/verify-email", deps.Auth.VerifyEmail)
+			// RATE-LIMIT-PROD: reuse the per-user 2FA-enable cap (5/min)
+			// to neutralise inbox-bombing on the resend endpoint.
+			postWithClass(r, "/resend-verification", deps.Auth.ResendVerification, deps,
+				Auth2FAEnableRateLimitPolicy(deps.Config), middleware.UserKey())
+		})
+
+		// Protected — GATED behind email verification. Everything that is
+		// NOT in the allowlist above requires a verified email.
+		r.Group(func(r chi.Router) {
+			r.Use(authVerified)
+			r.Use(middleware.NoCache)
 			r.Get("/ws-token", deps.Auth.WSToken)
 			r.Post("/web-session", deps.Auth.WebSession)
-			r.Post("/logout", deps.Auth.Logout)
 			r.Put("/referrer-enable", deps.Auth.EnableReferrer)
 			// Account self-service: rotate credentials. Both endpoints
 			// invalidate the caller's session_version on success — the
@@ -76,9 +97,10 @@ func mountCoreAuth(r chi.Router, deps RouterDeps, auth func(http.Handler) http.H
 	// B.6 Email 2FA opt-in/opt-out. Mounted under /me so the user
 	// owns the toggle implicitly — no orgID, no resource id. Both
 	// endpoints require auth; the disable endpoint additionally
-	// requires fresh password re-auth in the body.
+	// requires fresh password re-auth in the body. Gated behind email
+	// verification (authVerified) — not in the signup-OTP allowlist.
 	r.Route("/me/two-factor", func(r chi.Router) {
-		r.Use(auth)
+		r.Use(authVerified)
 		r.Use(middleware.NoCache)
 		// RATE-LIMIT-PROD: tight 5/min per-user cap on /enable to
 		// neutralise email-bombing. A stolen session calling /enable

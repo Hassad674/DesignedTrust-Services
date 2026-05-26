@@ -19,14 +19,15 @@ var _ repository.UserRepository = (*mockUserRepo)(nil)
 // --- mockUserRepo ---
 
 type mockUserRepo struct {
-	createFn        func(ctx context.Context, u *user.User) error
-	getByIDFn       func(ctx context.Context, id uuid.UUID) (*user.User, error)
-	getByEmailFn    func(ctx context.Context, email string) (*user.User, error)
-	updateFn        func(ctx context.Context, u *user.User) error
-	deleteFn        func(ctx context.Context, id uuid.UUID) error
-	existsByEmailFn func(ctx context.Context, email string) (bool, error)
-	listAdminFn     func(ctx context.Context, filters repository.AdminUserFilters) ([]*user.User, string, error)
-	countAdminFn    func(ctx context.Context, filters repository.AdminUserFilters) (int, error)
+	createFn           func(ctx context.Context, u *user.User) error
+	getByIDFn          func(ctx context.Context, id uuid.UUID) (*user.User, error)
+	getByEmailFn       func(ctx context.Context, email string) (*user.User, error)
+	updateFn           func(ctx context.Context, u *user.User) error
+	deleteFn           func(ctx context.Context, id uuid.UUID) error
+	existsByEmailFn    func(ctx context.Context, email string) (bool, error)
+	listAdminFn        func(ctx context.Context, filters repository.AdminUserFilters) ([]*user.User, string, error)
+	countAdminFn       func(ctx context.Context, filters repository.AdminUserFilters) (int, error)
+	setEmailVerifiedFn func(ctx context.Context, userID uuid.UUID, verified bool) error
 
 	// Tracks SEC-16 session_version bumps so the ResetPassword test
 	// can assert the kill-switch fired. Concurrent-safe.
@@ -444,6 +445,12 @@ func (m *mockUserRepo) snapshotBumpCalls() []uuid.UUID {
 	return out
 }
 func (m *mockUserRepo) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
+func (m *mockUserRepo) SetEmailVerified(ctx context.Context, userID uuid.UUID, verified bool) error {
+	if m.setEmailVerifiedFn != nil {
+		return m.setEmailVerifiedFn(ctx, userID, verified)
+	}
 	return nil
 }
 func (m *mockUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error {

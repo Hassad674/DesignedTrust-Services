@@ -96,7 +96,8 @@ func (f *fakeUserRepo) GetSessionVersion(context.Context, uuid.UUID) (int, error
 func (f *fakeUserRepo) UpdateEmailNotificationsEnabled(context.Context, uuid.UUID, bool) error {
 	return nil
 }
-func (f *fakeUserRepo) TouchLastActive(context.Context, uuid.UUID) error { return nil }
+func (f *fakeUserRepo) SetEmailVerified(context.Context, uuid.UUID, bool) error { return nil }
+func (f *fakeUserRepo) TouchLastActive(context.Context, uuid.UUID) error        { return nil }
 
 type fakeHasher struct{ err error }
 

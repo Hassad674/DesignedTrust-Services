@@ -601,6 +601,11 @@ func (m *mockUserRepo) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid
 	return nil
 }
 
+// --- Email verified (signup-OTP) ---
+func (m *mockUserRepo) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
+
 // --- last_active_at bump (migration 110) ---
 func (m *mockUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error {
 	return nil

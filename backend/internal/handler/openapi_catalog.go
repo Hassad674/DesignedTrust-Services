@@ -99,6 +99,17 @@ func catalogueAuth(c map[string]routeSpec) {
 		AuthRequired: true,
 		SuccessKind:  successJSONRef, SuccessRef: "MeResponse", SuccessStatus: "200",
 	}
+	c["POST /api/v1/auth/verify-email"] = routeSpec{
+		Tags: []string{"auth"}, Summary: "Verify the signup email OTP and re-issue tokens",
+		AuthRequired: true,
+		RequestBody:  rawJSONRequestBody(),
+		SuccessKind:  successJSONRef, SuccessRef: "AuthResponse", SuccessStatus: "200",
+	}
+	c["POST /api/v1/auth/resend-verification"] = routeSpec{
+		Tags: []string{"auth"}, Summary: "Resend the signup email-verification OTP",
+		AuthRequired: true,
+		SuccessKind:  successRawJSON, SuccessStatus: "200",
+	}
 	c["GET /api/v1/auth/ws-token"] = routeSpec{
 		Tags: []string{"auth"}, Summary: "Fetch a short-lived WebSocket token",
 		AuthRequired: true,

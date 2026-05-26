@@ -30,7 +30,9 @@ func TestMountHelpers_RouteCounts(t *testing.T) {
 		mount      func(r chi.Router)
 		wantRoutes int
 	}{
-		{"auth", func(r chi.Router) { mountAuthRoutes(r, deps, auth) }, 32},
+		// +2 vs the pre-signup-OTP count for the new /auth/verify-email
+		// and /auth/resend-verification routes.
+		{"auth", func(r chi.Router) { mountAuthRoutes(r, deps, auth, auth) }, 34},
 		// profile: +4 for the freelance + referrer presigned video
 		// flow (presign + complete on each persona).
 		{"profile", func(r chi.Router) { mountProfileRoutes(r, deps, auth) }, 49},

@@ -23,6 +23,14 @@ const (
 	// middleware prefers this list over the static role-based lookup
 	// so per-org customizations take effect on every endpoint.
 	ContextKeyPermissions contextKey = "permissions"
+
+	// ContextKeyEmailVerified carries the signup-OTP gate state resolved
+	// from the access token's `ev` claim (bearer) or the session record
+	// (cookie). The RequireEmailVerified middleware reads it to allow or
+	// reject access. Defaults to false when unset so a route that gates
+	// on it cannot be slipped past by a missing stamp — the Auth
+	// middleware always stamps it on a successful auth.
+	ContextKeyEmailVerified contextKey = "email_verified"
 )
 
 func RequestID(next http.Handler) http.Handler {
@@ -115,4 +123,17 @@ func GetPermissions(ctx context.Context) ([]string, bool) {
 		return perms, true
 	}
 	return nil, false
+}
+
+// GetEmailVerified returns the signup-OTP gate state for the
+// authenticated request, as stamped by the Auth middleware from the JWT
+// `ev` claim (bearer) or the session record (cookie). The bool reports
+// whether the value was present on the context — false alongside a
+// false value means "not authenticated / not stamped", which the
+// RequireEmailVerified gate treats as not-verified (deny) by design.
+func GetEmailVerified(ctx context.Context) (bool, bool) {
+	if verified, ok := ctx.Value(ContextKeyEmailVerified).(bool); ok {
+		return verified, true
+	}
+	return false, false
 }

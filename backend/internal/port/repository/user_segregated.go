@@ -46,6 +46,11 @@ type UserWriter interface {
 	Create(ctx context.Context, u *user.User) error
 	Update(ctx context.Context, u *user.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	// SetEmailVerified is the targeted single-column flip used by the
+	// signup-OTP verify-email flow. Lives on the writer (not the
+	// KYC-store) because it is a life-cycle state transition of the
+	// account, not a preference toggle.
+	SetEmailVerified(ctx context.Context, userID uuid.UUID, verified bool) error
 }
 
 // UserAuthStore covers the auth-bookkeeping fields:

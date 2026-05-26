@@ -51,14 +51,23 @@ func (r *TwoFactorChallengeRepository) Create(ctx context.Context, c *twofactor.
 		userAgentHash = c.UserAgentHash
 	}
 
+	// Default an empty purpose to login_2fa so a caller that constructed
+	// the domain object without going through twofactor.New (none do, but
+	// defence-in-depth) still lands on the historical semantics + the DB
+	// CHECK constraint's accepted set.
+	purpose := c.Purpose
+	if purpose == "" {
+		purpose = twofactor.PurposeLogin2FA
+	}
+
 	const query = `
         INSERT INTO two_factor_challenges (
             id, user_id, code_hash, attempts_left, expires_at,
-            used_at, created_at, client_ip, user_agent_hash
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+            used_at, created_at, client_ip, user_agent_hash, purpose
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 	_, err := r.db.ExecContext(ctx, query,
 		c.ID, c.UserID, c.CodeHash, c.AttemptsLeft, c.ExpiresAt,
-		c.UsedAt, c.CreatedAt, clientIP, userAgentHash,
+		c.UsedAt, c.CreatedAt, clientIP, userAgentHash, purpose.String(),
 	)
 	if err != nil {
 		return fmt.Errorf("two_factor_challenge: create: %w", err)
@@ -67,27 +76,32 @@ func (r *TwoFactorChallengeRepository) Create(ctx context.Context, c *twofactor.
 }
 
 // FindLatestPendingForUser returns the most recent NOT-USED challenge
-// for the given user. Backed by the partial index
-// idx_2fa_user_pending so this is a single-row index lookup even on a
-// large table. The query also filters expires_at > NOW() to avoid
-// surfacing stale rows the caller would have to discard anyway —
-// keeps the app layer free of an additional IsExpired check on the
-// happy path.
-func (r *TwoFactorChallengeRepository) FindLatestPendingForUser(ctx context.Context, userID uuid.UUID) (*twofactor.Challenge, error) {
+// for the given user AND purpose. Backed by the purpose-aware partial
+// index idx_2fa_user_purpose_pending so this is a single-row index
+// lookup even on a large table. The query also filters expires_at >
+// NOW() to avoid surfacing stale rows the caller would have to discard
+// anyway — keeps the app layer free of an additional IsExpired check
+// on the happy path.
+//
+// The purpose predicate is what enforces flow isolation at the data
+// layer: a verify call for one purpose can never match a pending row of
+// the other purpose.
+func (r *TwoFactorChallengeRepository) FindLatestPendingForUser(ctx context.Context, userID uuid.UUID, purpose twofactor.Purpose) (*twofactor.Challenge, error) {
 	ctx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
 	const query = `
         SELECT id, user_id, code_hash, attempts_left, expires_at,
-               used_at, created_at, client_ip, user_agent_hash
+               used_at, created_at, client_ip, user_agent_hash, purpose
         FROM two_factor_challenges
         WHERE user_id = $1
+          AND purpose = $2
           AND used_at IS NULL
           AND expires_at > NOW()
         ORDER BY created_at DESC
         LIMIT 1`
 
-	row := QueryRow(ctx, r.db, query, userID)
+	row := QueryRow(ctx, r.db, query, userID, purpose.String())
 	c, err := scanTwoFactorChallenge(row)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -155,15 +169,17 @@ func scanTwoFactorChallenge(scanner interface{ Scan(...any) error }) (*twofactor
 		userAgentHash sql.NullString
 		expiresAt     time.Time
 		createdAt     time.Time
+		purpose       string
 	)
 	if err := scanner.Scan(
 		&c.ID, &c.UserID, &c.CodeHash, &c.AttemptsLeft, &expiresAt,
-		&usedAt, &createdAt, &clientIP, &userAgentHash,
+		&usedAt, &createdAt, &clientIP, &userAgentHash, &purpose,
 	); err != nil {
 		return nil, err
 	}
 	c.ExpiresAt = expiresAt
 	c.CreatedAt = createdAt
+	c.Purpose = twofactor.Purpose(purpose)
 	if usedAt.Valid {
 		t := usedAt.Time
 		c.UsedAt = &t

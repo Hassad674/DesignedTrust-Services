@@ -70,6 +70,9 @@ func (s *stubUserRepo) GetSessionVersion(_ context.Context, _ uuid.UUID) (int, e
 func (s *stubUserRepo) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid.UUID, _ bool) error {
 	return nil
 }
+func (s *stubUserRepo) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
 func (s *stubUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error { return nil }
 
 // stubInvalidator counts Invalidate calls and lets each test inject
