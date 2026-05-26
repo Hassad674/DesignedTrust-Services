@@ -7,6 +7,7 @@ import 'package:marketplace_mobile/core/network/api_client.dart';
 import 'package:marketplace_mobile/core/storage/secure_storage.dart';
 import 'package:marketplace_mobile/core/theme/app_theme.dart';
 import 'package:marketplace_mobile/core/theme/theme_provider.dart';
+import 'package:marketplace_mobile/core/utils/permissions.dart';
 import 'package:marketplace_mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:marketplace_mobile/features/profile/presentation/providers/profile_provider.dart';
 import 'package:marketplace_mobile/features/profile/presentation/screens/profile_screen.dart';
@@ -74,7 +75,10 @@ class FakeApiClient extends ApiClient {
 // Helper — create a real AuthNotifier with controlled initial state
 // =============================================================================
 
-AuthNotifier _createAuthNotifier(Map<String, dynamic> user) {
+AuthNotifier _createAuthNotifier(
+  Map<String, dynamic> user, {
+  Map<String, dynamic>? organization,
+}) {
   final storage = FakeSecureStorage();
   final api = FakeApiClient();
   final notifier = AuthNotifier(apiClient: api, storage: storage);
@@ -83,6 +87,7 @@ AuthNotifier _createAuthNotifier(Map<String, dynamic> user) {
   notifier.state = AuthState(
     status: AuthStatus.authenticated,
     user: user,
+    organization: organization,
   );
   return notifier;
 }
@@ -118,10 +123,13 @@ class FakeThemeModeNotifier extends ThemeModeNotifier {
 Widget _buildTestableProfileScreen({
   required Map<String, dynamic> user,
   Map<String, dynamic>? profileData,
+  Map<String, dynamic>? organization,
 }) {
   return ProviderScope(
     overrides: [
-      authProvider.overrideWith((_) => _createAuthNotifier(user)),
+      authProvider.overrideWith(
+        (_) => _createAuthNotifier(user, organization: organization),
+      ),
       themeModeProvider.overrideWith((_) => FakeThemeModeNotifier()),
       profileProvider.overrideWith((ref) async {
         if (profileData != null) return profileData;
@@ -167,6 +175,23 @@ const _enterpriseUser = {
   'email': 'corp@example.com',
   'display_name': 'Big Corp',
   'role': 'enterprise',
+};
+
+// Organization context granting profile-edit rights. The avatar camera
+// badge is gated behind `OrgPermission.orgProfileEdit` (R17 permission
+// system), so an editor's org must expose that permission for the badge
+// — and the photo-upload affordance — to render.
+//
+// `type: enterprise` keeps the Tier-1 sections (availability / pricing /
+// location / languages) and the expertise/skills sections out of the
+// tree — those are gated to agency / provider_personal orgs and fetch
+// remote data the fake client never resolves, which would deadlock
+// `pumpAndSettle`. The camera badge depends only on the edit permission,
+// not on the org type, so this isolates exactly the behaviour under test.
+const _editorOrganization = {
+  'id': 'org-123',
+  'type': 'enterprise',
+  'permissions': [OrgPermission.orgProfileEdit],
 };
 
 // =============================================================================
@@ -224,11 +249,13 @@ void main() {
 
     testWidgets('shows "User" when display name is empty', (tester) async {
       await tester.pumpWidget(
-        _buildTestableProfileScreen(user: const {
-          'id': 'user-000',
-          'email': 'nobody@example.com',
-          'role': 'provider',
-        }),
+        _buildTestableProfileScreen(
+          user: const {
+            'id': 'user-000',
+            'email': 'nobody@example.com',
+            'role': 'provider',
+          },
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -427,13 +454,29 @@ void main() {
   // ---------------------------------------------------------------------------
 
   group('ProfileScreen photo upload', () {
-    testWidgets('shows camera icon on avatar', (tester) async {
+    testWidgets('shows camera icon on avatar when user can edit',
+        (tester) async {
       await tester.pumpWidget(
-        _buildTestableProfileScreen(user: _providerUser),
+        _buildTestableProfileScreen(
+          user: _providerUser,
+          organization: _editorOrganization,
+        ),
       );
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+    });
+
+    testWidgets('hides camera icon when user lacks edit permission',
+        (tester) async {
+      await tester.pumpWidget(
+        // No organization → no `org_profile.edit` permission → the avatar
+        // exposes no photo-upload affordance, so the badge is absent.
+        _buildTestableProfileScreen(user: _providerUser),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.camera_alt), findsNothing);
     });
   });
 }
