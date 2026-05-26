@@ -81,11 +81,20 @@ export default async function LocaleLayout({
     <html lang={locale} className={`${fraunces.variable} ${interTight.variable} ${geistMono.variable}`}>
       <body className="font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
-          {/* Always-visible "Signaler" shortcut on every page (public +
-           * app + auth). Anchored bottom-LEFT so it never collides with
-           * the messaging ChatWidget (bottom-right, desktop-only). */}
-          <ReportButton />
+          <Providers>
+            {children}
+            {/* Always-visible "Signaler" shortcut on every page (public +
+             * app + auth). Anchored bottom-LEFT so it never collides with
+             * the messaging ChatWidget (bottom-right, desktop-only).
+             *
+             * MUST live inside <Providers> (the QueryClientProvider): the
+             * report form reads the session via useUser() (TanStack Query)
+             * to gate the logged-in attachments zone. Mounted as a sibling
+             * of <Providers> it had no QueryClient in context, so opening
+             * the modal threw "No QueryClient set" and tripped the global
+             * error boundary ("We hit a snag") in production. */}
+            <ReportButton />
+          </Providers>
           <Toaster position="top-right" richColors closeButton duration={3000} />
         </NextIntlClientProvider>
       </body>
