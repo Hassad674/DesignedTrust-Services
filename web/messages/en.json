@@ -801,6 +801,33 @@
       "generic": "Something went wrong. Please try again."
     }
   },
+  "verifyEmail": {
+    "eyebrow": "Verify your email",
+    "titlePrefix": "Confirm your",
+    "titleAccent": "email address.",
+    "subtitle": "We just sent you a 6-digit code. Enter it below to activate your account.",
+    "emailHint": "Code sent to {email}",
+    "codeLabel": "Verification code",
+    "codePlaceholder": "123456",
+    "verifyCta": "Verify my email",
+    "verifying": "Verifying…",
+    "resendQuestion": "Didn't get anything?",
+    "resend": "Resend code",
+    "resending": "Sending…",
+    "resendIn": "Resend code ({seconds}s)",
+    "resendSuccess": "A new code has been sent. Check your inbox.",
+    "alreadyVerified": "Your email is already verified — redirecting you.",
+    "errors": {
+      "noChallenge": "No pending verification code — request a new one.",
+      "challengeExpired": "The verification code has expired — request a new one.",
+      "invalidCode": "The verification code is incorrect.",
+      "tooManyAttempts": "Too many attempts — request a new code in a few minutes.",
+      "codeLength": "The code must be 6 digits.",
+      "sessionInvalid": "Session is no longer valid — please sign in again.",
+      "resendFailed": "Couldn't send the code — please try again in a moment.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
   "registerFix": {
     "shared": {
       "stepEyebrow": "↳ Step 2/2",
@@ -1473,7 +1500,9 @@
     "title": "Profile {percent}% complete",
     "subtitle": "{filled}/{total} sections completed",
     "subtitleComplete": "Every section is complete — great work!",
-    "a11yLabel": "Profile {percent}% complete, open your profile to complete it"
+    "a11yLabel": "Profile {percent}% complete, open your profile to complete it",
+    "searchHiddenMessage": "Complete your profile to 50% to appear in search results ({score}% so far).",
+    "searchVisibleMessage": "✓ Visible in search results"
   },
   "upload": {
     "addPhoto": "Add a photo",

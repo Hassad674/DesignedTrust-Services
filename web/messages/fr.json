@@ -801,6 +801,33 @@
       "generic": "Une erreur est survenue. Réessaye dans un instant."
     }
   },
+  "verifyEmail": {
+    "eyebrow": "Vérifie ton adresse email",
+    "titlePrefix": "Confirme ton",
+    "titleAccent": "adresse email.",
+    "subtitle": "On vient de t'envoyer un code à 6 chiffres. Recopie-le ci-dessous pour activer ton compte.",
+    "emailHint": "Code envoyé à {email}",
+    "codeLabel": "Code de vérification",
+    "codePlaceholder": "123456",
+    "verifyCta": "Vérifier mon email",
+    "verifying": "Vérification…",
+    "resendQuestion": "Tu n'as rien reçu ?",
+    "resend": "Renvoyer le code",
+    "resending": "Envoi…",
+    "resendIn": "Renvoyer le code ({seconds} s)",
+    "resendSuccess": "Un nouveau code a été envoyé. Vérifie ta boîte mail.",
+    "alreadyVerified": "Ton adresse est déjà vérifiée — on te redirige.",
+    "errors": {
+      "noChallenge": "Aucun code en attente — demandes-en un nouveau.",
+      "challengeExpired": "Le code a expiré — demandes-en un nouveau.",
+      "invalidCode": "Le code est incorrect.",
+      "tooManyAttempts": "Trop de tentatives — demandes-en un nouveau dans quelques minutes.",
+      "codeLength": "Le code doit comporter 6 chiffres.",
+      "sessionInvalid": "La session n'est plus valide — reconnecte-toi.",
+      "resendFailed": "Impossible d'envoyer le code — réessaye dans un instant.",
+      "generic": "Une erreur est survenue. Réessaye dans un instant."
+    }
+  },
   "registerFix": {
     "shared": {
       "stepEyebrow": "↳ Étape 2/2",
@@ -1473,7 +1500,9 @@
     "title": "Profil rempli à {percent}%",
     "subtitle": "{filled}/{total} sections complétées",
     "subtitleComplete": "Toutes les sections sont complètes — bravo !",
-    "a11yLabel": "Profil rempli à {percent}%, ouvre ton profil pour le compléter"
+    "a11yLabel": "Profil rempli à {percent}%, ouvre ton profil pour le compléter",
+    "searchHiddenMessage": "Complète ton profil à 50 % pour apparaître dans les recherches ({score} % pour l'instant).",
+    "searchVisibleMessage": "✓ Visible dans les recherches"
   },
   "upload": {
     "addPhoto": "Ajouter une photo",

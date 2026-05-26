@@ -97,7 +97,10 @@ export function ProviderRegisterForm() {
       // pre-register "logged out" verdict would otherwise survive
       // the SPA navigation to /dashboard.
       await queryClient.invalidateQueries({ queryKey: ["session"] })
-      router.push("/dashboard")
+      // Register leaves the account email_verified=false (a 6-digit code
+      // was just emailed). Send the user to the verification screen
+      // before the dashboard, where the access gate would 403 anyway.
+      router.push("/verify-email")
     } catch (err) {
       setError(err instanceof Error ? err.message : tCommon("errorOccurred"))
     }
