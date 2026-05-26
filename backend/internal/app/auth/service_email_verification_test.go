@@ -250,3 +250,59 @@ func TestResendVerification_NoopWhenVerified(t *testing.T) {
 	assert.True(t, already)
 	assert.Equal(t, 0, gate.requestCalls, "no challenge issued for a verified account")
 }
+
+// TestVerifyEmail_GateNotConfigured asserts the defensive guard when the
+// 2FA gate is not wired (feature disabled mid-flight).
+func TestVerifyEmail_GateNotConfigured(t *testing.T) {
+	repo := &mockUserRepo{}
+	svc := NewServiceWithDeps(ServiceDeps{Users: repo, Hasher: &mockHasher{}, Tokens: &mockTokenService{}, Email: &mockEmailService{}})
+	// No SetTwoFactorGate call → gate is nil.
+	_, err := svc.VerifyEmail(context.Background(), uuid.New(), "123456", SessionFingerprint{})
+	assert.Error(t, err)
+}
+
+// TestVerifyEmail_NilUserID asserts the zero-uuid guard.
+func TestVerifyEmail_NilUserID(t *testing.T) {
+	svc, _ := newEmailVerifyService(t, &mockTwoFactorGate{}, seededUser(false))
+	_, err := svc.VerifyEmail(context.Background(), uuid.Nil, "123456", SessionFingerprint{})
+	assert.ErrorIs(t, err, user.ErrUnauthorized)
+}
+
+// TestVerifyEmail_UserLoadFails asserts a DB load failure surfaces as an
+// error (not a silent verify).
+func TestVerifyEmail_UserLoadFails(t *testing.T) {
+	gate := &mockTwoFactorGate{}
+	repo := &mockUserRepo{
+		getByIDFn: func(_ context.Context, _ uuid.UUID) (*user.User, error) {
+			return nil, user.ErrUserNotFound
+		},
+	}
+	svc := NewServiceWithDeps(ServiceDeps{Users: repo, Hasher: &mockHasher{}, Tokens: &mockTokenService{}, Email: &mockEmailService{}})
+	svc.SetTwoFactorGate(gate)
+	_, err := svc.VerifyEmail(context.Background(), uuid.New(), "123456", SessionFingerprint{})
+	assert.Error(t, err)
+	assert.Equal(t, 0, gate.verifyPurposeCalls, "must not verify a code when the user row is gone")
+}
+
+// TestResendVerification_GateError asserts a challenge-issue failure is
+// surfaced (unlike register's fire-and-forget).
+func TestResendVerification_GateError(t *testing.T) {
+	gate := &mockTwoFactorGate{requestErr: errEmailBackend}
+	seed := seededUser(false)
+	svc, _ := newEmailVerifyService(t, gate, seed)
+	_, err := svc.ResendVerification(context.Background(), seed.ID, SessionFingerprint{})
+	assert.Error(t, err)
+}
+
+// TestResendVerification_NilUserID asserts the zero-uuid guard.
+func TestResendVerification_NilUserID(t *testing.T) {
+	svc, _ := newEmailVerifyService(t, &mockTwoFactorGate{}, seededUser(false))
+	_, err := svc.ResendVerification(context.Background(), uuid.Nil, SessionFingerprint{})
+	assert.ErrorIs(t, err, user.ErrUnauthorized)
+}
+
+var errEmailBackend = errorString("email backend down")
+
+type errorString string
+
+func (e errorString) Error() string { return string(e) }

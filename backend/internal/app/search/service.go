@@ -167,6 +167,12 @@ type QueryInput struct {
 	Cursor    string
 	UserID    string // optional, captured in analytics
 	SessionID string // optional, captured in analytics
+
+	// IncludeIncomplete drops the profile-completion visibility gate
+	// (profile_completion_score:>=50) so admin / internal callers see
+	// every profile. Defaults to false — the public search path is
+	// always gated. The handler sets it ONLY for admin/internal routes.
+	IncludeIncomplete bool
 }
 
 // QueryResult is the typed payload returned to handlers and (via
@@ -513,6 +519,7 @@ func (s *Service) buildSearchParams(input QueryInput, page int, hybridActive boo
 		SortBy:              sortBy,
 		Page:                page,
 		PerPage:             perPage,
+		IncludeIncomplete:   input.IncludeIncomplete,
 		ExcludeFields:       "embedding",
 		HighlightFields:     "display_name,title,skills_text",
 		HighlightFullFields: "display_name,title",

@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	appsearch "marketplace-backend/internal/app/search"
+	"marketplace-backend/internal/handler/middleware"
 	"marketplace-backend/internal/search"
 )
 
@@ -73,7 +74,9 @@ func TestSearchHandler_ScopedKey_HappyPath(t *testing.T) {
 	// the digest's padding varies in length depending on content.
 	raw, err := base64.StdEncoding.DecodeString(body.Key)
 	require.NoError(t, err)
-	require.Contains(t, string(raw), `"filter_by":"persona:freelance && is_published:true"`)
+	// The scoped key serves the PUBLIC listing pages, so the embedded
+	// filter carries the profile-completion visibility gate.
+	require.Contains(t, string(raw), `"filter_by":"persona:freelance && is_published:true && profile_completion_score:>=50"`)
 }
 
 func TestSearchHandler_ScopedKey_UnknownPersona(t *testing.T) {
@@ -151,6 +154,58 @@ func TestSearchHandler_Search_HappyPath(t *testing.T) {
 	assert.Contains(t, stub.gotParams.FilterBy, "skills:[react]")
 	assert.Contains(t, stub.gotParams.FilterBy, "pricing_min_amount:>=50000")
 	assert.Contains(t, stub.gotParams.FilterBy, "is_verified:=true")
+}
+
+// TestSearchHandler_Search_IncludeIncompleteRequiresAdmin asserts the
+// include_incomplete query param only drops the gate for an admin
+// caller — a regular (or anonymous) caller can never bypass it.
+func TestSearchHandler_Search_IncludeIncompleteRequiresAdmin(t *testing.T) {
+	const payload = `{"found":0,"out_of":0,"page":1,"per_page":20,"hits":[],"facet_counts":[]}`
+
+	tests := []struct {
+		name       string
+		isAdmin    bool
+		hasAuthCtx bool
+		wantFlag   bool
+	}{
+		{name: "admin honored", isAdmin: true, hasAuthCtx: true, wantFlag: true},
+		{name: "non-admin ignored", isAdmin: false, hasAuthCtx: true, wantFlag: false},
+		{name: "anonymous ignored", hasAuthCtx: false, wantFlag: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			stub := &fakeQueryClient{persona: search.PersonaFreelance, payload: payload}
+			h := newTestSearchHandler(t, stub)
+
+			req := httptest.NewRequest(http.MethodGet,
+				"/api/v1/search?persona=freelance&include_incomplete=true", nil)
+			if tt.hasAuthCtx {
+				ctx := context.WithValue(req.Context(), middleware.ContextKeyIsAdmin, tt.isAdmin)
+				req = req.WithContext(ctx)
+			}
+			rec := httptest.NewRecorder()
+			h.Search(rec, req)
+
+			require.Equal(t, http.StatusOK, rec.Code)
+			assert.Equal(t, tt.wantFlag, stub.gotParams.IncludeIncomplete,
+				"include_incomplete must only be honored for admins")
+		})
+	}
+}
+
+// TestSearchHandler_Search_PublicGatedByDefault asserts the default
+// public path keeps IncludeIncomplete=false (gate on).
+func TestSearchHandler_Search_PublicGatedByDefault(t *testing.T) {
+	const payload = `{"found":0,"out_of":0,"page":1,"per_page":20,"hits":[],"facet_counts":[]}`
+	stub := &fakeQueryClient{persona: search.PersonaFreelance, payload: payload}
+	h := newTestSearchHandler(t, stub)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/search?persona=freelance", nil)
+	rec := httptest.NewRecorder()
+	h.Search(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
+	assert.False(t, stub.gotParams.IncludeIncomplete, "public search must be gated by default")
 }
 
 func TestSearchHandler_Search_InvalidPersona(t *testing.T) {

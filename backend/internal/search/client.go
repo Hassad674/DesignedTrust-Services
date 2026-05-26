@@ -398,6 +398,13 @@ type SearchParams struct {
 	// listing-page fallback (q=*) should leave it empty so the vector
 	// distance does not dominate the ranking of millions of profiles.
 	VectorQuery string `json:"vector_query,omitempty"`
+
+	// IncludeIncomplete, when true, DROPS the profile-completion
+	// visibility gate (profile_completion_score:>=50) from the base
+	// persona filter so admin / internal search sees every profile.
+	// json:"-" — it is a server-side query directive, never sent to
+	// Typesense. Defaults to false so the public path is gated.
+	IncludeIncomplete bool `json:"-"`
 }
 
 // Query calls the collection's /documents/search endpoint and

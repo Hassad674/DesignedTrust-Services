@@ -16,28 +16,45 @@ import (
 // regardless of what the caller passes in filter_by.
 func TestScopedClient_ForcesPersonaFilter(t *testing.T) {
 	cases := []struct {
-		name       string
-		build      func(*search.Client) *search.PersonaScopedClient
-		userFilter string
-		wantFilter string
+		name              string
+		build             func(*search.Client) *search.PersonaScopedClient
+		userFilter        string
+		includeIncomplete bool
+		wantFilter        string
 	}{
 		{
-			name:       "freelance empty user filter",
+			// Public path: the profile-completion gate is part of the base.
+			name:       "freelance empty user filter (gated)",
 			build:      search.NewFreelanceClient,
 			userFilter: "",
-			wantFilter: "persona:freelance && is_published:true",
+			wantFilter: "persona:freelance && is_published:true && profile_completion_score:>=50",
 		},
 		{
-			name:       "agency with rating filter",
+			name:       "agency with rating filter (gated)",
 			build:      search.NewAgencyClient,
 			userFilter: "rating_average:>=4",
-			wantFilter: "persona:agency && is_published:true && (rating_average:>=4)",
+			wantFilter: "persona:agency && is_published:true && profile_completion_score:>=50 && (rating_average:>=4)",
 		},
 		{
-			name:       "referrer with complex filter",
+			name:       "referrer with complex filter (gated)",
 			build:      search.NewReferrerClient,
 			userFilter: "skills:[React] && city:Paris",
-			wantFilter: "persona:referrer && is_published:true && (skills:[React] && city:Paris)",
+			wantFilter: "persona:referrer && is_published:true && profile_completion_score:>=50 && (skills:[React] && city:Paris)",
+		},
+		{
+			// Admin/internal override: the gate is DROPPED.
+			name:              "freelance include_incomplete drops the gate",
+			build:             search.NewFreelanceClient,
+			userFilter:        "",
+			includeIncomplete: true,
+			wantFilter:        "persona:freelance && is_published:true",
+		},
+		{
+			name:              "agency include_incomplete with user filter",
+			build:             search.NewAgencyClient,
+			userFilter:        "rating_average:>=4",
+			includeIncomplete: true,
+			wantFilter:        "persona:agency && is_published:true && (rating_average:>=4)",
 		},
 	}
 
@@ -52,9 +69,10 @@ func TestScopedClient_ForcesPersonaFilter(t *testing.T) {
 
 			scoped := c.build(client)
 			_, err := scoped.Query(context.Background(), search.SearchParams{
-				Q:        "anything",
-				QueryBy:  "title",
-				FilterBy: c.userFilter,
+				Q:                 "anything",
+				QueryBy:           "title",
+				FilterBy:          c.userFilter,
+				IncludeIncomplete: c.includeIncomplete,
 			})
 			require.NoError(t, err)
 			assert.Equal(t, c.wantFilter, gotFilter)
