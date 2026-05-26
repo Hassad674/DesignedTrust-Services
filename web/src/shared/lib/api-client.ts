@@ -10,6 +10,37 @@ export const WS_BASE_URL = rawApiUrl ? rawApiUrl.replace(/^http/, "ws") : ""
 
 const API_URL = API_BASE_URL
 
+/** Backend code on the 403 thrown by the signup email-verification gate. */
+export const EMAIL_NOT_VERIFIED_CODE = "email_not_verified"
+
+/** Locale segments next-intl may prefix to a path. Keep in sync with i18n/routing.ts. */
+const LOCALE_PREFIXES = ["/fr", "/en"]
+
+const VERIFY_EMAIL_PATH = "/verify-email"
+
+/**
+ * Funnel an unverified caller to the verify-email screen. Preserves the
+ * active locale prefix (so an `/fr/...` user lands on `/fr/verify-email`)
+ * and is loop-safe — if the user is already on the verify-email screen
+ * we do nothing (the form's own resend/verify calls must not bounce the
+ * page). No-op on the server (no `window`).
+ */
+function redirectToVerifyEmail(): void {
+  if (typeof window === "undefined") return
+  const { pathname } = window.location
+  let localePrefix = ""
+  for (const prefix of LOCALE_PREFIXES) {
+    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+      localePrefix = prefix
+      break
+    }
+  }
+  const target = `${localePrefix}${VERIFY_EMAIL_PATH}`
+  // Already there (with or without locale prefix) → don't re-navigate.
+  if (pathname === target || pathname.endsWith(VERIFY_EMAIL_PATH)) return
+  window.location.assign(target)
+}
+
 type RequestOptions = {
   method?: string
   body?: unknown
@@ -52,6 +83,16 @@ export async function apiClient<T>(path: string, options: RequestOptions = {}): 
       } else if (parsed.message) {
         message = parsed.message
       }
+    }
+    // Signup-OTP access gate: any verified-only route answers 403
+    // `email_not_verified` for an unverified caller. Funnel them to the
+    // verify-email screen so they can finish the flow. Scoped strictly
+    // to that code — a plain `forbidden` (RBAC / ownership) is left
+    // untouched and still surfaces to the caller. The ApiError is still
+    // thrown so in-flight callers see a rejected promise; the redirect
+    // tears down the React tree anyway.
+    if (res.status === 403 && code === EMAIL_NOT_VERIFIED_CODE) {
+      redirectToVerifyEmail()
     }
     throw new ApiError(res.status, code, message, parsed)
   }
