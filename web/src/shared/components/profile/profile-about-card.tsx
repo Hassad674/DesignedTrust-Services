@@ -5,7 +5,7 @@ import { Edit2, Loader2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/shared/components/ui/button"
-const MAX_CHARS = 1000
+const MAX_CHARS = 3000
 
 interface ProfileAboutCardProps {
   content: string

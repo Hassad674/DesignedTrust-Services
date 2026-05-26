@@ -33,7 +33,7 @@ Future<void> showFreelanceAboutSheet({
             TextField(
               controller: controller,
               maxLines: 5,
-              maxLength: 1000,
+              maxLength: 3000,
               decoration: InputDecoration(
                 hintText: l10n.aboutEditHint,
                 border: const OutlineInputBorder(),
