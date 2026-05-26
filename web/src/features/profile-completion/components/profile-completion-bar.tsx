@@ -5,9 +5,18 @@ import { useTranslations } from "next-intl"
 import { Link } from "@i18n/navigation"
 
 import { useProfileCompletion } from "../hooks/use-profile-completion"
-import type { CompletionPersona } from "../api/profile-completion-api"
+import type {
+  CompletionPersona,
+  ProfileCompletionReport,
+} from "../api/profile-completion-api"
 import { useUser, useOrganization } from "@/shared/hooks/use-user"
 import { cn } from "@/shared/lib/utils"
+
+// Personas the public search indexes — only these surfaces get the
+// search-visibility message. Enterprise (client) orgs are never listed,
+// so the backend always reports listed_in_search=false for them and we
+// must not nudge them to "complete for search" (it would never apply).
+const SEARCHABLE_PERSONAS = new Set(["freelance", "agency", "referrer"])
 
 // ProfileCompletionBarProps controls how the bar lays out — sidebar
 // vs page header — without forking the component. Keeps the prop
@@ -57,6 +66,31 @@ function profilePathFor(
   // itself dispatches between freelance and agency layouts based on the
   // authenticated user's org type.
   return "/profile"
+}
+
+// SearchVisibilityNote renders the search-visibility line bound to the
+// backend's authoritative `score` (0-100, the EXACT number the gate
+// filters on) and `listed_in_search` flag. It NEVER recomputes a
+// percentage locally — the displayed number must match the gate exactly.
+//
+// Renders nothing for non-searchable personas (enterprise), so a client
+// never sees a "complete to 50% for search" nudge that can't apply.
+function SearchVisibilityNote({ report }: { report: ProfileCompletionReport }) {
+  const t = useTranslations("profileCompletion")
+  if (!SEARCHABLE_PERSONAS.has(report.persona)) return null
+
+  if (report.listed_in_search) {
+    return (
+      <p className="mt-2 flex items-center gap-1 text-xs font-medium text-success">
+        {t("searchVisibleMessage")}
+      </p>
+    )
+  }
+  return (
+    <p className="mt-2 text-xs text-muted-foreground">
+      {t("searchHiddenMessage", { score: report.score })}
+    </p>
+  )
 }
 
 // ProfileCompletionBar renders "Profil rempli à X%" with a Soleil-
@@ -153,6 +187,7 @@ export function ProfileCompletionBar(props: ProfileCompletionBarProps) {
           style={{ width: `${data.percent}%` }}
         />
       </div>
+      <SearchVisibilityNote report={data} />
     </Link>
   )
 }

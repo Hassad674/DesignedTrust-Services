@@ -90,6 +90,10 @@ const baseReport: ProfileCompletionReport = {
       completion_path: "/dashboard/profile/edit",
     },
   ],
+  // Backend-authoritative gating fields (the # the user sees == the #
+  // that gates search). Default fixture clears the threshold.
+  score: 62,
+  listed_in_search: true,
 }
 
 beforeEach(() => {
@@ -180,6 +184,51 @@ describe("ProfileCompletionBar", () => {
     expect(pill.tagName.toLowerCase()).toBe("a")
     expect(pill.getAttribute("href")).toBe("/profile")
     expect(pill.textContent).toContain("50%")
+  })
+
+  it("shows the 'visible in search' note when listed_in_search is true", async () => {
+    renderBar({ ...baseReport, score: 62, listed_in_search: true })
+    expect(
+      await screen.findByText(
+        messages.profileCompletion.searchVisibleMessage,
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it("shows the 'complete to 50%' note with the backend score when not listed", async () => {
+    renderBar({ ...baseReport, score: 30, listed_in_search: false })
+    // Bound to the backend `score` (30), NOT to `percent` (50) — the
+    // displayed number must match the gate number, never the
+    // section-count percentage.
+    expect(await screen.findByText(/30 %/)).toBeInTheDocument()
+    expect(
+      screen.queryByText(messages.profileCompletion.searchVisibleMessage),
+    ).toBeNull()
+  })
+
+  it("renders the search note using score, not percent (they can diverge)", async () => {
+    // percent=80 but score=42 → the hidden "so far" figure must quote
+    // the gate number (42), NOT the section-count percent (80). The
+    // literal "50 %" threshold is always present, so we assert on the
+    // dynamic 42 (matched nowhere else) and on the absence of 80.
+    renderBar({ ...baseReport, percent: 80, score: 42, listed_in_search: false })
+    expect(await screen.findByText(/42 %/)).toBeInTheDocument()
+    expect(screen.queryByText(/80 %/)).toBeNull()
+  })
+
+  it("hides the search note entirely for enterprise (non-searchable) persona", async () => {
+    renderBar(
+      { ...baseReport, persona: "enterprise", score: 80, listed_in_search: false },
+      {},
+      { role: "enterprise", orgType: "enterprise" },
+    )
+    await screen.findByText(/Profil rempli à 50%/)
+    // Neither the visible badge nor the "complete to 50%" nudge — an
+    // enterprise is never listed in search, so no message applies.
+    expect(
+      screen.queryByText(messages.profileCompletion.searchVisibleMessage),
+    ).toBeNull()
+    expect(screen.queryByText(/apparaître dans les recherches/)).toBeNull()
   })
 
   it("forwards the persona override to the API call (referrer mode)", async () => {
