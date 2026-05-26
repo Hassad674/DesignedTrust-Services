@@ -321,7 +321,7 @@ class _EditClientProfileSheetState
                 border: const OutlineInputBorder(),
               ),
               maxLines: 5,
-              maxLength: 1000,
+              maxLength: 3000,
             ),
             const SizedBox(height: 8),
             SizedBox(

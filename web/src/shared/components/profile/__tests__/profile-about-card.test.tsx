@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { NextIntlClientProvider } from "next-intl"
 import messages from "@/../messages/en.json"
 import { ProfileAboutCard } from "../profile-about-card"
@@ -48,5 +48,27 @@ describe("ProfileAboutCard", () => {
       </NextIntlClientProvider>,
     )
     expect(screen.getByText("Now visible")).toBeInTheDocument()
+  })
+
+  // Regression: the About field cap was raised from 1000 to 3000 chars.
+  // The counter must read "/ 3000" and the textarea must clamp input
+  // beyond 3000 characters (never silently allow more, never cap at 1000).
+  it("caps the About editor at 3000 characters and clamps overflow", () => {
+    renderCard({
+      content: "",
+      label: "About",
+      placeholder: "Tell us more",
+      onSave: vi.fn(),
+    })
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit about" }))
+
+    expect(screen.getByText("0 / 3000 characters")).toBeInTheDocument()
+
+    const textarea = screen.getByRole("textbox", { name: "About" })
+    fireEvent.change(textarea, { target: { value: "x".repeat(3500) } })
+
+    expect((textarea as HTMLTextAreaElement).value).toHaveLength(3000)
+    expect(screen.getByText("3000 / 3000 characters")).toBeInTheDocument()
   })
 })
