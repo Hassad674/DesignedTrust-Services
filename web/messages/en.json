@@ -1497,6 +1497,11 @@
     "videoFormats": "Accepted formats: MP4, WebM. 50 MB maximum.",
     "imageFormats": "Choose a profile {imageType}. Accepted formats: JPG, PNG, WebP."
   },
+  "openSource": {
+    "label": "Open source",
+    "tooltip": "This project is open source — explore the code on GitHub",
+    "ariaLabel": "Project source code on GitHub (opens in a new tab)"
+  },
   "pages": {
     "messages": "Messages",
     "agencyMessagesDesc": "Exchange with your clients and service providers",
