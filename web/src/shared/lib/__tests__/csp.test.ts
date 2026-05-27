@@ -67,6 +67,19 @@ describe("buildCSP — connect-src env-driven origins", () => {
     expect(connect).toContain("https://*.r2.dev")
   })
 
+  it("whitelists Sentry ingest hosts (all regions) in connect-src", () => {
+    // Sentry SDK POSTs events to a region-specific *.ingest.sentry.io
+    // host derived from the DSN — the connect-src must allow every
+    // region the DSN may point at, in both prod and dev.
+    const prod = getDirective(buildCSP(PROD_ENV, true), "connect-src")
+    const dev = getDirective(buildCSP({}, false), "connect-src")
+    for (const directive of [prod, dev]) {
+      expect(directive).toContain("https://*.ingest.sentry.io")
+      expect(directive).toContain("https://*.ingest.us.sentry.io")
+      expect(directive).toContain("https://*.ingest.de.sentry.io")
+    }
+  })
+
   it("does not include dev fallback origins in production", () => {
     const csp = buildCSP(PROD_ENV, true)
     const connect = getDirective(csp, "connect-src")
