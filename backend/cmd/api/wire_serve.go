@@ -64,6 +64,13 @@ type serveDeps struct {
 	// phase 3 so spans recorded during shutdown are flushed before
 	// the process exits.
 	OtelShutdown observability.ShutdownFunc
+
+	// SentryFlush drains buffered Sentry events. Always non-nil —
+	// observability.InitSentry returns a no-op closure when Sentry is
+	// disabled (SENTRY_DSN unset). Invoked at the tail of phase 3 next to
+	// the OTel flush so panic / error events recorded right before exit
+	// are delivered before the process terminates.
+	SentryFlush observability.SentryFlushFunc
 }
 
 // 3-step graceful shutdown sub-budgets. Sums to 30s — the Kubernetes
@@ -216,11 +223,19 @@ func drainWorkers(parent context.Context, deps serveDeps) {
 		}
 	}
 
+	// Flush buffered Sentry events recorded during the request lifetime
+	// (including any captured during shutdown). observability.InitSentry
+	// returns a no-op closure when Sentry is disabled, so this is always
+	// safe to call. Bounded by 2s — sentry.Flush blocks until delivery or
+	// the timeout, whichever comes first.
+	if deps.SentryFlush != nil {
+		deps.SentryFlush(2 * time.Second)
+	}
+
 	// Final OTel flush so spans recorded during shutdown make it
 	// onto the wire. observability.Init returns a no-op closure when
-	// OTel is disabled so this is always safe to call. The flush
-	// must be the last step — anything after it would not be
-	// captured.
+	// OTel is disabled so this is always safe to call. Kept last so
+	// spans emitted by the preceding cleanup steps are captured.
 	if deps.OtelShutdown != nil {
 		flushCtx, flushCancel := context.WithTimeout(ctx, 2*time.Second)
 		if err := deps.OtelShutdown(flushCtx); err != nil {

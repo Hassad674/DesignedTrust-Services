@@ -79,6 +79,17 @@ func main() {
 			slog.Debug("otel deferred shutdown noop or already-flushed", "error", err)
 		}
 	}()
+	// Sentry deferred-flush fallback, mirroring the OTel one above:
+	// covers abnormal exits where runServer never returns so buffered
+	// panic/error events are delivered. sentry.Flush is safe to call
+	// twice (the phase-3 drain may have already run); the inert path is
+	// a no-op when SENTRY_DSN was unset.
+	defer func() {
+		if app == nil || app.SentryFlush == nil {
+			return
+		}
+		app.SentryFlush(2 * time.Second)
+	}()
 
 	// 3. Serve. runServer owns the HTTP listener and the SIGTERM
 	// handler that drives the 3-step graceful shutdown. Every cancel
@@ -93,5 +104,6 @@ func main() {
 		UploadHandler: app.UploadHandler,
 		WorkerCancels: app.WorkerCancels,
 		OtelShutdown:  app.OtelShutdown,
+		SentryFlush:   app.SentryFlush,
 	})
 }

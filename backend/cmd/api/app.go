@@ -8,6 +8,7 @@ import (
 	"marketplace-backend/internal/adapter/ws"
 	"marketplace-backend/internal/config"
 	"marketplace-backend/internal/handler"
+	"marketplace-backend/internal/observability"
 )
 
 // App is the assembled, ready-to-serve product of bootstrap. Holds
@@ -37,6 +38,19 @@ type App struct {
 	UploadHandler *handler.UploadHandler
 	WorkerCancels []context.CancelFunc
 	OtelShutdown  func(context.Context) error
+
+	// SentryEnabled reports whether the Sentry client was initialised
+	// (SENTRY_DSN was set at boot). When false the API behaves exactly
+	// as before the integration — no middleware is mounted, the flush is
+	// a no-op. The router consults this flag to decide whether to install
+	// the sentryhttp panic-capture middleware.
+	SentryEnabled bool
+
+	// SentryFlush drains buffered Sentry events. Always non-nil — the
+	// inert path returns a no-op closure — so the graceful-shutdown path
+	// can call it unconditionally. Invoked in phase 3 alongside the OTel
+	// flush so panic/error events recorded right before exit make it out.
+	SentryFlush observability.SentryFlushFunc
 
 	// closeFns are the deferred cancellations bootstrap wired during
 	// assembly (infra cancel, otel deferred flush). When the process

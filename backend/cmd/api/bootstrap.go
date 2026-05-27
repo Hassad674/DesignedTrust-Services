@@ -48,6 +48,16 @@ func setupInfraAndTracing(ctx context.Context, cfg *config.Config, app *App) (in
 		slog.Warn("otel init failed, continuing without tracing", "error", otelErr)
 	}
 	app.OtelShutdown = otelShutdown
+
+	// Sentry error monitoring. Fully env-gated: when SENTRY_DSN is empty
+	// (the default in dev / CI, and in production until the operator sets
+	// the DSN on Railway) InitSentry is a no-op and SentryEnabled stays
+	// false so the router never installs the sentryhttp middleware — zero
+	// overhead, the API behaves exactly as before. An init failure is
+	// never fatal (logged WARN, continues inert). The flush is drained in
+	// the phase-3 graceful shutdown next to the OTel flush.
+	app.SentryEnabled, app.SentryFlush = observability.InitSentry(observability.LoadSentryFromEnv())
+
 	return infra, infraCancel, nil
 }
 
@@ -773,6 +783,10 @@ func bootstrap(ctx context.Context, cfg *config.Config) (*App, error) {
 		Infra:       infra,
 		Metrics:     metrics,
 		RateLimiter: httpRateLimiter,
+		// Env-gated: true only when SENTRY_DSN was set at boot, so the
+		// sentryhttp panic-capture middleware is installed exactly when
+		// the Sentry client is live.
+		SentryEnabled: app.SentryEnabled,
 	})
 
 	// WorkerCancels collects every long-running goroutine's context

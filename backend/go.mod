@@ -26,10 +26,12 @@ require (
 	github.com/chromedp/cdproto v0.0.0-20250403032234-65de8f5d025b
 	github.com/chromedp/chromedp v0.13.6
 	github.com/coder/websocket v1.8.14
+	github.com/getsentry/sentry-go v0.46.2
 	github.com/go-playground/validator/v10 v10.30.2
 	github.com/livekit/protocol v1.45.1
 	github.com/livekit/server-sdk-go/v2 v2.16.1
 	github.com/microcosm-cc/bluemonday v1.0.27
+	github.com/posthog/posthog-go v1.12.5
 	github.com/redis/go-redis/extra/redisotel/v9 v9.18.0
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/resend/resend-go/v2 v2.28.0
@@ -148,7 +150,6 @@ require (
 	github.com/pion/webrtc/v4 v4.2.6 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/posthog/posthog-go v1.12.5 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.5.1 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.18.0 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
