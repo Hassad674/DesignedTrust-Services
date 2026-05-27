@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl"
 import { Link } from "@i18n/navigation"
 import { getDpoEmail } from "@/shared/lib/dpo"
 import { CookieConsentManageButton } from "@/shared/components/analytics/cookie-consent-manage-button"
+import { OpenSourceBadge } from "@/shared/components/open-source-badge"
 
 // LegalFooter — minimalist legal-link footer rendered under public
 // pages. Surfaces the 7 legal routes plus the DPO email + a persistent
@@ -60,7 +61,10 @@ export function LegalFooter() {
           </a>
           <CookieConsentManageButton variant="inline" />
         </nav>
-        <p className="text-muted-foreground/80">{t("copyright", { year })}</p>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <OpenSourceBadge />
+          <p className="text-muted-foreground/80">{t("copyright", { year })}</p>
+        </div>
       </div>
     </footer>
   )

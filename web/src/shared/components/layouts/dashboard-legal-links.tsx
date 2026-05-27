@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl"
 
 import { legalHref } from "@i18n/routing"
+import { OpenSourceBadge } from "@/shared/components/open-source-badge"
 
 /**
  * Minimalist legal links bar shown at the bottom of every authenticated
@@ -42,7 +43,7 @@ export function DashboardLegalLinks() {
       aria-label={t("ariaLabel")}
       className="mt-12 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-t border-border pt-6 text-xs text-muted-foreground"
     >
-      {LINKS.map((link, idx) => (
+      {LINKS.map((link) => (
         <span key={link.canonical} className="flex items-center gap-x-4">
           <a
             href={legalHref(link.canonical, locale)}
@@ -50,13 +51,12 @@ export function DashboardLegalLinks() {
           >
             {t(link.labelKey)}
           </a>
-          {idx < LINKS.length - 1 && (
-            <span aria-hidden="true" className="text-border">
-              ·
-            </span>
-          )}
+          <span aria-hidden="true" className="text-border">
+            ·
+          </span>
         </span>
       ))}
+      <OpenSourceBadge />
     </nav>
   )
 }

@@ -3,6 +3,7 @@ import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@i18n/navigation"
 import { legalHref, legalPathnames } from "@i18n/routing"
 import { BrandLogo } from "@/shared/components/ui/brand-logo"
+import { OpenSourceBadge } from "@/shared/components/open-source-badge"
 
 // Author signature — the maintainer's public LinkedIn. Hardcoded on
 // purpose: it is a fixed personal profile URL, not an env-driven or
@@ -103,7 +104,10 @@ function FooterBottom() {
   return (
     <div className="mt-10 flex items-center justify-between border-t border-border pt-6 text-[12.5px] text-muted-foreground">
       <AuthorSignature />
-      <AuthorLinkedInLink />
+      <div className="flex items-center gap-4">
+        <OpenSourceBadge variant="prominent" />
+        <AuthorLinkedInLink />
+      </div>
     </div>
   )
 }
@@ -171,9 +175,12 @@ function MobileFooter() {
           </li>
         ))}
       </ul>
-      <div className="mt-6 flex items-center justify-between text-[12px] text-muted-foreground">
-        <AuthorSignature />
-        <AuthorLinkedInLink />
+      <div className="mt-6 flex flex-col gap-4 text-[12px] text-muted-foreground">
+        <OpenSourceBadge variant="prominent" className="self-start" />
+        <div className="flex items-center justify-between">
+          <AuthorSignature />
+          <AuthorLinkedInLink />
+        </div>
       </div>
     </div>
   )
