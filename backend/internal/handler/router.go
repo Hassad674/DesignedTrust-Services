@@ -140,6 +140,14 @@ type RouterDeps struct {
 	// without Redis still boot). Production always passes a non-nil
 	// instance.
 	IdempotencyCache middleware.IdempotencyCache
+
+	// SentryEnabled gates the sentryhttp panic-capture middleware in the
+	// global stack. It is true only when SENTRY_DSN was provided at boot
+	// (observability.InitSentry reported enabled). When false — the
+	// default in dev / CI and in production until the DSN is set — the
+	// middleware is never installed, so the request path is byte-for-byte
+	// identical to the pre-Sentry behaviour (zero overhead).
+	SentryEnabled bool
 }
 
 // NewRouter assembles the chi router for the marketplace API.
@@ -258,6 +266,18 @@ func mountGlobalMiddleware(r chi.Router, deps RouterDeps) {
 	r.Use(observability.HTTPMiddleware("api.http"))
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recovery)
+	// Sentry panic capture — env-gated. Installed ONLY when SENTRY_DSN was
+	// set at boot (deps.SentryEnabled). Registered immediately AFTER
+	// Recovery so Recovery is the OUTER handler: a handler panic flows
+	// handler → sentryhttp (records the event, then re-panics because
+	// Repanic=true) → Recovery (catches it, logs, writes the standard 500
+	// envelope). This preserves the existing recovery behaviour exactly —
+	// Sentry observes the panic without swallowing it or changing the
+	// client response. When SENTRY_DSN is unset the middleware is never
+	// added, so the request path is identical to the pre-Sentry behaviour.
+	if deps.SentryEnabled {
+		r.Use(observability.SentryHTTPMiddleware())
+	}
 	r.Use(middleware.SecurityHeaders(deps.Config))
 	r.Use(middleware.CORS(deps.Config.AllowedOrigins))
 	// D7 Target B: transparent gzip on JSON/text responses larger than

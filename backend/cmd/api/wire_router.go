@@ -149,6 +149,10 @@ type routerDepsBundle struct {
 	Metrics               *handler.Metrics
 	RateLimiter           *middleware.RateLimiter
 	IdempotencyCache      middleware.IdempotencyCache
+	// SentryEnabled gates the sentryhttp panic-capture middleware in the
+	// global stack. True only when SENTRY_DSN was set at boot. Forwarded
+	// verbatim to handler.RouterDeps.
+	SentryEnabled bool
 }
 
 // wireRouter forwards the bundled handlers to handler.NewRouter. A
@@ -227,5 +231,6 @@ func wireRouter(b routerDepsBundle) chi.Router {
 		Metrics:              b.Metrics,
 		RateLimiter:          b.RateLimiter,
 		IdempotencyCache:     b.IdempotencyCache,
+		SentryEnabled:        b.SentryEnabled,
 	})
 }

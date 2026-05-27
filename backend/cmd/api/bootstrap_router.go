@@ -83,6 +83,11 @@ type bootstrappedRouter struct {
 	Infra       infrastructure
 	Metrics     *handler.Metrics
 	RateLimiter *middleware.RateLimiter
+	// SentryEnabled gates the sentryhttp panic-capture middleware. Set
+	// from App.SentryEnabled (true only when SENTRY_DSN was provided at
+	// boot). When false the router never installs the middleware — zero
+	// overhead, behaving exactly as before the Sentry integration.
+	SentryEnabled bool
 }
 
 // finalHandlers is the bag of bootstrap-local handlers + small wires
@@ -327,5 +332,7 @@ func assembleRouter(b bootstrappedRouter) chi.Router {
 		// mutation POSTs (proposals create + pay, jobs create,
 		// disputes open, auth/register, team invitations).
 		IdempotencyCache: middleware.NewRedisIdempotencyCache(b.Infra.Redis),
+		// Env-gated sentryhttp panic-capture middleware.
+		SentryEnabled: b.SentryEnabled,
 	})
 }
