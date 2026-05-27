@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from "next-intl/plugin";
 import path from "path";
 import { buildCSP } from "./src/shared/lib/csp";
@@ -187,4 +188,33 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Source-map upload to Sentry is OPT-IN: it only runs when
+// SENTRY_AUTH_TOKEN (+ org/project) is present in the build env. With
+// no Sentry env the wrapper is a near no-op — it instruments the build
+// for error capture but uploads nothing and never fails. `silent: true`
+// suppresses the SDK's build logs, and `disableLogger` strips Sentry's
+// logger statements from the client bundle to keep it lean. The build
+// MUST succeed with no Sentry env at all (see the CI build probe).
+const sentryBuildOptions = {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  // No auth token → no upload attempt, no warning, no failure.
+  silent: true,
+  // Tunnel browser events through a same-origin Next.js route so
+  // ad-blockers do not drop them. Inert until a DSN is configured.
+  tunnelRoute: "/monitoring",
+  // Strip Sentry's debug-logging statements from the bundle to keep it
+  // lean (webpack-only — the production `next build` uses webpack).
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
+  // Never let a source-map upload hiccup break the production build.
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+};
+
+export default withSentryConfig(withNextIntl(nextConfig), sentryBuildOptions);

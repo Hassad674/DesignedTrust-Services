@@ -67,6 +67,19 @@ const R2_ORIGINS = [
   "https://*.r2.dev",
 ] as const
 
+// Sentry error-monitoring ingest endpoints. The browser + server SDKs
+// POST events to a region-specific `*.ingest.sentry.io` host derived
+// from the DSN, so the connect-src must allow every region the DSN may
+// point at. These are inert until NEXT_PUBLIC_SENTRY_DSN is set (the
+// SDK never opens a transport without a DSN), but the origins stay
+// whitelisted so activating Sentry needs only an env var, never a CSP
+// code change. See src/shared/lib/sentry.ts for the init gate.
+const SENTRY_ORIGINS = [
+  "https://*.ingest.sentry.io",
+  "https://*.ingest.us.sentry.io",
+  "https://*.ingest.de.sentry.io",
+] as const
+
 // City autocomplete uses two public geocoding APIs from the browser
 // (no backend proxy). BAN — French national addresses
 // (api-adresse.data.gouv.fr) — for FR cities, Photon
@@ -131,6 +144,7 @@ function buildConnectOrigins(env: CSPEnv, isProduction: boolean): string[] {
   CITY_AUTOCOMPLETE_ORIGINS.forEach((o) => origins.add(o))
   POSTHOG_ORIGINS.forEach((o) => origins.add(o))
   GA4_CONNECT_ORIGINS.forEach((o) => origins.add(o))
+  SENTRY_ORIGINS.forEach((o) => origins.add(o))
   if (env.NEXT_PUBLIC_POSTHOG_HOST) {
     const hostUrl = parseEnvUrl(
       "NEXT_PUBLIC_POSTHOG_HOST",
