@@ -25,6 +25,18 @@ export type ProfileCompletionReport = {
   total_sections: number
   filled_sections: number
   sections: ProfileCompletionSection[]
+  // score is the 0-100 WEIGHTED completion score — the exact number the
+  // Typesense search gate filters on (`profile_completion_score:>=50`).
+  // Distinct from `percent` (a section-count ratio for the checklist
+  // UX). The UI must surface THIS number for the search-visibility
+  // message so what the user sees matches what gates them — never
+  // recompute a percentage locally.
+  score: number
+  // listed_in_search is true when the profile currently clears the
+  // search-visibility threshold (score >= 50 AND published). Drives the
+  // "visible / complete to 50%" message — read it straight off the
+  // backend, do not derive it from `score` client-side.
+  listed_in_search: boolean
 }
 
 // CompletionPersona is the optional override the caller passes when a

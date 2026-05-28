@@ -94,9 +94,12 @@ export function AgencyRegisterForm() {
       // the post-register navigation refetches /auth/me. The hook
       // uses `retryOnMount: false` to prevent a 401 fan-out, so a
       // pre-register "logged out" verdict would otherwise survive
-      // the SPA navigation to /dashboard.
+      // the SPA navigation.
       await queryClient.invalidateQueries({ queryKey: ["session"] })
-      router.push("/dashboard")
+      // Register leaves the account email_verified=false (a 6-digit code
+      // was just emailed). Send the user to the verification screen
+      // before the dashboard, where the access gate would 403 anyway.
+      router.push("/verify-email")
     } catch (err) {
       setError(err instanceof Error ? err.message : tCommon("errorOccurred"))
     }
