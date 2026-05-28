@@ -64,13 +64,37 @@ type Section struct {
 // frontend can render the missing list in the same intuitive order
 // without any client-side sort.
 type Report struct {
-	Role            string    `json:"role"`
-	Persona         string    `json:"persona"`
-	Percent         int       `json:"percent"`
-	TotalSections   int       `json:"total_sections"`
-	FilledSections  int       `json:"filled_sections"`
-	Sections        []Section `json:"sections"`
+	Role           string    `json:"role"`
+	Persona        string    `json:"persona"`
+	Percent        int       `json:"percent"`
+	TotalSections  int       `json:"total_sections"`
+	FilledSections int       `json:"filled_sections"`
+	Sections       []Section `json:"sections"`
+
+	// Score is the 0-100 weighted completion score — the SAME number the
+	// Typesense search gate uses (search.ProfileCompletionScore). It is
+	// distinct from Percent (a section-count ratio for the checklist UX):
+	// Score is the authoritative gating number so the frontend can show a
+	// truthful "you need ≥50% to appear in search" message that matches
+	// what actually gates visibility. For personas with no search
+	// presence (enterprise) Score mirrors Percent and ListedInSearch is
+	// false (enterprises are never listed).
+	Score int `json:"score"`
+
+	// ListedInSearch is true when Score >= SearchVisibilityThreshold AND
+	// the persona is one that appears in search (freelance/agency/
+	// referrer). The frontend renders the "visible in search" badge from
+	// this single boolean instead of re-deriving the threshold.
+	ListedInSearch bool `json:"listed_in_search"`
 }
+
+// SearchVisibilityThreshold is the minimum weighted completion score a
+// freelance/agency/referrer profile must reach to appear in public
+// search + listings. It MUST stay in lockstep with the value the search
+// query gate filters on (see internal/app/search; the gate emits
+// `profile_completion_score:>=50`). Defined here as the single product
+// constant both the gate message and the gate filter reference.
+const SearchVisibilityThreshold = 50
 
 // Persona enumerates the offering facet a completion report scopes
 // to. provider_personal orgs surface the freelance persona by default;
@@ -285,10 +309,16 @@ func (s *Service) ComputeWithPersona(
 	}
 
 	persona := resolvePersona(org.Type, override)
-	sections, err := s.buildSections(ctx, u, org, persona)
+
+	// Load the snapshot ONCE and feed it to both the section checklist
+	// and the weighted score so the endpoint makes a single set of reads
+	// and the two numbers are computed from the identical data.
+	bundle, err := s.loadSnapshot(ctx, u, org)
 	if err != nil {
 		return nil, err
 	}
+
+	sections := sectionsForPersona(persona, bundle)
 
 	filled := 0
 	for _, sec := range sections {
@@ -302,6 +332,11 @@ func (s *Service) ComputeWithPersona(
 		pct = (filled * 100) / total
 	}
 
+	// Weighted score — the SAME number the search gate uses. Computed
+	// via the shared search.ProfileCompletionScore so the value the user
+	// sees == the value that decides search visibility.
+	score, listed := s.weightedScoreAndVisibility(persona, bundle)
+
 	return &Report{
 		Role:           string(u.Role),
 		Persona:        string(persona),
@@ -309,6 +344,8 @@ func (s *Service) ComputeWithPersona(
 		TotalSections:  total,
 		FilledSections: filled,
 		Sections:       sections,
+		Score:          score,
+		ListedInSearch: listed,
 	}, nil
 }
 

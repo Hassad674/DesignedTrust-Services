@@ -455,6 +455,9 @@ func (m *mockUserRepo) UpdateEmailNotificationsEnabled(ctx context.Context, user
 	}
 	return nil
 }
+func (m *mockUserRepo) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
 
 func (m *mockUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error {
 	return nil

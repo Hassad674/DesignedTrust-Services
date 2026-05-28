@@ -356,6 +356,7 @@ func (h *TeamHandler) refreshSessionAfterTransfer(
 		IsAdmin:        freshUser.IsAdmin,
 		Permissions:    permissionKeysFromOrgContext(orgCtx),
 		SessionVersion: freshUser.SessionVersion,
+		EmailVerified:  freshUser.EmailVerified,
 	}
 	if orgCtx != nil && orgCtx.Organization != nil && orgCtx.Member != nil {
 		orgID := orgCtx.Organization.ID

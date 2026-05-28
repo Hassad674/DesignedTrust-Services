@@ -572,6 +572,29 @@ func (r *UserRepository) UpdateEmailNotificationsEnabled(ctx context.Context, us
 	return nil
 }
 
+// SetEmailVerified flips users.email_verified for a user. A targeted
+// single-column UPDATE so a concurrent profile edit cannot be clobbered
+// by a full-row write. Bumps updated_at so admin "recently updated"
+// filters surface the verification event. Returns user.ErrUserNotFound
+// when the id matches no row.
+func (r *UserRepository) SetEmailVerified(ctx context.Context, userID uuid.UUID, verified bool) error {
+	ctx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	result, err := r.db.ExecContext(ctx,
+		`UPDATE users SET email_verified = $2, updated_at = now() WHERE id = $1`,
+		userID, verified,
+	)
+	if err != nil {
+		return fmt.Errorf("set email_verified: %w", err)
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return user.ErrUserNotFound
+	}
+	return nil
+}
+
 // TouchLastActive bumps users.last_active_at to NOW() for the given
 // user. Called from the auth login path and the messaging "message
 // sent" path so the Typesense indexer can rank recently-active

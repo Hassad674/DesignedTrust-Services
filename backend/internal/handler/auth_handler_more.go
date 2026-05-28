@@ -206,6 +206,7 @@ func (h *AuthHandler) sendAuthResponse(w http.ResponseWriter, r *http.Request, s
 		OrgRole:        output.OrgRole,
 		Permissions:    permissionKeysFromOrgContext(orgCtx),
 		SessionVersion: output.User.SessionVersion,
+		EmailVerified:  output.User.EmailVerified,
 	})
 	if err != nil {
 		slog.Error("failed to create session", "error", err)

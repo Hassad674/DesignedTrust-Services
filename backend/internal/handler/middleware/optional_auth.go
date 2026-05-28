@@ -57,12 +57,13 @@ func optionalCookieAuth(r *http.Request, deps AuthDeps) context.Context {
 		return nil
 	}
 	return stampAuthContext(r.Context(), authStamp{
-		UserID:      session.UserID,
-		Role:        session.Role,
-		IsAdmin:     session.IsAdmin,
-		OrgID:       session.OrganizationID,
-		OrgRole:     session.OrgRole,
-		Permissions: session.Permissions,
+		UserID:        session.UserID,
+		Role:          session.Role,
+		IsAdmin:       session.IsAdmin,
+		OrgID:         session.OrganizationID,
+		OrgRole:       session.OrgRole,
+		Permissions:   session.Permissions,
+		EmailVerified: session.EmailVerified,
 	}, deps.OrgOverrides)
 }
 
@@ -84,11 +85,12 @@ func optionalBearerAuth(r *http.Request, deps AuthDeps) context.Context {
 		return nil
 	}
 	return stampAuthContext(r.Context(), authStamp{
-		UserID:      claims.UserID,
-		Role:        claims.Role,
-		IsAdmin:     claims.IsAdmin,
-		OrgID:       claims.OrganizationID,
-		OrgRole:     claims.OrgRole,
-		Permissions: claims.Permissions,
+		UserID:        claims.UserID,
+		Role:          claims.Role,
+		IsAdmin:       claims.IsAdmin,
+		OrgID:         claims.OrganizationID,
+		OrgRole:       claims.OrgRole,
+		Permissions:   claims.Permissions,
+		EmailVerified: claims.EmailVerified,
 	}, deps.OrgOverrides)
 }

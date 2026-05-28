@@ -188,6 +188,14 @@ func NewRouter(deps RouterDeps) chi.Router {
 		FailClosedInProd: failClosedInProd,
 	}
 	auth := middleware.AuthFromDeps(authDeps)
+	// authVerified is the signup-OTP-gated variant: it runs the same Auth
+	// middleware and THEN RequireEmailVerified, so every feature route
+	// group it guards rejects an unverified caller with 403
+	// email_not_verified. The auth route group keeps using the bare
+	// `auth` so the allowlist (verify-email, resend-verification, logout,
+	// refresh, GET /me) stays reachable while unverified — the allowlist
+	// is expressed as "this group is not chained through authVerified".
+	authVerified := chainMiddleware(auth, middleware.RequireEmailVerified)
 	// optionalAuth recognises a logged-in caller without rejecting an
 	// anonymous one — used by the public feedback submit (anonymous text
 	// allowed, logged-in callers may attach media).
@@ -200,36 +208,54 @@ func NewRouter(deps RouterDeps) chi.Router {
 	r.Route("/api/v1", func(r chi.Router) {
 		mountV1Middleware(r, deps)
 
-		mountAuthRoutes(r, deps, auth)
-		mountProfileRoutes(r, deps, auth)
-		mountUploadRoutes(r, deps, auth)
-		mountSearchRoutes(r, deps, auth)
-		mountMessagingRoutes(r, deps, auth)
-		mountProposalRoutes(r, deps, auth)
-		mountJobRoutes(r, deps, auth)
-		mountReviewRoutes(r, deps, auth)
-		mountReportRoutes(r, deps, auth)
-		mountFeedbackRoutes(r, deps, auth, optionalAuth)
-		mountSocialLinkRoutes(r, deps, auth)
-		mountPortfolioRoutes(r, deps, auth)
-		mountNotificationRoutes(r, deps, auth)
-		mountBillingRoutes(r, deps, auth)
-		mountReferralRoutes(r, deps, auth)
-		mountDisputeRoutes(r, deps, auth)
-		mountGDPRRoutes(r, deps, auth)
-		mountConsentRoutes(r, deps, auth)
-		mountAutomatedDecisionAppealRoutes(r, deps, auth)
-		mountSecurityRoutes(r, deps, auth)
-		mountSessionsRoutes(r, deps, auth)
-		mountStatsRoutes(r, deps, auth)
+		// The auth route group gets BOTH closures: `auth` for the
+		// signup-OTP allowlist (verify-email, resend-verification, logout,
+		// GET /me — reachable while unverified so the client can finish
+		// verifying) and `authVerified` for the credential-rotation /
+		// bridge endpoints that must stay gated.
+		mountAuthRoutes(r, deps, auth, authVerified)
+		// Every feature group below is gated behind authVerified so an
+		// unverified account cannot reach the product surface.
+		mountProfileRoutes(r, deps, authVerified)
+		mountUploadRoutes(r, deps, authVerified)
+		mountSearchRoutes(r, deps, authVerified)
+		mountMessagingRoutes(r, deps, authVerified)
+		mountProposalRoutes(r, deps, authVerified)
+		mountJobRoutes(r, deps, authVerified)
+		mountReviewRoutes(r, deps, authVerified)
+		mountReportRoutes(r, deps, authVerified)
+		mountFeedbackRoutes(r, deps, authVerified, optionalAuth)
+		mountSocialLinkRoutes(r, deps, authVerified)
+		mountPortfolioRoutes(r, deps, authVerified)
+		mountNotificationRoutes(r, deps, authVerified)
+		mountBillingRoutes(r, deps, authVerified)
+		mountReferralRoutes(r, deps, authVerified)
+		mountDisputeRoutes(r, deps, authVerified)
+		mountGDPRRoutes(r, deps, authVerified)
+		mountConsentRoutes(r, deps, authVerified)
+		mountAutomatedDecisionAppealRoutes(r, deps, authVerified)
+		mountSecurityRoutes(r, deps, authVerified)
+		mountSessionsRoutes(r, deps, authVerified)
+		mountStatsRoutes(r, deps, authVerified)
 		mountWebSocketRoute(r, deps)
-		mountAdminRoutes(r, deps, auth)
+		mountAdminRoutes(r, deps, authVerified)
 		mountTestRoutes(r, deps)
 	})
 
 	mountOpenAPIRoutes(r)
 
 	return r
+}
+
+// chainMiddleware composes two middlewares into a single one that runs
+// `outer` first, then `inner`, then the wrapped handler. Used to build
+// the `authVerified` closure (Auth → RequireEmailVerified) so feature
+// route groups can be gated by passing one closure to their existing
+// single-middleware mount signature — no churn to every mount<Name>.
+func chainMiddleware(outer, inner func(http.Handler) http.Handler) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return outer(inner(next))
+	}
 }
 
 // mountOpenAPIRoutes exposes the OpenAPI 3.1 schema describing the

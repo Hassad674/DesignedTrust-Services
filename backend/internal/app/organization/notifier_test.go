@@ -138,6 +138,9 @@ func (m *mockUserRepoForMembership) SaveKYCNotificationState(_ context.Context, 
 func (m *mockUserRepoForMembership) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid.UUID, _ bool) error {
 	return nil
 }
+func (m *mockUserRepoForMembership) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
 func (m *mockUserRepoForMembership) TouchLastActive(_ context.Context, _ uuid.UUID) error {
 	return nil
 }

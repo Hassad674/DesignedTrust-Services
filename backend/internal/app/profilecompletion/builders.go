@@ -1,11 +1,7 @@
 package profilecompletion
 
 import (
-	"context"
 	"strings"
-
-	"marketplace-backend/internal/domain/organization"
-	"marketplace-backend/internal/domain/user"
 )
 
 // buildFreelanceSections is the checklist for provider_personal orgs
@@ -27,15 +23,10 @@ import (
 // baseline to ~9%. We keep it explicit so a future redesign that adds
 // "I haven't decided yet" as a fourth status surfaces immediately in
 // the percent.
-func (s *Service) buildFreelanceSections(
-	ctx context.Context,
-	u *user.User,
-	org *organization.Organization,
-) ([]Section, error) {
-	bundle, err := s.loadSnapshot(ctx, u, org)
-	if err != nil {
-		return nil, err
-	}
+//
+// Takes a PRE-LOADED snapshot so the caller shares the single read set
+// with the weighted-score computation.
+func buildFreelanceSections(bundle *snapshotBundle) []Section {
 	fp := bundle.Freelance
 	hasFP := fp != nil
 
@@ -45,7 +36,7 @@ func (s *Service) buildFreelanceSections(
 	expertisesFilled := hasFP && len(fp.ExpertiseDomains) > 0
 	availabilityFilled := hasFP && fp.AvailabilityStatus != ""
 
-	out := []Section{
+	return []Section{
 		section(PersonaFreelance, SectionPhoto, hasPhoto(bundle.Shared)),
 		section(PersonaFreelance, SectionTitle, titleFilled),
 		section(PersonaFreelance, SectionAbout, aboutFilled),
@@ -58,7 +49,6 @@ func (s *Service) buildFreelanceSections(
 		section(PersonaFreelance, SectionVideo, videoFilled),
 		section(PersonaFreelance, SectionSocialLinks, bundle.SocialFreelance > 0),
 	}
-	return out, nil
 }
 
 // buildReferrerSections is the checklist for the apporteur persona.
@@ -70,15 +60,7 @@ func (s *Service) buildFreelanceSections(
 //
 //	photo, title, about, expertises, pricing, availability,
 //	video, social_links.
-func (s *Service) buildReferrerSections(
-	ctx context.Context,
-	u *user.User,
-	org *organization.Organization,
-) ([]Section, error) {
-	bundle, err := s.loadSnapshot(ctx, u, org)
-	if err != nil {
-		return nil, err
-	}
+func buildReferrerSections(bundle *snapshotBundle) []Section {
 	rp := bundle.Referrer
 	has := rp != nil
 
@@ -88,7 +70,7 @@ func (s *Service) buildReferrerSections(
 	expertisesFilled := has && len(rp.ExpertiseDomains) > 0
 	availabilityFilled := has && rp.AvailabilityStatus != ""
 
-	out := []Section{
+	return []Section{
 		section(PersonaReferrer, SectionPhoto, hasPhoto(bundle.Shared)),
 		section(PersonaReferrer, SectionTitle, titleFilled),
 		section(PersonaReferrer, SectionAbout, aboutFilled),
@@ -98,7 +80,6 @@ func (s *Service) buildReferrerSections(
 		section(PersonaReferrer, SectionVideo, videoFilled),
 		section(PersonaReferrer, SectionSocialLinks, bundle.SocialReferrer > 0),
 	}
-	return out, nil
 }
 
 // buildAgencySections is the checklist for agency orgs. Same fields
@@ -117,15 +98,7 @@ func (s *Service) buildReferrerSections(
 // billing_profile and kyc were dropped from the checklist: billing
 // info is captured inline at first payment and KYC has its own
 // dedicated flow, so neither belongs in the profile-completion %.
-func (s *Service) buildAgencySections(
-	ctx context.Context,
-	u *user.User,
-	org *organization.Organization,
-) ([]Section, error) {
-	bundle, err := s.loadSnapshot(ctx, u, org)
-	if err != nil {
-		return nil, err
-	}
+func buildAgencySections(bundle *snapshotBundle) []Section {
 	legacy := bundle.Legacy
 	hasLegacy := legacy != nil
 
@@ -133,7 +106,7 @@ func (s *Service) buildAgencySections(
 	aboutFilled := hasLegacy && strings.TrimSpace(legacy.About) != ""
 	availabilityFilled := hasLegacy && legacy.AvailabilityStatus != ""
 
-	out := []Section{
+	return []Section{
 		section(PersonaAgency, SectionPhoto, hasPhoto(bundle.Shared) ||
 			(hasLegacy && strings.TrimSpace(legacy.PhotoURL) != "")),
 		section(PersonaAgency, SectionTitle, titleFilled),
@@ -149,7 +122,6 @@ func (s *Service) buildAgencySections(
 		section(PersonaAgency, SectionSocialLinks, bundle.SocialAgency > 0),
 		section(PersonaAgency, SectionPortfolio, bundle.PortfolioCount > 0),
 	}
-	return out, nil
 }
 
 // buildEnterpriseSections is the checklist for enterprise (client)
@@ -164,24 +136,15 @@ func (s *Service) buildAgencySections(
 // register their billing details inline at first payment and KYC has
 // its own dedicated flow, so neither belongs in the profile-completion
 // %.
-func (s *Service) buildEnterpriseSections(
-	ctx context.Context,
-	u *user.User,
-	org *organization.Organization,
-) ([]Section, error) {
-	bundle, err := s.loadSnapshot(ctx, u, org)
-	if err != nil {
-		return nil, err
-	}
+func buildEnterpriseSections(bundle *snapshotBundle) []Section {
 	legacy := bundle.Legacy
 	hasLegacy := legacy != nil
 
 	clientAboutFilled := hasLegacy && strings.TrimSpace(legacy.ClientDescription) != ""
 
-	out := []Section{
+	return []Section{
 		section(PersonaEnterprise, SectionPhoto, hasPhoto(bundle.Shared) ||
 			(hasLegacy && strings.TrimSpace(legacy.PhotoURL) != "")),
 		section(PersonaEnterprise, SectionClientAbout, clientAboutFilled),
 	}
-	return out, nil
 }

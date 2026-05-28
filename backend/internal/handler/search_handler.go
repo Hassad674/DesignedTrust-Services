@@ -102,7 +102,12 @@ func (h *SearchHandler) ScopedKey(w http.ResponseWriter, r *http.Request) {
 
 	expiresAt := time.Now().Add(scopedKeyTTL).Unix()
 	embedded := search.EmbeddedSearchParams{
-		FilterBy:  fmt.Sprintf("persona:%s && is_published:true", persona),
+		// The scoped key serves the PUBLIC frontend listing pages, so it
+		// always embeds the profile-completion visibility gate
+		// (profile_completion_score:>=50). includeIncomplete is false —
+		// there is no admin override on this public endpoint (admin uses
+		// the server-side proxy with include_incomplete=true instead).
+		FilterBy:  search.BasePersonaFilter(persona, false),
 		ExpiresAt: expiresAt,
 	}
 	key, err := h.deps.Client.GenerateScopedSearchKey(h.deps.APIKey, embedded)
@@ -144,16 +149,24 @@ func (h *SearchHandler) Search(w http.ResponseWriter, r *http.Request) {
 		userIDStr = userID.String()
 	}
 
+	// include_incomplete drops the profile-completion visibility gate, but
+	// ONLY for admins — a regular authenticated user must never be able to
+	// bypass the gate by setting the query param. We AND the requested
+	// flag with the caller's admin state read from the auth context.
+	includeIncomplete := parseBoolDefault(r.URL.Query().Get("include_incomplete"), false) &&
+		middleware.GetIsAdmin(r.Context())
+
 	input := appsearch.QueryInput{
-		Persona:   persona,
-		Query:     r.URL.Query().Get("q"),
-		SortBy:    r.URL.Query().Get("sort_by"),
-		Page:      parseIntDefault(r.URL.Query().Get("page"), 0),
-		PerPage:   parseIntDefault(r.URL.Query().Get("per_page"), 0),
-		Cursor:    r.URL.Query().Get("cursor"),
-		UserID:    userIDStr,
-		SessionID: r.URL.Query().Get("session_id"),
-		Filters:   parseFilterInput(r),
+		Persona:           persona,
+		Query:             r.URL.Query().Get("q"),
+		SortBy:            r.URL.Query().Get("sort_by"),
+		Page:              parseIntDefault(r.URL.Query().Get("page"), 0),
+		PerPage:           parseIntDefault(r.URL.Query().Get("per_page"), 0),
+		Cursor:            r.URL.Query().Get("cursor"),
+		UserID:            userIDStr,
+		SessionID:         r.URL.Query().Get("session_id"),
+		Filters:           parseFilterInput(r),
+		IncludeIncomplete: includeIncomplete,
 	}
 
 	result, err := h.deps.Service.Query(r.Context(), input)
@@ -364,6 +377,20 @@ func parseBoolPointer(raw string) *bool {
 		return nil
 	}
 	return &v
+}
+
+// parseBoolDefault parses "true"/"false"/"1"/"0" and falls back to
+// `fallback` on empty or invalid input. Used for the include_incomplete
+// directive where the absence of the param means "gate on" (false).
+func parseBoolDefault(raw string, fallback bool) bool {
+	if raw == "" {
+		return fallback
+	}
+	v, err := strconv.ParseBool(raw)
+	if err != nil {
+		return fallback
+	}
+	return v
 }
 
 // Compile-time assertion that QueryResult marshals cleanly. The

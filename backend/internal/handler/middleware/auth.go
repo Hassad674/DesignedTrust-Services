@@ -190,12 +190,13 @@ func tryCookieAuth(
 	}
 
 	ctx := stampAuthContext(r.Context(), authStamp{
-		UserID:      session.UserID,
-		Role:        session.Role,
-		IsAdmin:     live.IsAdmin,
-		OrgID:       session.OrganizationID,
-		OrgRole:     session.OrgRole,
-		Permissions: session.Permissions,
+		UserID:        session.UserID,
+		Role:          session.Role,
+		IsAdmin:       live.IsAdmin,
+		OrgID:         session.OrganizationID,
+		OrgRole:       session.OrgRole,
+		Permissions:   session.Permissions,
+		EmailVerified: session.EmailVerified,
 	}, deps.OrgOverrides)
 	next.ServeHTTP(w, r.WithContext(ctx))
 	return true
@@ -228,12 +229,13 @@ func tryBearerAuth(
 	}
 
 	ctx := stampAuthContext(r.Context(), authStamp{
-		UserID:      claims.UserID,
-		Role:        claims.Role,
-		IsAdmin:     live.IsAdmin,
-		OrgID:       claims.OrganizationID,
-		OrgRole:     claims.OrgRole,
-		Permissions: claims.Permissions,
+		UserID:        claims.UserID,
+		Role:          claims.Role,
+		IsAdmin:       live.IsAdmin,
+		OrgID:         claims.OrganizationID,
+		OrgRole:       claims.OrgRole,
+		Permissions:   claims.Permissions,
+		EmailVerified: claims.EmailVerified,
 	}, deps.OrgOverrides)
 	next.ServeHTTP(w, r.WithContext(ctx))
 	return true
@@ -314,12 +316,13 @@ func checkUserState(
 // context after a successful authentication. Bundling them keeps the
 // stamp helper under the 4-parameter ceiling.
 type authStamp struct {
-	UserID      uuid.UUID
-	Role        string
-	IsAdmin     bool
-	OrgID       *uuid.UUID
-	OrgRole     string
-	Permissions []string
+	UserID        uuid.UUID
+	Role          string
+	IsAdmin       bool
+	OrgID         *uuid.UUID
+	OrgRole       string
+	Permissions   []string
+	EmailVerified bool
 }
 
 // stampAuthContext writes the standard auth context keys onto ctx and
@@ -334,6 +337,7 @@ func stampAuthContext(
 	ctx = context.WithValue(ctx, ContextKeyUserID, stamp.UserID)
 	ctx = context.WithValue(ctx, ContextKeyRole, stamp.Role)
 	ctx = context.WithValue(ctx, ContextKeyIsAdmin, stamp.IsAdmin)
+	ctx = context.WithValue(ctx, ContextKeyEmailVerified, stamp.EmailVerified)
 	if stamp.OrgID != nil {
 		ctx = context.WithValue(ctx, ContextKeyOrganizationID, *stamp.OrgID)
 	}

@@ -13,6 +13,7 @@ import (
 	orgapp "marketplace-backend/internal/app/organization"
 	"marketplace-backend/internal/domain/audit"
 	"marketplace-backend/internal/domain/session"
+	"marketplace-backend/internal/domain/twofactor"
 	"marketplace-backend/internal/domain/user"
 	"marketplace-backend/internal/port/repository"
 	"marketplace-backend/internal/port/service"
@@ -376,10 +377,42 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*AuthOutpu
 		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 
+	// Signup-OTP: automatically email a 6-digit email_verification code.
+	// The user is created with email_verified=false and the tokens above
+	// are STILL returned (the register response contract is unchanged) —
+	// access to the gated route groups is controlled by the
+	// RequireEmailVerified middleware, not by withholding tokens here.
+	// Best-effort: a challenge-issue failure (email outage) must not fail
+	// the registration — the user can request a fresh code via
+	// /auth/resend-verification. Logged for ops visibility.
+	s.sendEmailVerificationChallenge(ctx, u, input.Fingerprint)
+
 	// B.4: record the server-side session row.
 	s.recordSession(ctx, u.ID, refreshToken, "", session.LoginMethodPassword, input.Fingerprint)
 
 	return buildAuthOutput(u, orgCtx, accessToken, refreshToken), nil
+}
+
+// sendEmailVerificationChallenge fires the signup email_verification OTP
+// via the 2FA gate (which owns the challenge lifecycle). Best-effort:
+// the gate being unwired (tests / minimal deployments) or a transient
+// email failure is logged and swallowed so registration never fails on
+// the OTP side-effect. The user always has the /auth/resend-verification
+// recovery path.
+func (s *Service) sendEmailVerificationChallenge(ctx context.Context, u *user.User, fp SessionFingerprint) {
+	if s.twoFactorGate == nil {
+		return
+	}
+	if _, err := s.twoFactorGate.RequestChallenge(ctx, TwoFactorChallengeRequest{
+		UserID:        u.ID,
+		EmailTo:       u.Email,
+		ClientIP:      fp.IPAnonymized,
+		UserAgentHash: fp.UserAgentHash,
+		Purpose:       twofactor.PurposeEmailVerification,
+	}); err != nil {
+		slog.Warn("auth: send email-verification challenge on register failed",
+			"user_id", u.ID, "error", err)
+	}
 }
 
 // provisionOrgForNewUser creates an organization for every newly
@@ -414,6 +447,7 @@ func buildAccessInput(u *user.User, orgCtx *orgContext) service.AccessTokenInput
 		Role:           u.Role.String(),
 		IsAdmin:        u.IsAdmin,
 		SessionVersion: u.SessionVersion,
+		EmailVerified:  u.EmailVerified,
 	}
 	if orgCtx != nil && orgCtx.Organization != nil && orgCtx.Member != nil {
 		orgID := orgCtx.Organization.ID

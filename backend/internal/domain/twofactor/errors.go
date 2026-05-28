@@ -14,6 +14,12 @@ var (
 	// code before calling New — never the reverse.
 	ErrCodeHashRequired = errors.New("twofactor: code hash is required")
 
+	// ErrInvalidPurpose is returned by New when called with a purpose
+	// that is not one of the known Purpose constants. Guards against a
+	// typo persisting a row the verify path would never match (the DB
+	// CHECK constraint is the second line of defence).
+	ErrInvalidPurpose = errors.New("twofactor: invalid challenge purpose")
+
 	// ErrChallengeNotFound is returned by the verify path when no
 	// pending challenge exists for the user. The handler maps it to
 	// 400 invalid_request because the client is supposed to call

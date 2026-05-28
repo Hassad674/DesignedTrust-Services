@@ -31,7 +31,12 @@ type TwoFactorChallengeRepository interface {
 	// ErrTwoFactorChallengeNotFound when no such row exists. The "latest"
 	// ordering is by created_at DESC so a user who hammered "Resend
 	// code" still verifies against the freshest issuance.
-	FindLatestPendingForUser(ctx context.Context, userID uuid.UUID) (*twofactor.Challenge, error)
+	//
+	// The purpose argument scopes the lookup so the signup
+	// email-verification flow and the login-2FA flow stay strictly
+	// isolated: an email_verification code can never resolve a login_2fa
+	// challenge and vice-versa, even though both live in the same table.
+	FindLatestPendingForUser(ctx context.Context, userID uuid.UUID, purpose twofactor.Purpose) (*twofactor.Challenge, error)
 
 	// MarkUsed flips used_at to NOW() for the given challenge id. Idempotent
 	// — calling on an already-used row is a no-op. Returns

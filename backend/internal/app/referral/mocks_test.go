@@ -509,6 +509,9 @@ func (f *fakeUserRepo) GetSessionVersion(ctx context.Context, userID uuid.UUID) 
 func (f *fakeUserRepo) UpdateEmailNotificationsEnabled(ctx context.Context, userID uuid.UUID, enabled bool) error {
 	return nil
 }
+func (f *fakeUserRepo) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
 func (f *fakeUserRepo) TouchLastActive(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }

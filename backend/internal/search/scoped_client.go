@@ -77,21 +77,27 @@ func (p *PersonaScopedClient) Persona() Persona { return p.persona }
 // come back.
 func (p *PersonaScopedClient) Query(ctx context.Context, params SearchParams) (json.RawMessage, error) {
 	scoped := params
-	scoped.FilterBy = p.composeFilter(params.FilterBy)
+	scoped.FilterBy = p.composeFilter(params.FilterBy, params.IncludeIncomplete)
 	return p.client.Query(ctx, AliasName, scoped)
 }
 
-// composeFilter returns `persona:<persona> && is_published:true &&
-// (user_filter)`. The user_filter is wrapped in parentheses so its
-// own ORs cannot sneak around the persona clause via operator
-// precedence (`A && B || C` evaluates as `(A && B) || C`, which
-// would let a `persona:agency || …` clause escape).
+// composeFilter returns the mandatory base persona filter ANDed with the
+// caller's own filter:
 //
-// We intentionally do NOT try to parse the user's filter — any
-// attempt at whitelisting is both fragile and unnecessary, because
-// the && composition is mathematically sufficient.
-func (p *PersonaScopedClient) composeFilter(userFilter string) string {
-	base := fmt.Sprintf("persona:%s && is_published:true", p.persona)
+//	persona:<persona> && is_published:true [&& profile_completion_score:>=50] && (user_filter)
+//
+// The profile-completion gate is part of the base (via BasePersonaFilter)
+// so an incomplete profile is hidden on the public path; admin/internal
+// callers pass includeIncomplete=true to drop it. The user_filter is
+// wrapped in parentheses so its own ORs cannot sneak around the base
+// clause via operator precedence (`A && B || C` evaluates as
+// `(A && B) || C`, which would let a `persona:agency || …` clause escape).
+//
+// We intentionally do NOT try to parse the user's filter — any attempt
+// at whitelisting is both fragile and unnecessary, because the &&
+// composition is mathematically sufficient.
+func (p *PersonaScopedClient) composeFilter(userFilter string, includeIncomplete bool) string {
+	base := BasePersonaFilter(p.persona, includeIncomplete)
 	trimmed := strings.TrimSpace(userFilter)
 	if trimmed == "" {
 		return base

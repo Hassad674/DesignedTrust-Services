@@ -9,6 +9,7 @@ import (
 	"marketplace-backend/internal/adapter/postgres"
 	"marketplace-backend/internal/app/auth"
 	twofactorapp "marketplace-backend/internal/app/twofactor"
+	"marketplace-backend/internal/domain/twofactor"
 	"marketplace-backend/internal/handler"
 	"marketplace-backend/internal/port/repository"
 	"marketplace-backend/internal/port/service"
@@ -78,6 +79,7 @@ func (a *twoFactorGateAdapter) RequestChallenge(ctx context.Context, in auth.Two
 		EmailTo:       in.EmailTo,
 		ClientIP:      in.ClientIP,
 		UserAgentHash: in.UserAgentHash,
+		Purpose:       in.Purpose, // empty → login_2fa default in the service
 	})
 	if err != nil {
 		return uuid.Nil, err
@@ -89,6 +91,15 @@ func (a *twoFactorGateAdapter) VerifyChallenge(ctx context.Context, userID uuid.
 	_, err := a.service.VerifyChallenge(ctx, twofactorapp.VerifyChallengeInput{
 		UserID: userID,
 		Code:   code,
+	})
+	return err
+}
+
+func (a *twoFactorGateAdapter) VerifyChallengeWithPurpose(ctx context.Context, userID uuid.UUID, code string, purpose twofactor.Purpose) error {
+	_, err := a.service.VerifyChallenge(ctx, twofactorapp.VerifyChallengeInput{
+		UserID:  userID,
+		Code:    code,
+		Purpose: purpose,
 	})
 	return err
 }

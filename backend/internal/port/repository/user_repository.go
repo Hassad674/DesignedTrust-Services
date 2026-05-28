@@ -64,6 +64,13 @@ type UserRepository interface {
 	// sent regardless of per-type preferences.
 	UpdateEmailNotificationsEnabled(ctx context.Context, userID uuid.UUID, enabled bool) error
 
+	// SetEmailVerified flips users.email_verified for a user. Set to true
+	// by the signup-OTP verify-email flow once the user proves email
+	// ownership. A targeted single-column UPDATE (not a full-row Update)
+	// so it cannot accidentally clobber concurrent profile edits. Returns
+	// user.ErrUserNotFound when the id matches no row.
+	SetEmailVerified(ctx context.Context, userID uuid.UUID, verified bool) error
+
 	// TouchLastActive bumps the users.last_active_at column to NOW()
 	// for the given user. Called from the auth (login) and messaging
 	// (message sent) paths so the Typesense indexer can rank

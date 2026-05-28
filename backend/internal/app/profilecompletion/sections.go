@@ -86,26 +86,22 @@ func section(persona Persona, k SectionKey, filled bool) Section {
 	}
 }
 
-// buildSections is the persona dispatch — every persona has its own
-// list builder so a future change to one role's checklist cannot
-// touch the others.
-func (s *Service) buildSections(
-	ctx context.Context,
-	u *user.User,
-	org *organization.Organization,
-	persona Persona,
-) ([]Section, error) {
+// sectionsForPersona is the persona dispatch — every persona has its
+// own list builder so a future change to one role's checklist cannot
+// touch the others. It takes a PRE-LOADED snapshot bundle so the caller
+// can share the single set of reads with the weighted-score computation.
+func sectionsForPersona(persona Persona, bundle *snapshotBundle) []Section {
 	switch persona {
 	case PersonaFreelance:
-		return s.buildFreelanceSections(ctx, u, org)
+		return buildFreelanceSections(bundle)
 	case PersonaReferrer:
-		return s.buildReferrerSections(ctx, u, org)
+		return buildReferrerSections(bundle)
 	case PersonaEnterprise:
-		return s.buildEnterpriseSections(ctx, u, org)
+		return buildEnterpriseSections(bundle)
 	case PersonaAgency:
-		return s.buildAgencySections(ctx, u, org)
+		return buildAgencySections(bundle)
 	}
-	return s.buildAgencySections(ctx, u, org)
+	return buildAgencySections(bundle)
 }
 
 // snapshotBundle aggregates the readers' answers in a single pass so

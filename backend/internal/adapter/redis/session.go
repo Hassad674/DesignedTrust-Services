@@ -39,12 +39,19 @@ type sessionData struct {
 	Permissions    []string  `json:"perms,omitempty"`
 	SessionVersion int       `json:"sv,omitempty"`
 	CreatedAt      time.Time `json:"created_at"`
+
+	// EmailVerified is a pointer so a session persisted before signup-OTP
+	// shipped (field absent in the stored JSON) decodes to nil → treated
+	// as verified on read. New sessions always store an explicit value so
+	// a genuinely-unverified account is gated.
+	EmailVerified *bool `json:"ev,omitempty"`
 }
 
 func (s *SessionService) Create(ctx context.Context, input service.CreateSessionInput) (*service.Session, error) {
 	id := uuid.New().String()
 	now := time.Now()
 
+	emailVerified := input.EmailVerified
 	data := sessionData{
 		UserID:         input.UserID.String(),
 		Role:           input.Role,
@@ -53,6 +60,7 @@ func (s *SessionService) Create(ctx context.Context, input service.CreateSession
 		Permissions:    input.Permissions,
 		SessionVersion: input.SessionVersion,
 		CreatedAt:      now,
+		EmailVerified:  &emailVerified,
 	}
 	if input.OrganizationID != nil {
 		data.OrgID = input.OrganizationID.String()
@@ -77,6 +85,7 @@ func (s *SessionService) Create(ctx context.Context, input service.CreateSession
 		Permissions:    input.Permissions,
 		SessionVersion: input.SessionVersion,
 		CreatedAt:      now,
+		EmailVerified:  input.EmailVerified,
 	}, nil
 }
 
@@ -108,6 +117,9 @@ func (s *SessionService) Get(ctx context.Context, sessionID string) (*service.Se
 		Permissions:    data.Permissions,
 		SessionVersion: data.SessionVersion,
 		CreatedAt:      data.CreatedAt,
+		// Absent `ev` (session minted before signup-OTP) → verified, so
+		// legacy cookies are not gated mid-deploy. Explicit value honored.
+		EmailVerified: data.EmailVerified == nil || *data.EmailVerified,
 	}
 	if data.OrgID != "" {
 		orgID, err := uuid.Parse(data.OrgID)

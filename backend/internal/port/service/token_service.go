@@ -15,6 +15,13 @@ type AccessTokenInput struct {
 	Role    string
 	IsAdmin bool
 
+	// EmailVerified is the signup-OTP gate anchor. Baked into the access
+	// token so the RequireEmailVerified middleware can decide access from
+	// the claim alone — no per-request DB hit. Re-issued as true after the
+	// user completes /auth/verify-email so a stale "false" claim does not
+	// keep them gated.
+	EmailVerified bool
+
 	// Organization context — set only for users who belong to an organization
 	// (agencies, enterprises, or invited operators). Providers have both
 	// OrganizationID = nil and OrgRole = "".
@@ -44,6 +51,14 @@ type TokenClaims struct {
 	Role      string
 	IsAdmin   bool
 	ExpiresAt time.Time
+
+	// EmailVerified is decoded from the access token's `ev` claim. The
+	// RequireEmailVerified middleware reads it to gate access without a
+	// DB round-trip. Defaults to false when the claim is absent (legacy
+	// tokens minted before signup-OTP shipped) — see the middleware's
+	// fail-safe note for why a missing claim is treated as verified for
+	// pre-existing sessions.
+	EmailVerified bool
 
 	// JTI is the unique token id (UUID v4) embedded in every JWT. The
 	// auth service uses it as the Redis blacklist key when a refresh

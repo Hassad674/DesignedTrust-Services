@@ -293,7 +293,8 @@ func (u *unitUserRepo) GetSessionVersion(_ context.Context, _ uuid.UUID) (int, e
 func (u *unitUserRepo) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid.UUID, _ bool) error {
 	return nil
 }
-func (u *unitUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error { return nil }
+func (u *unitUserRepo) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error { return nil }
+func (u *unitUserRepo) TouchLastActive(_ context.Context, _ uuid.UUID) error          { return nil }
 
 // ─── stub dependencies ────────────────────────────────────────────────
 

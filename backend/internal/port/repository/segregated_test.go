@@ -496,6 +496,9 @@ func (fatUserStruct) GetSessionVersion(_ context.Context, _ uuid.UUID) (int, err
 func (fatUserStruct) UpdateEmailNotificationsEnabled(_ context.Context, _ uuid.UUID, _ bool) error {
 	return nil
 }
+func (fatUserStruct) SetEmailVerified(_ context.Context, _ uuid.UUID, _ bool) error {
+	return nil
+}
 func (fatUserStruct) TouchLastActive(_ context.Context, _ uuid.UUID) error { return nil }
 
 func TestFatStruct_SatisfiesEverySegregatedInterface(t *testing.T) {

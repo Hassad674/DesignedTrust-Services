@@ -20,14 +20,20 @@ import (
 type mockChallengeRepo struct {
 	mu sync.Mutex
 
-	createFn       func(ctx context.Context, c *twofactor.Challenge) error
-	findFn         func(ctx context.Context, userID uuid.UUID) (*twofactor.Challenge, error)
-	markUsedFn     func(ctx context.Context, id uuid.UUID) error
-	decrementFn    func(ctx context.Context, id uuid.UUID) error
+	createFn    func(ctx context.Context, c *twofactor.Challenge) error
+	findFn      func(ctx context.Context, userID uuid.UUID) (*twofactor.Challenge, error)
+	markUsedFn  func(ctx context.Context, id uuid.UUID) error
+	decrementFn func(ctx context.Context, id uuid.UUID) error
 
 	createCount    int
 	markUsedCount  int
 	decrementCount int
+
+	// lastCreatePurpose / lastFindPurpose capture the purpose the
+	// service threaded into the repo so purpose-isolation tests can
+	// assert the right scoping without parsing SQL.
+	lastCreatePurpose twofactor.Purpose
+	lastFindPurpose   twofactor.Purpose
 }
 
 var _ repository.TwoFactorChallengeRepository = (*mockChallengeRepo)(nil)
@@ -35,6 +41,7 @@ var _ repository.TwoFactorChallengeRepository = (*mockChallengeRepo)(nil)
 func (m *mockChallengeRepo) Create(ctx context.Context, c *twofactor.Challenge) error {
 	m.mu.Lock()
 	m.createCount++
+	m.lastCreatePurpose = c.Purpose
 	m.mu.Unlock()
 	if m.createFn != nil {
 		return m.createFn(ctx, c)
@@ -42,7 +49,10 @@ func (m *mockChallengeRepo) Create(ctx context.Context, c *twofactor.Challenge) 
 	return nil
 }
 
-func (m *mockChallengeRepo) FindLatestPendingForUser(ctx context.Context, userID uuid.UUID) (*twofactor.Challenge, error) {
+func (m *mockChallengeRepo) FindLatestPendingForUser(ctx context.Context, userID uuid.UUID, purpose twofactor.Purpose) (*twofactor.Challenge, error) {
+	m.mu.Lock()
+	m.lastFindPurpose = purpose
+	m.mu.Unlock()
 	if m.findFn != nil {
 		return m.findFn(ctx, userID)
 	}

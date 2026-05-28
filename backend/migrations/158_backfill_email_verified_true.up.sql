@@ -1,0 +1,25 @@
+-- CRITICAL zero-regression backfill for the signup-OTP email-verification
+-- gate.
+--
+-- Feature 1 introduces the RequireEmailVerified middleware: any authenticated
+-- request whose JWT carries email_verified=false is rejected with 403
+-- email_not_verified. Brand-new accounts go through the verify-email flow,
+-- but EVERY pre-existing production user has email_verified=false today
+-- (the column has defaulted to false since migration 001 and was never
+-- backfilled). Deploying the gate without this migration would lock out the
+-- entire existing user base the instant the middleware ships.
+--
+-- This migration marks every currently-existing user as verified, encoding
+-- the product decision "users who registered before email verification
+-- existed are grandfathered in". Only rows still at false are touched so the
+-- write set is minimal and the statement is idempotent.
+--
+-- Timing: apply this to prod IN LOCKSTEP with the gate deploy (the brief's
+-- author applies it manually, timed with the Railway deploy). On a fresh /
+-- empty database this is a harmless no-op.
+--
+-- The user table is small enough (well under the multi-million-row threshold
+-- that would force a chunked backfill per CLAUDE.md) that a single UPDATE in
+-- one transaction is safe and fast.
+
+UPDATE users SET email_verified = true WHERE email_verified = false;
