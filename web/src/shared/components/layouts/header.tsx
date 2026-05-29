@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Menu, Search, LogOut, User, ChevronDown } from "lucide-react"
+import { Menu, LogOut, User, ChevronDown } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Link } from "@i18n/navigation"
 import { useUser, useLogout } from "@/shared/hooks/use-user"
@@ -15,7 +15,6 @@ import { useSubscription } from "@/features/subscription/hooks/use-subscription"
 import { cn } from "@/shared/lib/utils"
 
 import { Button } from "@/shared/components/ui/button"
-import { Input } from "@/shared/components/ui/input"
 import { Portrait } from "@/shared/components/ui/portrait"
 import { UserAvatar } from "@/shared/components/ui/user-avatar"
 import { LogoutConfirmDialog } from "@/shared/components/layouts/logout-confirm-dialog"
@@ -91,21 +90,6 @@ export function Header({ onMenuToggle }: HeaderProps) {
       >
         <Menu className="h-5 w-5" strokeWidth={1.5} />
       </Button>
-
-      {/* Search — Soleil pill */}
-      <div className="relative hidden flex-1 sm:block sm:max-w-sm">
-        <Search className="absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
-        <Input
-          type="text"
-          placeholder={tCommon("search")}
-          aria-label={tCommon("search")}
-          className={cn(
-            "h-10 w-full rounded-full bg-background pl-10 pr-4",
-            "transition-all duration-150",
-            "focus:bg-card",
-          )}
-        />
-      </div>
 
       <div className="ml-auto flex items-center gap-1.5">
         {/* Premium badge — provider-only (hidden for enterprise/referrer) */}
