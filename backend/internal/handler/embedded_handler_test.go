@@ -353,7 +353,6 @@ func TestCreateAccountSession_EmptyBody_MissingCountry_Returns500(t *testing.T) 
 		"F.5 S4: raw error text must never leak to the client")
 }
 
-
 func TestCreateAccountSession_DBLookupError_Returns500(t *testing.T) {
 	store := &fakeUserAccountStore{getErr: errors.New("db down")}
 	h := NewEmbeddedHandler(store, "http://localhost:3001")
@@ -515,7 +514,6 @@ func TestCreateAccountSession_CountryNormalization(t *testing.T) {
 	}
 }
 
-
 // ---------------------------------------------------------------------------
 // Cross-border error translation (country not supported from FR platform)
 // ---------------------------------------------------------------------------
@@ -568,7 +566,7 @@ func TestResolveStripeAccount_LockSerialisesCheckAndCreate(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, _ = h.resolveStripeAccount(context.Background(), orgID, "FR", "https://example.com")
+			_, _ = h.resolveStripeAccount(context.Background(), orgID, "FR", "https://example.com", "")
 		}()
 	}
 	wg.Wait()
@@ -600,7 +598,7 @@ func TestResolveStripeAccount_DifferentOrgsRunConcurrently(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, _ = h.resolveStripeAccount(context.Background(), orgID, "FR", "https://example.com")
+			_, _ = h.resolveStripeAccount(context.Background(), orgID, "FR", "https://example.com", "")
 		}()
 	}
 	wg.Wait()
@@ -625,7 +623,7 @@ func TestResolveStripeAccount_LockErrSurfaced(t *testing.T) {
 	}
 	h := NewEmbeddedHandler(store, "http://localhost:3001")
 
-	_, err := h.resolveStripeAccount(context.Background(), uuid.New(), "FR", "https://example.com")
+	_, err := h.resolveStripeAccount(context.Background(), uuid.New(), "FR", "https://example.com", "")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "advisory lock acquisition timed out")
 	assert.Equal(t, 0, store.getCalls,
@@ -647,7 +645,7 @@ func TestResolveStripeAccount_ExistingAccount_LockHeldThroughSync(t *testing.T) 
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, _ = h.resolveStripeAccount(context.Background(), orgID, "FR", "https://example.com")
+			_, _ = h.resolveStripeAccount(context.Background(), orgID, "FR", "https://example.com", "")
 		}()
 	}
 	wg.Wait()
