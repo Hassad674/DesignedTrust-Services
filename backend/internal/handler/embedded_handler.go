@@ -17,7 +17,6 @@ import (
 	stripe "github.com/stripe/stripe-go/v82"
 	"github.com/stripe/stripe-go/v82/account"
 	"github.com/stripe/stripe-go/v82/accountsession"
-	"github.com/stripe/stripe-go/v82/token"
 
 	"marketplace-backend/internal/handler/middleware"
 	res "marketplace-backend/pkg/response"
@@ -347,7 +346,6 @@ func (h *EmbeddedHandler) resolveStripeAccount(
 	return resolvedAccountID, nil
 }
 
-
 // syncBusinessProfile updates an existing connected account's business_profile
 // to ensure URL/MCC/description are always set. Idempotent.
 //
@@ -364,28 +362,41 @@ func syncBusinessProfile(accountID, platformURL string) error {
 	return err
 }
 
-// createStripeCustomAccount creates a Stripe Custom connected account with
-// card_payments + transfers capabilities, pre-filling business_profile to
-// skip redundant KYC fields (website URL, MCC, product description).
+// createStripeCustomAccount creates a Stripe connected account for the
+// embedded onboarding flow, with card_payments + transfers capabilities and
+// a pre-filled business_profile (website URL, MCC, product description) so
+// Stripe does not re-ask for them.
 //
-// FR platforms require an Account Token when creating Custom accounts where
-// controller[requirement_collection]=application. business_type is NOT
-// pre-filled — Stripe's Embedded onboarding asks the user directly.
+// It uses CONTROLLER params (not the legacy type=custom + account token).
+// Reason: Stripe forbids creating account tokens from the application server
+// in live mode ("account tokens may only be created using your publishable
+// key"). The old type=custom flow built the TOS account token server-side,
+// which silently worked in test mode but HARD-FAILED in production, so no
+// connected account could ever be created in live. With controller params the
+// embedded onboarding component collects the TOS + KYC directly — no token.
+//
+//	fees.payer = application        → the platform pays Stripe fees (unchanged model)
+//	losses.payments = stripe        → Stripe covers connected-account negative
+//	                                  balances. Required by Stripe whenever
+//	                                  stripe_dashboard=none + requirement_collection=stripe.
+//	                                  Negligible here: the platform uses separate
+//	                                  charges & transfers (it is the merchant of
+//	                                  record) so it already bears chargeback liability;
+//	                                  this only shifts rare connected-account negative
+//	                                  balances to Stripe.
+//	requirement_collection = stripe → Stripe collects KYC inside the embedded component
+//	stripe_dashboard.type = none    → no Stripe-hosted dashboard (embedded only)
+//
+// business_type is NOT pre-filled — the embedded onboarding asks the user.
 func createStripeCustomAccount(country, platformURL string) (string, error) {
-	tokenParams := &stripe.TokenParams{
-		Account: &stripe.TokenAccountParams{
-			TOSShownAndAccepted: stripe.Bool(true),
-		},
-	}
-	tok, err := token.New(tokenParams)
-	if err != nil {
-		return "", fmt.Errorf("create account token: %w", err)
-	}
-
 	params := &stripe.AccountParams{
-		Type:         stripe.String(string(stripe.AccountTypeCustom)),
-		Country:      stripe.String(country),
-		AccountToken: stripe.String(tok.ID),
+		Country: stripe.String(country),
+		Controller: &stripe.AccountControllerParams{
+			Fees:                  &stripe.AccountControllerFeesParams{Payer: stripe.String("application")},
+			Losses:                &stripe.AccountControllerLossesParams{Payments: stripe.String("stripe")},
+			RequirementCollection: stripe.String("stripe"),
+			StripeDashboard:       &stripe.AccountControllerStripeDashboardParams{Type: stripe.String("none")},
+		},
 		Capabilities: &stripe.AccountCapabilitiesParams{
 			CardPayments: &stripe.AccountCapabilitiesCardPaymentsParams{
 				Requested: stripe.Bool(true),
@@ -399,6 +410,17 @@ func createStripeCustomAccount(country, platformURL string) (string, error) {
 			MCC:                stripe.String("8999"), // Professional Services (B2B generic)
 			ProductDescription: stripe.String("Professional services provided through our B2B marketplace platform. Clients pay upfront when a proposal is accepted, funds are held in escrow via Stripe Connect, and released to the provider upon successful delivery."),
 		},
+		// Manual payout schedule: payouts only fire when the user clicks
+		// "Retirer" in the wallet (CreatePayout). Without this Stripe would
+		// auto-pay connected accounts on its default schedule, bypassing the
+		// wallet escrow/withdraw flow.
+		Settings: &stripe.AccountSettingsParams{
+			Payouts: &stripe.AccountSettingsPayoutsParams{
+				Schedule: &stripe.AccountSettingsPayoutsScheduleParams{
+					Interval: stripe.String("manual"),
+				},
+			},
+		},
 	}
 	acct, err := account.New(params)
 	if err != nil {
@@ -411,31 +433,30 @@ func createStripeCustomAccount(country, platformURL string) (string, error) {
 // account_onboarding + account_management + notification_banner components
 // enabled. Used by the production payment-info-v2 page.
 //
-// DisableStripeUserAuthentication is true because we use Custom accounts.
-// external_account_collection is true so users can edit their bank account
-// (IBAN) from the AccountManagement component.
+// DisableStripeUserAuthentication is intentionally NOT set: Stripe only
+// allows it when the platform owns requirements collection (legacy Custom
+// accounts). These accounts use controller.requirement_collection=stripe
+// (Stripe owns collection — see createStripeCustomAccount), so passing it
+// would be rejected with 400. external_account_collection stays true so
+// users can edit their bank account (IBAN) from the AccountManagement
+// component.
 func createOnboardingSession(accountID string) (string, int64, error) {
 	params := &stripe.AccountSessionParams{
 		Account: stripe.String(accountID),
 		Components: &stripe.AccountSessionComponentsParams{
 			AccountOnboarding: &stripe.AccountSessionComponentsAccountOnboardingParams{
 				Enabled: stripe.Bool(true),
-				Features: &stripe.AccountSessionComponentsAccountOnboardingFeaturesParams{
-					DisableStripeUserAuthentication: stripe.Bool(true),
-				},
 			},
 			AccountManagement: &stripe.AccountSessionComponentsAccountManagementParams{
 				Enabled: stripe.Bool(true),
 				Features: &stripe.AccountSessionComponentsAccountManagementFeaturesParams{
-					DisableStripeUserAuthentication: stripe.Bool(true),
-					ExternalAccountCollection:       stripe.Bool(true),
+					ExternalAccountCollection: stripe.Bool(true),
 				},
 			},
 			NotificationBanner: &stripe.AccountSessionComponentsNotificationBannerParams{
 				Enabled: stripe.Bool(true),
 				Features: &stripe.AccountSessionComponentsNotificationBannerFeaturesParams{
-					DisableStripeUserAuthentication: stripe.Bool(true),
-					ExternalAccountCollection:       stripe.Bool(true),
+					ExternalAccountCollection: stripe.Bool(true),
 				},
 			},
 		},
