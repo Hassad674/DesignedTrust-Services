@@ -22,6 +22,7 @@ import {
   type AccountStatus,
 } from "./components/account-status-card"
 import { OnboardingWizard } from "./components/onboarding-wizard"
+import { createAccountTokenSafe } from "./lib/account-token"
 import { ROSE_APPEARANCE } from "./lib/rose-appearance"
 import { mapAppLocaleToStripe } from "./lib/stripe-locale"
 
@@ -155,13 +156,22 @@ export default function PaymentInfoV2Page() {
   /* ---------- Stripe Connect init (once we have a session possible) ---------- */
   const fetchClientSecret = useCallback(async (): Promise<string> => {
     const { country } = pendingRef.current
+    // Generate an account token CLIENT-SIDE with the publishable key.
+    // Stripe forbids creating account tokens from the server in live mode,
+    // so the token must originate in the browser. When it succeeds the
+    // backend creates an inline (no-popup) Custom account; when it fails we
+    // simply omit it and the backend falls back to the popup flow — token
+    // generation must NEVER hard-fail the KYC page.
+    const accountToken = await createAccountTokenSafe(STRIPE_PUBLISHABLE_KEY)
+    const body: { country: string | null; account_token?: string } = { country }
+    if (accountToken) body.account_token = accountToken
     const res = await fetch(
       `${apiBase}/api/v1/payment-info/account-session`,
       {
         method: "POST",
         credentials: mobileToken ? "omit" : "include",
         headers: { "Content-Type": "application/json", ...authHeaders },
-        body: JSON.stringify({ country }),
+        body: JSON.stringify(body),
       },
     )
     if (!res.ok) {
