@@ -9,9 +9,12 @@
 
 ## 🎬 Demo
 
-<video src="https://github.com/Hassad674/DesignedTrust-Services/raw/main/docs/demo.mp4" controls width="100%"></video>
+<!-- INLINE PLAYER: edit this file on github.com (✏️), delete this comment AND
+     the link line below, then DRAG-AND-DROP demo_DesignedTrust_v2.mp4 right
+     here. GitHub uploads it to user-attachments and renders a real inline
+     player. (A committed file / raw URL never plays inline — GitHub limitation.) -->
 
-> ▶️ Video not playing inline? [Watch the demo here](https://github.com/Hassad674/DesignedTrust-Services/raw/main/docs/demo.mp4).
+[▶️ Watch the demo](https://github.com/Hassad674/DesignedTrust-Services/raw/main/docs/demo.mp4)
 
 An open-source, full-featured B2B marketplace connecting agencies,
 enterprises, freelancers, and business referrers. Not a directory or
