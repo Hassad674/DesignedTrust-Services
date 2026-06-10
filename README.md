@@ -7,6 +7,12 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Hassad674/serviceMarketplaceGo)](https://goreportcard.com/report/github.com/Hassad674/serviceMarketplaceGo)
 
+## 🎬 Demo
+
+<video src="https://github.com/Hassad674/DesignedTrust-Services/raw/main/docs/demo.mp4" controls width="100%"></video>
+
+> ▶️ Video not playing inline? [Watch the demo here](https://github.com/Hassad674/DesignedTrust-Services/raw/main/docs/demo.mp4).
+
 An open-source, full-featured B2B marketplace connecting agencies,
 enterprises, freelancers, and business referrers. Not a directory or
 a job board: contracts, escrow payments, milestones, disputes,
