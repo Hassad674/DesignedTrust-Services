@@ -10,9 +10,10 @@ import { LandingFooter } from "../landing-footer"
 //     real route. The "Company" column (About/Contact → "/") and the
 //     "Credit system" link (→ "#") are gone entirely.
 //   * Item 4 — the old "© Atelier · Made in Paris" line and the X /
-//     LinkedIn / Instagram social trio are replaced by a single
-//     author signature + one LinkedIn icon to the maintainer's
-//     profile.
+//     LinkedIn / Instagram social trio are replaced by the
+//     "DesignedTrust Services {year}" brand line + one LinkedIn icon
+//     to the maintainer's profile. (The personal "made with ❤ by
+//     Hassad Smara" signature was later removed from the copy.)
 
 vi.mock("@i18n/navigation", () => ({
   Link: ({
@@ -104,15 +105,17 @@ describe("LandingFooter — author signature + LinkedIn (item 4)", () => {
     expect(screen.queryByText(/Instagram/i)).toBeNull()
   })
 
-  it("renders the DesignedTrust author signature with the current year", () => {
+  it("renders the DesignedTrust brand line with the current year", () => {
     renderFooter()
     const year = String(new Date().getFullYear())
     const matches = screen.getAllByText(
-      (_, node) =>
-        node?.textContent ===
-        `DesignedTrust Services ${year} — made with  by Hassad Smara`,
+      (_, node) => node?.textContent === `DesignedTrust Services ${year}`,
     )
     expect(matches.length).toBeGreaterThan(0)
+    // The personal author signature ("— made with ❤ by Hassad Smara")
+    // was removed from the footer.
+    expect(screen.queryByText(/made with/i)).toBeNull()
+    expect(screen.queryByText(/by Hassad Smara/i)).toBeNull()
   })
 
   it("links a single LinkedIn icon to the maintainer profile (new tab, safe rel)", () => {

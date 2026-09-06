@@ -1,4 +1,4 @@
-import { Heart, Linkedin } from "lucide-react"
+import { Linkedin } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@i18n/navigation"
 import { legalHref, legalPathnames } from "@i18n/routing"
@@ -112,29 +112,14 @@ function FooterBottom() {
   )
 }
 
-// AuthorSignature — "DesignedTrust Services {year} — made with ❤️ by
-// Hassad Smara". The heart is a real lucide glyph (Soleil corail
-// accent) injected via t.rich so the copy stays fully i18n-keyed.
+// AuthorSignature — "DesignedTrust Services {year}". Plain i18n copy
+// with a single `{year}` placeholder, so a simple t() call is enough.
 function AuthorSignature() {
   const t = useTranslations("landing.footer")
   const year = new Date().getFullYear()
   return (
     <p className="inline-flex flex-wrap items-center gap-x-1">
-      {t.rich("madeBy", {
-        year,
-        // `<heart></heart>` is a rich TAG in the message (not a
-        // `{heart}` placeholder): next-intl requires a RichTagsFunction
-        // here. The empty tag carries no chunks so we ignore them and
-        // return the lucide glyph. (Using `{heart}` + a function
-        // crashed the whole landing page: "Functions are not valid as
-        // a child of Client Components".)
-        heart: () => (
-          <Heart
-            className="inline size-3.5 fill-accent text-accent align-[-2px]"
-            aria-hidden="true"
-          />
-        ),
-      })}
+      {t("madeBy", { year })}
     </p>
   )
 }
