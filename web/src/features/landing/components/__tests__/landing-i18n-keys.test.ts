@@ -115,7 +115,6 @@ const REQUIRED_KEYS = [
   "footer.understandLabel",
   "footer.legalLabel",
   "footer.madeBy",
-  "footer.authorLinkedInAria",
 ] as const
 
 function resolveDottedKey(

@@ -1,15 +1,8 @@
-import { Linkedin } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@i18n/navigation"
 import { legalHref, legalPathnames } from "@i18n/routing"
 import { BrandLogo } from "@/shared/components/ui/brand-logo"
 import { OpenSourceBadge } from "@/shared/components/open-source-badge"
-
-// Author signature — the maintainer's public LinkedIn. Hardcoded on
-// purpose: it is a fixed personal profile URL, not an env-driven or
-// tenant-specific value.
-const AUTHOR_LINKEDIN_URL =
-  "https://www.linkedin.com/in/hassad-s-24714929b/"
 
 // LandingFooter — site footer.
 //
@@ -104,10 +97,7 @@ function FooterBottom() {
   return (
     <div className="mt-10 flex items-center justify-between border-t border-border pt-6 text-[12.5px] text-muted-foreground">
       <AuthorSignature />
-      <div className="flex items-center gap-4">
-        <OpenSourceBadge variant="prominent" />
-        <AuthorLinkedInLink />
-      </div>
+      <OpenSourceBadge variant="prominent" />
     </div>
   )
 }
@@ -121,21 +111,6 @@ function AuthorSignature() {
     <p className="inline-flex flex-wrap items-center gap-x-1">
       {t("madeBy", { year })}
     </p>
-  )
-}
-
-function AuthorLinkedInLink() {
-  const t = useTranslations("landing.footer")
-  return (
-    <a
-      href={AUTHOR_LINKEDIN_URL}
-      target="_blank"
-      rel="noreferrer noopener"
-      aria-label={t("authorLinkedInAria")}
-      className="transition-colors hover:text-foreground"
-    >
-      <Linkedin className="size-4" aria-hidden="true" />
-    </a>
   )
 }
 
@@ -162,10 +137,7 @@ function MobileFooter() {
       </ul>
       <div className="mt-6 flex flex-col gap-4 text-[12px] text-muted-foreground">
         <OpenSourceBadge variant="prominent" className="self-start" />
-        <div className="flex items-center justify-between">
-          <AuthorSignature />
-          <AuthorLinkedInLink />
-        </div>
+        <AuthorSignature />
       </div>
     </div>
   )

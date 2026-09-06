@@ -10,10 +10,10 @@ import { LandingFooter } from "../landing-footer"
 //     real route. The "Company" column (About/Contact → "/") and the
 //     "Credit system" link (→ "#") are gone entirely.
 //   * Item 4 — the old "© Atelier · Made in Paris" line and the X /
-//     LinkedIn / Instagram social trio are replaced by the
-//     "DesignedTrust Services {year}" brand line + one LinkedIn icon
-//     to the maintainer's profile. (The personal "made with ❤ by
-//     Hassad Smara" signature was later removed from the copy.)
+//     LinkedIn / Instagram social trio are gone. The footer bottom row
+//     is now just the "DesignedTrust Services {year}" brand line + the
+//     open-source badge. (The personal "made with ❤ by Hassad Smara"
+//     signature and the maintainer LinkedIn icon were later removed.)
 
 vi.mock("@i18n/navigation", () => ({
   Link: ({
@@ -49,8 +49,6 @@ function renderFooter() {
     </NextIntlClientProvider>,
   )
 }
-
-const AUTHOR_LINKEDIN = "https://www.linkedin.com/in/hassad-s-24714929b/"
 
 describe("LandingFooter — no dead links (item 3)", () => {
   it("renders zero links pointing at a bare '#' or the dead '/' home stub", () => {
@@ -96,7 +94,7 @@ describe("LandingFooter — no dead links (item 3)", () => {
   })
 })
 
-describe("LandingFooter — author signature + LinkedIn (item 4)", () => {
+describe("LandingFooter — brand line, no personal socials (item 4)", () => {
   it("removes the old Atelier copyright and the X/Instagram socials", () => {
     renderFooter()
     expect(screen.queryByText(/Made in Paris/i)).toBeNull()
@@ -118,16 +116,12 @@ describe("LandingFooter — author signature + LinkedIn (item 4)", () => {
     expect(screen.queryByText(/by Hassad Smara/i)).toBeNull()
   })
 
-  it("links a single LinkedIn icon to the maintainer profile (new tab, safe rel)", () => {
-    renderFooter()
-    const linkedinLinks = screen
-      .getAllByRole("link", { name: /LinkedIn — Hassad Smara/i })
-      .filter((a) => a.getAttribute("href") === AUTHOR_LINKEDIN)
-    expect(linkedinLinks.length).toBeGreaterThan(0)
-    linkedinLinks.forEach((a) => {
-      expect(a).toHaveAttribute("target", "_blank")
-      expect(a.getAttribute("rel")).toContain("noopener")
-      expect(a.getAttribute("rel")).toContain("noreferrer")
-    })
+  it("no longer renders the maintainer LinkedIn link", () => {
+    const { container } = renderFooter()
+    const hrefs = Array.from(container.querySelectorAll("a")).map((a) =>
+      a.getAttribute("href"),
+    )
+    expect(hrefs.some((h) => h?.includes("linkedin.com"))).toBe(false)
+    expect(screen.queryByRole("link", { name: /Hassad Smara/i })).toBeNull()
   })
 })
